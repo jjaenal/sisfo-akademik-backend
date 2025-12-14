@@ -1,4 +1,4 @@
-module shared
+module github.com/jjaenal/sisfo-akademik-backend/shared
 
 go 1.21.0
 

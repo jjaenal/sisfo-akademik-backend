@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	jwtutil "shared/pkg/jwt"
+	jwtutil "github.com/jjaenal/sisfo-akademik-backend/shared/pkg/jwt"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -85,12 +85,15 @@ func TestCORSPreflight(t *testing.T) {
 func TestLogging(t *testing.T) {
 	l, _ := zap.NewProduction()
 	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(204) })
-	h := Logging(l, fn)
+	h := RequestID(Logging(l, fn))
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/", nil)
 	h.ServeHTTP(rr, req)
 	if rr.Code != 204 {
 		t.Fatalf("code=%d want 204", rr.Code)
+	}
+	if rr.Header().Get("X-Request-ID") == "" {
+		t.Fatalf("request id should be set")
 	}
 }
 
@@ -167,6 +170,40 @@ func TestAuthEmptyBearerToken(t *testing.T) {
 	}
 }
 
+func TestAuthWithIssuerAudience(t *testing.T) {
+	secret := "s"
+	issuer := "sisfo-akademik"
+	audience := "api"
+	claims := jwtutil.Claims{UserID: uuid.New(), TenantID: "t"}
+	token, _ := jwtutil.GenerateAccessWith(secret, time.Minute, claims, issuer, audience)
+	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) })
+	h := AuthWith(secret, issuer, audience, fn)
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	h.ServeHTTP(rr, req)
+	if rr.Code != 200 {
+		t.Fatalf("code=%d want 200", rr.Code)
+	}
+}
+
+func TestAuthWithInvalidIssuer(t *testing.T) {
+	secret := "s"
+	issuer := "sisfo-akademik"
+	audience := "api"
+	claims := jwtutil.Claims{UserID: uuid.New(), TenantID: "t"}
+	token, _ := jwtutil.GenerateAccessWith(secret, time.Minute, claims, issuer, audience)
+	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) })
+	h := AuthWith(secret, "wrong", audience, fn)
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	h.ServeHTTP(rr, req)
+	if rr.Code != http.StatusUnauthorized {
+		t.Fatalf("should be unauthorized with wrong issuer")
+	}
+}
+
 func TestRateLimit(t *testing.T) {
 	f := &fakeRedis{count: map[string]int64{}}
 	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) })
@@ -208,5 +245,53 @@ func TestClientIPForwardedHeader(t *testing.T) {
 	h.ServeHTTP(rr, req)
 	if !strings.Contains(rl.lastKey, "ratelimit:1.2.3.4:/path") {
 		t.Fatalf("key should include forwarded IP and path")
+	}
+}
+
+func TestRateLimitByPrefix(t *testing.T) {
+	f := &fakeRedis{count: map[string]int64{}}
+	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) })
+	h := RateLimitByPrefix(&fakeLimiter{r: f}, 10, map[string]int{"/api/v1/auth/": 2}, fn)
+	req := httptest.NewRequest("GET", "/api/v1/auth/login", nil)
+	req.Header.Set("X-Forwarded-For", "9.9.9.9")
+	rr1 := httptest.NewRecorder()
+	h.ServeHTTP(rr1, req)
+	rr2 := httptest.NewRecorder()
+	h.ServeHTTP(rr2, req)
+	rr3 := httptest.NewRecorder()
+	h.ServeHTTP(rr3, req)
+	if rr3.Code != http.StatusTooManyRequests {
+ 	t.Fatalf("code=%d want 429", rr3.Code)
+ }
+}
+
+func TestRateLimitByPolicy(t *testing.T) {
+	f := &fakeRedis{count: map[string]int64{}}
+	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) })
+	h := RateLimitByPolicy(&fakeLimiter{r: f}, 3, 2, map[string]int{"/api/v1/auth/": 1}, fn)
+	// GET should use defaultRead=3 unless prefix override
+	reqGet := httptest.NewRequest("GET", "/api/v1/data", nil)
+	reqGet.Header.Set("X-Forwarded-For", "7.7.7.7")
+	rr := httptest.NewRecorder()
+	h.ServeHTTP(rr, reqGet)
+	h.ServeHTTP(rr, reqGet)
+	h.ServeHTTP(rr, reqGet)
+	if rr.Code != 200 {
+		t.Fatalf("get third should pass, got %d", rr.Code)
+	}
+	rr4 := httptest.NewRecorder()
+	h.ServeHTTP(rr4, reqGet)
+	if rr4.Code != http.StatusTooManyRequests {
+		t.Fatalf("get fourth should be limited, got %d", rr4.Code)
+	}
+	// POST to /api/v1/auth/* should be override=1
+	reqPost := httptest.NewRequest("POST", "/api/v1/auth/login", nil)
+	reqPost.Header.Set("X-Forwarded-For", "7.7.7.7")
+	rrp1 := httptest.NewRecorder()
+	h.ServeHTTP(rrp1, reqPost)
+	rrp2 := httptest.NewRecorder()
+	h.ServeHTTP(rrp2, reqPost)
+	if rrp2.Code != http.StatusTooManyRequests {
+		t.Fatalf("post second should be limited, got %d", rrp2.Code)
 	}
 }

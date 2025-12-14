@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"shared/pkg/httputil"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/httputil"
 )
 
 func Recover(next http.Handler) http.Handler {

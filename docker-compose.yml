@@ -1,73 +1,107 @@
-version: "3.9"
+name: sisfo-akademik-backend
+
 services:
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: devdb
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
+      - "55432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    networks:
-      - backend_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d devdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
     container_name: redis
+    restart: unless-stopped
     command: ["redis-server", "--appendonly", "yes"]
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 20
-    volumes:
-      - redisdata:/data
-    networks:
-      - backend_net
+      retries: 5
 
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
+    restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_DEFAULT_USER: dev
+      RABBITMQ_DEFAULT_PASS: dev
     ports:
-      - "${RABBITMQ_PORT:-5672}:5672"
-      - "${RABBITMQ_MGMT_PORT:-15672}:15672"
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 5s
-      timeout: 10s
-      retries: 20
+      - "5672:5672" # AMQP
+      - "15672:15672" # Management UI
     volumes:
-      - rabbitmqdata:/var/lib/rabbitmq
-    networks:
-      - backend_net
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   jaeger:
-    image: jaegertracing/all-in-one:1.53
+    image: jaegertracing/all-in-one:1.51
     container_name: jaeger
-    environment:
-      COLLECTOR_ZIPKIN_HTTP_PORT: 9411
+    restart: unless-stopped
     ports:
-      - "${JAEGER_UI_PORT:-16686}:16686"
-    networks:
-      - backend_net
+      - "16686:16686" # UI
+      - "14268:14268" # HTTP Collector
+    environment:
+      COLLECTOR_ZIPKIN_HOST_PORT: ":9411"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:16686 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  auth-service:
-    image: alpine:3.19
-    container_name: auth-service
-    command: ["sh", "-c", "sleep infinity"]
+  api-gateway:
+    image: golang:1.23-alpine
+    container_name: api-gateway
+    command:
+      ["sh", "-c", "cd /workspace/services/api-gateway && go run ./cmd/server"]
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    environment:
+      - APP_ENV=development
+      - APP_SERVICE_NAME=api-gateway
+      - APP_HTTP_PORT=8999
+      - APP_POSTGRES_URL=postgres://dev:dev@postgres:5432/devdb?sslmode=disable
+      - APP_REDIS_ADDR=redis:6379
+      - APP_RABBIT_URL=amqp://dev:dev@rabbitmq:5672/
+      - APP_JWT_ACCESS_SECRET=devaccess
+      - APP_JWT_REFRESH_SECRET=devrefresh
+      - APP_JWT_ISSUER=sisfo-akademik
+      - APP_JWT_AUDIENCE=api
+      - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
+      - APP_RATE_LIMIT_PER_MINUTE=60
+      - APP_UPSTREAM_AUTH_URL=http://host.docker.internal:9091
+      - APP_UPSTREAM_ACADEMIC_URL=http://academic-service:9092
+      - APP_UPSTREAM_ATTENDANCE_URL=http://attendance-service:9093
+      - APP_UPSTREAM_ASSESSMENT_URL=http://assessment-service:9094
+      - APP_UPSTREAM_ADMISSION_URL=http://admission-service:9095
+      - APP_UPSTREAM_FINANCE_URL=http://finance-service:9096
+      - APP_UPSTREAM_NOTIFICATION_URL=http://notification-service:9097
+      - APP_UPSTREAM_FILE_URL=http://file-service:9098
+    ports:
+      - "8999:8999"
+    healthcheck:
+      test:
+        ["CMD-SHELL", "wget -qO- http://localhost:8999/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     depends_on:
       postgres:
         condition: service_healthy
@@ -75,20 +109,43 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
-      jaeger:
-        condition: service_started
+
+  # --- Service placeholders (sleeping containers for dev orchestration) ---
+  auth-service:
+    image: golang:1.21-alpine
+    container_name: auth-service
+    profiles: ["services"]
+    working_dir: /workspace/services/auth-service
+    command: ["sh", "-c", "sleep infinity"]
+    volumes:
+      - ./:/workspace
     environment:
-      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
-      REDIS_ADDR: "redis:6379"
-      RABBITMQ_URL: "amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672/"
-      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
-    networks:
-      - backend_net
+      - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
+      - APP_JWT_ISSUER=sisfo-akademik
+      - APP_JWT_AUDIENCE=api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
   academic-service:
-    image: alpine:3.19
+    image: golang:1.23-alpine
     container_name: academic-service
-    command: ["sh", "-c", "sleep infinity"]
+    profiles: ["services"]
+    working_dir: /app
+    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    volumes:
+      - ./services/academic-service:/app
+    environment:
+      - APP_HTTP_PORT=9092
+      - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
+      - APP_JWT_ISSUER=sisfo-akademik
+      - APP_JWT_AUDIENCE=api
+    ports:
+      - "9092:9092"
     depends_on:
       postgres:
         condition: service_healthy
@@ -96,20 +153,22 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
-      jaeger:
-        condition: service_started
-    environment:
-      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
-      REDIS_ADDR: "redis:6379"
-      RABBITMQ_URL: "amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672/"
-      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
-    networks:
-      - backend_net
 
   attendance-service:
-    image: alpine:3.19
+    image: golang:1.23-alpine
     container_name: attendance-service
-    command: ["sh", "-c", "sleep infinity"]
+    profiles: ["services"]
+    working_dir: /app
+    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    volumes:
+      - ./services/attendance-service:/app
+    environment:
+      - APP_HTTP_PORT=9093
+      - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
+      - APP_JWT_ISSUER=sisfo-akademik
+      - APP_JWT_AUDIENCE=api
+    ports:
+      - "9093:9093"
     depends_on:
       postgres:
         condition: service_healthy
@@ -117,20 +176,22 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
-      jaeger:
-        condition: service_started
-    environment:
-      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
-      REDIS_ADDR: "redis:6379"
-      RABBITMQ_URL: "amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672/"
-      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
-    networks:
-      - backend_net
 
   assessment-service:
-    image: alpine:3.19
+    image: golang:1.23-alpine
     container_name: assessment-service
-    command: ["sh", "-c", "sleep infinity"]
+    profiles: ["services"]
+    working_dir: /app
+    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    volumes:
+      - ./services/assessment-service:/app
+    environment:
+      - APP_HTTP_PORT=9094
+      - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
+      - APP_JWT_ISSUER=sisfo-akademik
+      - APP_JWT_AUDIENCE=api
+    ports:
+      - "9094:9094"
     depends_on:
       postgres:
         condition: service_healthy
@@ -138,20 +199,22 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
-      jaeger:
-        condition: service_started
-    environment:
-      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
-      REDIS_ADDR: "redis:6379"
-      RABBITMQ_URL: "amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672/"
-      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
-    networks:
-      - backend_net
 
   admission-service:
-    image: alpine:3.19
+    image: golang:1.23-alpine
     container_name: admission-service
-    command: ["sh", "-c", "sleep infinity"]
+    profiles: ["services"]
+    working_dir: /app
+    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    volumes:
+      - ./services/admission-service:/app
+    environment:
+      - APP_HTTP_PORT=9095
+      - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
+      - APP_JWT_ISSUER=sisfo-akademik
+      - APP_JWT_AUDIENCE=api
+    ports:
+      - "9095:9095"
     depends_on:
       postgres:
         condition: service_healthy
@@ -159,20 +222,22 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
-      jaeger:
-        condition: service_started
-    environment:
-      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
-      REDIS_ADDR: "redis:6379"
-      RABBITMQ_URL: "amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672/"
-      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
-    networks:
-      - backend_net
 
   finance-service:
-    image: alpine:3.19
+    image: golang:1.23-alpine
     container_name: finance-service
-    command: ["sh", "-c", "sleep infinity"]
+    profiles: ["services"]
+    working_dir: /app
+    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    volumes:
+      - ./services/finance-service:/app
+    environment:
+      - APP_HTTP_PORT=9096
+      - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
+      - APP_JWT_ISSUER=sisfo-akademik
+      - APP_JWT_AUDIENCE=api
+    ports:
+      - "9096:9096"
     depends_on:
       postgres:
         condition: service_healthy
@@ -180,20 +245,22 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
-      jaeger:
-        condition: service_started
-    environment:
-      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
-      REDIS_ADDR: "redis:6379"
-      RABBITMQ_URL: "amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672/"
-      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
-    networks:
-      - backend_net
 
   notification-service:
-    image: alpine:3.19
+    image: golang:1.23-alpine
     container_name: notification-service
-    command: ["sh", "-c", "sleep infinity"]
+    profiles: ["services"]
+    working_dir: /app
+    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    volumes:
+      - ./services/notification-service:/app
+    environment:
+      - APP_HTTP_PORT=9097
+      - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
+      - APP_JWT_ISSUER=sisfo-akademik
+      - APP_JWT_AUDIENCE=api
+    ports:
+      - "9097:9097"
     depends_on:
       postgres:
         condition: service_healthy
@@ -201,21 +268,30 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
-      jaeger:
-        condition: service_started
+
+  file-service:
+    image: golang:1.23-alpine
+    container_name: file-service
+    profiles: ["services"]
+    working_dir: /app
+    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    volumes:
+      - ./services/file-service:/app
     environment:
-      DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable"
-      REDIS_ADDR: "redis:6379"
-      RABBITMQ_URL: "amqp://${RABBITMQ_DEFAULT_USER}:${RABBITMQ_DEFAULT_PASS}@rabbitmq:5672/"
-      JAEGER_ENDPOINT: "http://jaeger:14268/api/traces"
-    networks:
-      - backend_net
+      - APP_HTTP_PORT=9098
+      - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
+      - APP_JWT_ISSUER=sisfo-akademik
+      - APP_JWT_AUDIENCE=api
+    ports:
+      - "9098:9098"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   pgdata:
-  redisdata:
-  rabbitmqdata:
-
-networks:
-  backend_net:
-    driver: bridge
+  rabbitmq-data:

@@ -18,6 +18,8 @@ type Config struct {
 	JWTRefreshSecret    string
 	JWTAccessTTL        time.Duration
 	JWTRefreshTTL       time.Duration
+	JWTIssuer           string
+	JWTAudience         string
 	CORSAllowedOrigins  []string
 	RateLimitPerMinute  int
 }
@@ -34,6 +36,8 @@ func Load() (Config, error) {
 	v.SetDefault("JWT_REFRESH_TTL", "168h")
 	v.SetDefault("RATE_LIMIT_PER_MINUTE", 60)
 	v.SetDefault("CORS_ALLOWED_ORIGINS", []string{"*"})
+	v.SetDefault("JWT_ISSUER", "sisfo-akademik")
+	v.SetDefault("JWT_AUDIENCE", "api")
 
 	cfg := Config{
 		Env:                v.GetString("ENV"),
@@ -46,6 +50,8 @@ func Load() (Config, error) {
 		JWTRefreshSecret:   v.GetString("JWT_REFRESH_SECRET"),
 		JWTAccessTTL:       mustParseDuration(v.GetString("JWT_ACCESS_TTL")),
 		JWTRefreshTTL:      mustParseDuration(v.GetString("JWT_REFRESH_TTL")),
+		JWTIssuer:          v.GetString("JWT_ISSUER"),
+		JWTAudience:        v.GetString("JWT_AUDIENCE"),
 		CORSAllowedOrigins: v.GetStringSlice("CORS_ALLOWED_ORIGINS"),
 		RateLimitPerMinute: v.GetInt("RATE_LIMIT_PER_MINUTE"),
 	}
@@ -66,6 +72,9 @@ func mustParseDuration(s string) time.Duration {
 func (c Config) Validate() error {
 	if c.JWTAccessSecret == "" || c.JWTRefreshSecret == "" {
 		return fmt.Errorf("jwt secrets required")
+	}
+	if c.JWTIssuer == "" || c.JWTAudience == "" {
+		return fmt.Errorf("jwt issuer/audience required")
 	}
 	if c.PostgresURL == "" || c.RedisAddr == "" || c.RabbitURL == "" {
 		return fmt.Errorf("infrastructure urls required")

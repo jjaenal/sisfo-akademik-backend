@@ -3,6 +3,7 @@
 Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap task memiliki priority, estimation, dan acceptance criteria.
 
 **Legend**:
+
 - 🔴 High Priority (Critical Path)
 - 🟡 Medium Priority (Important)
 - 🟢 Low Priority (Nice to Have)
@@ -17,13 +18,16 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ## Global Infrastructure
 
 ### Repository & Project Setup
-- [ ] 📝 Create monorepo structure (4h) 🔴
+
+- [x] ✅ 📝 Create monorepo structure (4h) 🔴
+
   - Setup services/, shared/, infrastructure/, docs/ folders
   - Configure Go workspace
   - Setup .gitignore for Go projects
   - **AC**: Directory structure matches standard layout
 
 - [ ] 📝 Setup GitHub/GitLab organization (2h) 🔴
+
   - Create organization/group
   - Setup team permissions
   - Configure branch protection (main, develop)
@@ -37,7 +41,8 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 
 ### Development Environment
 
-- [ ] 📝 Create docker-compose.yml for local dev (6h) 🔴
+- [x] ✅ 📝 Create docker-compose.yml for local dev (6h) 🔴
+
   - PostgreSQL container
   - Redis container
   - RabbitMQ container
@@ -45,7 +50,8 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Service containers (placeholder)
   - **AC**: `docker-compose up` starts all services
 
-- [ ] 📝 Create Makefile with common commands (3h) 🔴
+- [x] ✅ 📝 Create Makefile with common commands (3h) 🔴
+
   ```makefile
   Commands needed:
   - make setup (initial setup)
@@ -58,9 +64,11 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - make docker-build-all (build all images)
   - make clean (cleanup)
   ```
+
   - **AC**: All commands working correctly
 
-- [ ] 📝 Setup environment files (2h) 🔴
+- [x] ✅ 📝 Setup environment files (2h) 🔴
+
   - Create .env.example
   - Document all required variables
   - Create .env.local for local dev
@@ -75,35 +83,40 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 
 ### Shared Packages
 
-- [ ] 📝 Implement config package (4h) 🔴
+- [x] ✅ 📝 Implement config package (4h) 🔴
+
   - Viper integration
   - Environment variable loading
   - Config validation
   - Hot reload support
   - **AC**: Config loaded correctly with validation
 
-- [ ] 📝 Implement database package (6h) 🔴
+- [x] ✅ 📝 Implement database package (6h) 🔴
+
   - PostgreSQL connection
   - Connection pooling (pgxpool)
   - Health check
   - Transaction helper
   - **AC**: DB connection stable with pooling
 
-- [ ] 📝 Implement Redis package (4h) 🔴
+- [x] ✅ 📝 Implement Redis package (4h) 🔴
+
   - Redis client
   - Connection pooling
   - Health check
   - Helper functions (Get, Set, Delete)
   - **AC**: Redis operations working
 
-- [ ] 📝 Implement logger package (5h) 🔴
+- [x] ✅ 📝 Implement logger package (5h) 🔴
+
   - Structured logging (zap/logrus)
   - Log levels
   - Context-aware logging
   - JSON output
   - **AC**: Logs formatted correctly
 
-- [ ] 📝 Implement middleware package (8h) 🔴
+- [x] ✅ 📝 Implement middleware package (8h) 🔴
+
   - Authentication middleware
   - Authorization middleware
   - Logging middleware
@@ -112,27 +125,31 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Error handling middleware
   - **AC**: All middleware functional
 
-- [ ] 📝 Implement errors package (3h) 🟡
+- [x] ✅ 📝 Implement errors package (3h) 🟡
+
   - Custom error types
   - Error codes
   - Error wrapping
   - HTTP error responses
   - **AC**: Consistent error handling
 
-- [ ] 📝 Implement validator package (4h) 🟡
+- [x] ✅ 📝 Implement validator package (4h) 🟡
+
   - go-playground/validator wrapper
   - Custom validators
   - Validation error formatting
   - **AC**: Input validation working
 
-- [ ] 📝 Implement JWT package (5h) 🔴
+- [x] ✅ 📝 Implement JWT package (5h) 🔴
+
   - JWT generation
   - JWT validation
   - Token refresh
   - Claims extraction
   - **AC**: JWT operations secure & functional
 
-- [ ] 📝 Implement httputil package (3h) 🟡
+- [x] ✅ 📝 Implement httputil package (3h) 🟡
+
   - Response helpers
   - Request parsing
   - Pagination helpers
@@ -147,6 +164,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### CI/CD Pipeline
 
 - [ ] 📝 Setup GitHub Actions workflow (6h) 🔴
+
   - Lint job
   - Test job
   - Security scan job
@@ -155,18 +173,21 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Pipeline runs on push
 
 - [ ] 📝 Configure linting (golangci-lint) (2h) 🔴
+
   - Install golangci-lint
   - Configure .golangci.yml
   - Add to CI
   - **AC**: Code passes linting
 
 - [ ] 📝 Setup test coverage reporting (3h) 🟡
+
   - Integrate Codecov
   - Coverage badge
   - Coverage threshold (70%)
   - **AC**: Coverage tracked in CI
 
 - [ ] 📝 Setup security scanning (4h) 🔴
+
   - Gosec for static analysis
   - Trivy for container scanning
   - Snyk for dependencies
@@ -181,6 +202,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Observability
 
 - [ ] 📝 Setup ELK Stack (8h) 🟡
+
   - Elasticsearch container
   - Logstash container
   - Kibana container
@@ -188,12 +210,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Logs viewable in Kibana
 
 - [ ] 📝 Setup Prometheus (6h) 🟡
+
   - Prometheus container
   - Configure scraping
   - Define metrics
   - **AC**: Metrics scraped
 
 - [ ] 📝 Setup Grafana (6h) 🟡
+
   - Grafana container
   - Connect to Prometheus
   - Create dashboards
@@ -211,6 +235,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Core Setup
 
 - [ ] 📝 Create auth-service structure (3h) 🔴
+
   - Initialize Go module
   - Setup directory structure
   - Create Dockerfile
@@ -218,11 +243,12 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Service structure ready
 
 - [ ] 📝 Setup database connection (2h) 🔴
+
   - Use shared database package
   - Test connection
   - **AC**: Auth service connects to DB
 
-- [ ] 📝 Create database migrations (4h) 🔴
+- [x] ✅ 📝 Create database migrations (4h) 🔴
   - Users table
   - Roles table
   - Permissions table
@@ -231,15 +257,19 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Audit_logs table
   - **AC**: Migrations run successfully
 
+Status: ✅ Created migrations for users, roles, permissions, role_permissions, user_roles, and audit_logs with up/down SQL.
+
 ### User Management
 
 - [ ] 📝 Implement User entity (2h) 🔴
+
   - Define User struct
   - Validation rules
   - Methods (BeforeCreate, etc)
   - **AC**: User entity complete
 
 - [ ] 📝 Implement User repository (6h) 🔴
+
   - Create()
   - GetByID()
   - GetByEmail()
@@ -249,6 +279,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: CRUD operations working
 
 - [ ] 📝 Implement User use case (6h) 🔴
+
   - Register user
   - Get user
   - Update user
@@ -257,6 +288,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Business logic implemented
 
 - [ ] 📝 Implement User handlers (8h) 🔴
+
   - POST /api/v1/users
   - GET /api/v1/users/:id
   - GET /api/v1/users
@@ -266,12 +298,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: All endpoints working
 
 - [ ] 📝 Add input validation (3h) 🔴
+
   - Email format
   - Password strength
   - Required fields
   - **AC**: Invalid input rejected
 
 - [ ] 📝 Implement password hashing (2h) 🔴
+
   - bcrypt implementation
   - Cost factor: 12
   - **AC**: Passwords hashed securely
@@ -286,6 +320,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Authentication
 
 - [ ] 📝 Implement login handler (6h) 🔴
+
   - POST /api/v1/auth/login
   - Validate credentials
   - Generate tokens
@@ -293,18 +328,21 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Login working
 
 - [ ] 📝 Implement JWT generation (4h) 🔴
+
   - Access token (15 min TTL)
   - Refresh token (7 days TTL)
   - Include claims (user_id, tenant_id, roles, permissions)
   - **AC**: JWT generated correctly
 
 - [ ] 📝 Implement logout handler (3h) 🔴
+
   - POST /api/v1/auth/logout
   - Invalidate refresh token
   - Blacklist access token in Redis
   - **AC**: Logout working
 
 - [ ] 📝 Implement token refresh (5h) 🔴
+
   - POST /api/v1/auth/refresh
   - Validate refresh token
   - Generate new access token
@@ -312,24 +350,28 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Token refresh working
 
 - [ ] 📝 Implement forgot password (6h) 🟡
+
   - POST /api/v1/auth/forgot-password
   - Generate reset token
   - Send reset email
   - **AC**: Reset email sent
 
 - [ ] 📝 Implement reset password (5h) 🟡
+
   - POST /api/v1/auth/reset-password
   - Validate reset token
   - Update password
   - **AC**: Password reset working
 
 - [ ] 📝 Implement change password (4h) 🟡
+
   - POST /api/v1/auth/change-password
   - Validate old password
   - Update password
   - **AC**: Password change working
 
 - [ ] 📝 Implement failed login tracking (4h) 🟡
+
   - Track failed attempts
   - Lock account after 5 failures
   - Auto-unlock after 30 minutes
@@ -346,16 +388,19 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### RBAC (Role-Based Access Control)
 
 - [ ] 📝 Implement Role entity (2h) 🔴
+
   - Define Role struct
   - Validation rules
   - **AC**: Role entity complete
 
 - [ ] 📝 Implement Permission entity (2h) 🔴
+
   - Define Permission struct
   - Resource:Action format
   - **AC**: Permission entity complete
 
 - [ ] 📝 Implement Role repository (6h) 🔴
+
   - Create()
   - GetByID()
   - List()
@@ -365,12 +410,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Role CRUD working
 
 - [ ] 📝 Implement Permission repository (4h) 🔴
+
   - Create()
   - List()
   - GetByRole()
   - **AC**: Permission operations working
 
 - [ ] 📝 Seed default roles & permissions (4h) 🔴
+
   - Super Admin role
   - School Admin role
   - Teacher role
@@ -380,6 +427,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Default roles created
 
 - [ ] 📝 Implement role assignment (5h) 🔴
+
   - Assign role to user
   - Remove role from user
   - Get user roles
@@ -387,12 +435,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Role assignment working
 
 - [ ] 📝 Implement RBAC middleware (8h) 🔴
+
   - Check user authentication
   - Check user permissions
   - Context-aware (tenant-based)
   - **AC**: Protected endpoints secured
 
 - [ ] 📝 Implement role handlers (8h) 🟡
+
   - POST /api/v1/roles
   - GET /api/v1/roles
   - GET /api/v1/roles/:id
@@ -410,23 +460,27 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Audit Logging
 
 - [ ] 📝 Implement audit log entity (2h) 🔴
+
   - Define AuditLog struct
   - Fields: user, action, resource, changes
   - **AC**: Audit log entity complete
 
 - [ ] 📝 Implement audit log repository (4h) 🔴
+
   - Create()
   - List() with filters
   - Search()
   - **AC**: Audit logs stored
 
 - [ ] 📝 Implement audit middleware (6h) 🔴
+
   - Capture request details
   - Log after response
   - Async logging (don't block)
   - **AC**: All actions logged
 
 - [ ] 📝 Implement audit log handlers (4h) 🟡
+
   - GET /api/v1/audit-logs
   - GET /api/v1/audit-logs/search
   - Export audit logs
@@ -440,12 +494,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Security Enhancements
 
 - [ ] 📝 Implement rate limiting (6h) 🔴
+
   - Redis-based rate limiter
   - Different limits per endpoint type
   - Rate limit headers
   - **AC**: Rate limiting active
 
 - [ ] 📝 Implement security headers (3h) 🔴
+
   - X-Content-Type-Options
   - X-Frame-Options
   - X-XSS-Protection
@@ -454,11 +510,13 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Security headers present
 
 - [ ] 📝 Configure CORS (2h) 🔴
+
   - Whitelist origins
   - Allowed methods & headers
   - **AC**: CORS working
 
 - [ ] 📝 Implement password validation (3h) 🟡
+
   - Minimum 8 characters
   - Complexity requirements
   - Common password check
@@ -481,12 +539,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Documentation
 
 - [ ] 📝 Write Auth service README (3h) 🟡
+
   - Service overview
   - Setup instructions
   - API endpoints
   - **AC**: README complete
 
 - [ ] 📝 Generate Swagger docs (4h) 🟡
+
   - Annotate handlers
   - Generate OpenAPI spec
   - Setup Swagger UI
@@ -505,12 +565,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Core Setup
 
 - [ ] 📝 Create academic-service structure (3h) 🔴
+
   - Initialize Go module
   - Setup directory structure
   - Create Dockerfile
   - **AC**: Service structure ready
 
 - [ ] 📝 Setup database connection (2h) 🔴
+
   - Use shared database package
   - Test connection
   - **AC**: Service connects to DB
@@ -532,21 +594,25 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### School Management
 
 - [ ] 📝 Implement School entity (2h) 🔴
+
   - Define School struct
   - Validation rules
   - **AC**: School entity complete
 
 - [ ] 📝 Implement School repository (6h) 🔴
+
   - CRUD operations
   - GetByTenantID()
   - **AC**: School CRUD working
 
 - [ ] 📝 Implement School use case (4h) 🔴
+
   - Business logic
   - Validation
   - **AC**: School operations working
 
 - [ ] 📝 Implement School handlers (8h) 🔴
+
   - POST /api/v1/schools
   - GET /api/v1/schools
   - GET /api/v1/schools/:id
@@ -555,6 +621,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: All endpoints working
 
 - [ ] 📝 Implement school logo upload (4h) 🟡
+
   - File upload endpoint
   - Image validation
   - Store in object storage
@@ -570,28 +637,33 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Academic Year & Semester
 
 - [ ] 📝 Implement AcademicYear entity (2h) 🔴
+
   - Define AcademicYear struct
   - Validation (dates, active flag)
   - **AC**: AcademicYear entity complete
 
 - [ ] 📝 Implement Semester entity (2h) 🔴
+
   - Define Semester struct
   - Validation
   - **AC**: Semester entity complete
 
 - [ ] 📝 Implement AcademicYear repository (6h) 🔴
+
   - CRUD operations
   - GetActive()
   - ValidateNonOverlap()
   - **AC**: AcademicYear CRUD working
 
 - [ ] 📝 Implement Semester repository (5h) 🔴
+
   - CRUD operations
   - GetBySemester()
   - GetActive()
   - **AC**: Semester CRUD working
 
 - [ ] 📝 Implement academic year handlers (8h) 🔴
+
   - POST /api/v1/academic-years
   - GET /api/v1/academic-years
   - GET /api/v1/academic-years/:id
@@ -601,6 +673,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: All endpoints working
 
 - [ ] 📝 Implement semester handlers (8h) 🔴
+
   - POST /api/v1/semesters
   - GET /api/v1/semesters
   - GET /api/v1/semesters/:id
@@ -609,6 +682,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: All endpoints working
 
 - [ ] 📝 Implement active year/semester validation (3h) 🔴
+
   - Only 1 active year per tenant
   - Only 1 active semester per year
   - **AC**: Validation working
@@ -623,16 +697,19 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Class Management
 
 - [ ] 📝 Implement Class entity (3h) 🔴
+
   - Define Class struct
   - Validation rules
   - **AC**: Class entity complete
 
 - [ ] 📝 Implement ClassStudent entity (2h) 🔴
+
   - Enrollment tracking
   - Status (active, transferred, graduated)
   - **AC**: ClassStudent entity complete
 
 - [ ] 📝 Implement Class repository (8h) 🔴
+
   - CRUD operations
   - GetByAcademicYear()
   - GetStudents()
@@ -640,6 +717,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Class operations working
 
 - [ ] 📝 Implement class handlers (10h) 🔴
+
   - POST /api/v1/classes
   - GET /api/v1/classes
   - GET /api/v1/classes/:id
@@ -651,12 +729,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: All endpoints working
 
 - [ ] 📝 Implement bulk enrollment (5h) 🟡
+
   - POST /api/v1/classes/:id/students/bulk
   - CSV import
   - Validation
   - **AC**: Bulk enrollment working
 
 - [ ] 📝 Implement capacity management (3h) 🟡
+
   - Check max_students
   - Prevent over-enrollment
   - **AC**: Capacity enforced
@@ -671,21 +751,25 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Subject Management
 
 - [ ] 📝 Implement Subject entity (2h) 🔴
+
   - Define Subject struct
   - Categories (Wajib, Peminatan, Mulok)
   - **AC**: Subject entity complete
 
 - [ ] 📝 Implement ClassSubject entity (2h) 🔴
+
   - Subject-class-teacher mapping
   - **AC**: ClassSubject entity complete
 
 - [ ] 📝 Implement Subject repository (6h) 🔴
+
   - CRUD operations
   - GetByCategory()
   - AssignToClass()
   - **AC**: Subject operations working
 
 - [ ] 📝 Implement subject handlers (10h) 🔴
+
   - POST /api/v1/subjects
   - GET /api/v1/subjects
   - GET /api/v1/subjects/:id
@@ -697,6 +781,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: All endpoints working
 
 - [ ] 📝 Implement teacher assignment (4h) 🔴
+
   - PUT /api/v1/classes/:id/subjects/:subject_id/teacher
   - Validation
   - **AC**: Teacher assignment working
@@ -711,22 +796,26 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Curriculum Management
 
 - [ ] 📝 Implement Curriculum entity (3h) 🔴
+
   - Define Curriculum struct
   - Support multiple curricula per tenant
   - **AC**: Curriculum entity complete
 
 - [ ] 📝 Implement GradingRule entity (3h) 🔴
+
   - KKM configuration
   - Grade components & weights
   - **AC**: GradingRule entity complete
 
 - [ ] 📝 Implement Curriculum repository (6h) 🔴
+
   - CRUD operations
   - GetSubjects()
   - GetGradingRules()
   - **AC**: Curriculum operations working
 
 - [ ] 📝 Implement curriculum handlers (10h) 🟡
+
   - POST /api/v1/curricula
   - GET /api/v1/curricula
   - GET /api/v1/curricula/:id
@@ -746,23 +835,27 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Schedule Management
 
 - [ ] 📝 Implement Schedule entity (3h) 🔴
+
   - Define Schedule struct
   - Day of week, time slots
   - **AC**: Schedule entity complete
 
 - [ ] 📝 Implement Schedule repository (6h) 🔴
+
   - CRUD operations
   - GetWeeklySchedule()
   - CheckConflicts()
   - **AC**: Schedule operations working
 
 - [ ] 📝 Implement conflict detection (6h) 🔴
+
   - Class conflict check
   - Teacher conflict check
   - Room conflict check
   - **AC**: Conflicts detected
 
 - [ ] 📝 Implement schedule handlers (10h) 🔴
+
   - POST /api/v1/schedules
   - GET /api/v1/schedules
   - PUT /api/v1/schedules/:id
@@ -772,6 +865,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: All endpoints working
 
 - [ ] 📝 Implement bulk schedule creation (5h) 🟡
+
   - Template system
   - Batch creation
   - **AC**: Bulk creation working
@@ -795,12 +889,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Documentation
 
 - [ ] 📝 Write Academic service README (3h) 🟡
+
   - Service overview
   - Setup instructions
   - API endpoints
   - **AC**: README complete
 
 - [ ] 📝 Generate Swagger docs (4h) 🟡
+
   - Annotate handlers
   - Generate spec
   - **AC**: API docs accessible
@@ -817,11 +913,13 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Core Setup
 
 - [ ] 📝 Create attendance-service structure (3h) 🔴
+
   - Initialize Go module
   - Setup directory structure
   - **AC**: Service structure ready
 
 - [ ] 📝 Setup database connection (2h) 🔴
+
   - Use shared database package
   - **AC**: Service connects to DB
 
@@ -833,11 +931,13 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Student Attendance
 
 - [ ] 📝 Implement StudentAttendance entity (2h) 🔴
+
   - Define struct
   - Status types (present, absent, late, excused, sick)
   - **AC**: Entity complete
 
 - [ ] 📝 Implement StudentAttendance repository (6h) 🔴
+
   - Create()
   - Update()
   - GetByStudentAndDate()
@@ -846,6 +946,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: CRUD working
 
 - [ ] 📝 Implement attendance handlers (10h) 🔴
+
   - POST /api/v1/attendance/students
   - POST /api/v1/attendance/students/bulk
   - GET /api/v1/attendance/students
@@ -854,11 +955,13 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: All endpoints working
 
 - [ ] 📝 Implement bulk check-in (5h) 🔴
+
   - Full class check-in
   - Validation
   - **AC**: Bulk check-in working
 
 - [ ] 📝 Implement GPS validation (4h) 🟡
+
   - Validate location against school location
   - Distance calculation
   - **AC**: GPS validation working
@@ -872,11 +975,13 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Teacher Attendance
 
 - [ ] 📝 Implement TeacherAttendance entity (2h) 🔴
+
   - Define struct
   - Check-in/check-out times
   - **AC**: Entity complete
 
 - [ ] 📝 Implement TeacherAttendance repository (5h) 🔴
+
   - Create()
   - Update()
   - GetByTeacherAndDate()
@@ -884,6 +989,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: CRUD working
 
 - [ ] 📝 Implement teacher attendance handlers (8h) 🔴
+
   - POST /api/v1/attendance/teachers/check-in
   - POST /api/v1/attendance/teachers/check-out
   - GET /api/v1/attendance/teachers
@@ -940,11 +1046,13 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 - [ ] 📝 Implement Grade entity (3h) 🔴
 
 - [ ] 📝 Implement grade repositories (8h) 🔴
+
   - GradeCategory CRUD
   - Assessment CRUD
   - Grade CRUD
 
 - [ ] 📝 Implement grade calculation engine (8h) 🔴
+
   - Calculate weighted scores
   - Final score calculation
   - Grade letter assignment
@@ -952,6 +1060,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Grades calculated correctly
 
 - [ ] 📝 Implement grade handlers (12h) 🔴
+
   - POST /api/v1/grade-categories
   - GET /api/v1/grade-categories
   - POST /api/v1/assessments
@@ -965,6 +1074,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: All endpoints working
 
 - [ ] 📝 Implement grade approval workflow (5h) 🟡
+
   - Draft → Submitted → Approved
   - Audit trail
   - **AC**: Workflow working
@@ -979,29 +1089,34 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Report Card Generation
 
 - [ ] 📝 Implement ReportCard entity (3h) 🔴
+
   - Define struct
   - Status (draft, generated, published)
   - **AC**: Entity complete
 
 - [ ] 📝 Implement report card data aggregation (8h) 🔴
+
   - Collect all grades
   - Calculate final scores
   - Get attendance summary
   - **AC**: Data aggregated correctly
 
 - [ ] 📝 Implement report card generation (12h) 🔴
+
   - POST /api/v1/report-cards/generate/:student_id/:semester_id
   - POST /api/v1/report-cards/generate/class/:class_id/:semester_id
   - Generate report data
   - **AC**: Report cards generated
 
 - [ ] 📝 Implement PDF generation (12h) 🔴
+
   - HTML template
   - Convert to PDF (chromedp/gotenberg)
   - Store in object storage
   - **AC**: PDF generated correctly
 
 - [ ] 📝 Implement report card handlers (8h) 🔴
+
   - GET /api/v1/report-cards/:id
   - GET /api/v1/report-cards/student/:student_id
   - PATCH /api/v1/report-cards/:id/publish
@@ -1010,6 +1125,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: All endpoints working
 
 - [ ] 📝 Implement template customization (6h) 🟡
+
   - Template management
   - Variable replacement
   - **AC**: Templates customizable
@@ -1054,11 +1170,13 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 - [ ] 📝 Implement ApplicationDocument entity (2h) 🔴
 
 - [ ] 📝 Implement admission repositories (8h) 🔴
+
   - AdmissionPeriod CRUD
   - Application CRUD
   - ApplicationDocument CRUD
 
 - [ ] 📝 Implement admission period handlers (8h) 🔴
+
   - POST /api/v1/admission/periods
   - GET /api/v1/admission/periods
   - GET /api/v1/admission/periods/:id
@@ -1067,6 +1185,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: All endpoints working
 
 - [ ] 📝 Implement public application (10h) 🔴
+
   - GET /api/v1/admission/public/periods
   - POST /api/v1/admission/applications
   - GET /api/v1/admission/applications/:number/status
@@ -1074,12 +1193,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Public application working
 
 - [ ] 📝 Implement document upload (8h) 🔴
+
   - POST /api/v1/admission/applications/:id/documents
   - File validation (size, type)
   - Store in object storage
   - **AC**: Upload working
 
 - [ ] 📝 Implement application management (10h) 🔴
+
   - GET /api/v1/admission/applications
   - GET /api/v1/admission/applications/:id
   - PUT /api/v1/admission/applications/:id
@@ -1089,6 +1210,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Management working
 
 - [ ] 📝 Implement selection process (10h) 🟡
+
   - POST /api/v1/admission/applications/:id/test-score
   - POST /api/v1/admission/applications/:id/interview-score
   - POST /api/v1/admission/periods/:id/calculate-final-scores
@@ -1097,6 +1219,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Selection working
 
 - [ ] 📝 Implement student registration (8h) 🔴
+
   - POST /api/v1/admission/applications/:id/register
   - Create user account
   - Create student record
@@ -1143,17 +1266,20 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 - [ ] 📝 Implement Payment entity (2h) 🔴
 
 - [ ] 📝 Implement finance repositories (8h) 🔴
+
   - BillingConfig CRUD
   - Invoice CRUD
   - Payment CRUD
 
 - [ ] 📝 Implement billing configuration (8h) 🔴
+
   - POST /api/v1/finance/billing-configs
   - GET /api/v1/finance/billing-configs
   - PUT /api/v1/finance/billing-configs/:id
   - **AC**: Billing config working
 
 - [ ] 📝 Implement invoice generation (10h) 🔴
+
   - POST /api/v1/finance/invoices/generate
   - POST /api/v1/finance/invoices/generate/bulk
   - POST /api/v1/finance/invoices/generate/auto
@@ -1161,11 +1287,13 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Invoice generation working
 
 - [ ] 📝 Implement auto-generation (8h) 🟡
+
   - Scheduled job (cron)
   - Monthly SPP generation
   - **AC**: Auto-generation working
 
 - [ ] 📝 Implement invoice handlers (8h) 🔴
+
   - GET /api/v1/finance/invoices
   - GET /api/v1/finance/invoices/:id
   - PUT /api/v1/finance/invoices/:id
@@ -1174,6 +1302,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Invoice management working
 
 - [ ] 📝 Implement payment recording (8h) 🔴
+
   - POST /api/v1/finance/payments
   - GET /api/v1/finance/payments
   - GET /api/v1/finance/payments/:id
@@ -1182,6 +1311,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Payment recording working
 
 - [ ] 📝 Implement financial reports (10h) 🟡
+
   - GET /api/v1/finance/reports/revenue/daily
   - GET /api/v1/finance/reports/revenue/monthly
   - GET /api/v1/finance/reports/outstanding
@@ -1189,6 +1319,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - **AC**: Reports working
 
 - [ ] 📝 Implement overdue tracking (5h) 🟡
+
   - Scheduled job
   - Mark overdue invoices
   - **AC**: Overdue tracking working
@@ -1231,6 +1362,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 - [ ] 📝 Implement Notification entity (2h) 🔴
 
 - [ ] 📝 Implement notification repositories (6h) 🔴
+
   - Template CRUD
   - Notification CRUD
 
@@ -1244,11 +1376,13 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Email Service
 
 - [ ] 📝 Configure SMTP (3h) 🔴
+
   - SMTP settings
   - Connection testing
   - **AC**: Email connection working
 
 - [ ] 📝 Implement email sending (8h) 🔴
+
   - HTML templates
   - Send function
   - Error handling
@@ -1263,11 +1397,13 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### WhatsApp Integration
 
 - [ ] 📝 Configure WhatsApp API (4h) 🔴
+
   - API credentials
   - Connection testing
   - **AC**: WhatsApp connection working
 
 - [ ] 📝 Implement WhatsApp sending (8h) 🔴
+
   - Text messages
   - Template messages
   - Error handling
@@ -1281,16 +1417,19 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Event-Driven Messaging
 
 - [ ] 📝 Setup RabbitMQ (4h) 🔴
+
   - RabbitMQ container
   - Connection configuration
   - **AC**: RabbitMQ running
 
 - [ ] 📝 Implement event publisher (6h) 🔴
+
   - Publish function
   - Event schema
   - **AC**: Events published
 
 - [ ] 📝 Implement event consumer (8h) 🔴
+
   - Subscribe to events
   - Process events
   - Send notifications
@@ -1304,6 +1443,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Notification Handlers
 
 - [ ] 📝 Implement notification handlers (8h) 🔴
+
   - POST /api/v1/notifications/send
   - POST /api/v1/notifications/send/bulk
   - GET /api/v1/notifications
@@ -1339,14 +1479,15 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 
 ### Core Setup
 
-- [ ] 📝 Create api-gateway structure (4h) 🔴
+- [x] ✅ 📝 Create api-gateway structure (4h) 🔴
   - Initialize project
   - Choose gateway (Kong/Traefik/Custom)
   - **AC**: Gateway structure ready
 
 ### Gateway Configuration
 
-- [ ] 📝 Configure routing (8h) 🔴
+- [x] ✅ 📝 Configure routing (8h) 🔴
+
   - Route to auth-service
   - Route to academic-service
   - Route to attendance-service
@@ -1356,25 +1497,31 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Route to notification-service
   - **AC**: All routes working
 
-- [ ] 📝 Implement rate limiting (5h) 🔴
+- [x] ✅ 📝 Implement rate limiting (5h) 🔴
+
   - Global rate limiting
   - Per-service rate limiting
   - **AC**: Rate limiting active
 
-- [ ] 📝 Implement request logging (4h) 🟡
+- [x] ✅ 📝 Implement request logging (4h) 🟡
+
   - Log all requests
   - Request ID generation
   - **AC**: Logging working
 
-- [ ] 📝 Implement authentication (6h) 🔴
+- [x] ✅ 📝 Implement authentication (6h) 🔴
+
   - JWT validation
   - Forward user context
   - **AC**: Auth working
 
 - [ ] 📝 Setup load balancing (5h) 🟡
+
   - Load balancing strategy
   - Health check integration
   - **AC**: Load balancing working
+
+  Status: Health aggregator aktif di `/api/v1/gateway/health` untuk memeriksa upstream; load balancing belum diaktifkan.
 
 - [ ] 📝 Unit tests for Gateway (8h) 🔴
   - Routing tests
@@ -1395,12 +1542,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 
 - [ ] 📝 Create file-service structure (3h) 🟢
 - [ ] 📝 Implement file upload (8h) 🟢
+
   - POST /api/v1/files/upload
   - File validation
   - Store in object storage (MinIO/S3)
   - **AC**: Upload working
 
 - [ ] 📝 Implement file download (4h) 🟢
+
   - GET /api/v1/files/:id
   - Signed URLs
   - **AC**: Download working
@@ -1434,6 +1583,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Database Optimization
 
 - [ ] 📝 Add database indexes (6h) 🟡
+
   - Analyze slow queries
   - Add indexes
   - Test performance
@@ -1447,6 +1597,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Load Testing
 
 - [ ] 📝 Write k6 load test scripts (10h) 🟡
+
   - Baseline test
   - Stress test
   - Spike test
@@ -1465,17 +1616,20 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Security Measures
 
 - [ ] 📝 Implement field-level encryption (8h) 🟡
+
   - Encrypt PII fields
   - Key management
   - **AC**: Sensitive data encrypted
 
 - [ ] 📝 Setup Gosec scanning (3h) 🔴
+
   - Configure Gosec
   - Add to CI
   - Fix issues
   - **AC**: Security scan passing
 
 - [ ] 📝 Setup Trivy scanning (3h) 🔴
+
   - Configure Trivy
   - Scan containers
   - Fix vulnerabilities
@@ -1501,12 +1655,14 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Kubernetes Setup
 
 - [ ] 📝 Setup Kubernetes cluster (12h) 🟡
+
   - Provision cluster
   - Configure networking
   - Setup ingress
   - **AC**: Cluster operational
 
 - [ ] 📝 Create Helm charts (16h) 🟡
+
   - Chart per service
   - ConfigMaps & Secrets
   - Deployments & Services
@@ -1520,11 +1676,13 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Monitoring
 
 - [ ] 📝 Setup Prometheus (6h) 🟡
+
   - Prometheus deployment
   - Service monitors
   - **AC**: Metrics collected
 
 - [ ] 📝 Create Grafana dashboards (8h) 🟡
+
   - Service dashboards
   - System dashboards
   - **AC**: Dashboards working
@@ -1537,6 +1695,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Backup & Recovery
 
 - [ ] 📝 Setup automated backups (8h) 🟡
+
   - Database backups
   - File backups
   - **AC**: Backups running
@@ -1553,16 +1712,19 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Technical Documentation
 
 - [ ] 📝 Write system architecture doc (8h) 🟡
+
   - Architecture diagrams
   - Service interactions
   - **AC**: Architecture documented
 
 - [ ] 📝 Create ADRs (12h) 🟡
+
   - Document key decisions
   - Rationale & consequences
   - **AC**: ADRs complete
 
 - [ ] 📝 Write deployment guide (6h) 🟡
+
   - Deployment steps
   - Rollback procedures
   - **AC**: Guide complete
@@ -1576,6 +1738,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### API Documentation
 
 - [ ] 📝 Complete Swagger docs (12h) 🟡
+
   - All services documented
   - Examples included
   - **AC**: API docs complete
@@ -1617,26 +1780,31 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Pre-Production Checklist
 
 - [ ] 📝 Complete security audit (16h) 🔴
+
   - Security review
   - Fix vulnerabilities
   - **AC**: Audit passed
 
 - [ ] 📝 Performance testing (16h) 🟡
+
   - Load testing
   - Stress testing
   - **AC**: Performance targets met
 
 - [ ] 📝 Setup monitoring & alerting (12h) 🟡
+
   - Monitoring operational
   - Alerts configured
   - **AC**: Monitoring working
 
 - [ ] 📝 Backup & DR verification (8h) 🟡
+
   - Test backups
   - Test restore
   - **AC**: Backup/restore working
 
 - [ ] 📝 Documentation review (8h) 🟡
+
   - Review all docs
   - Update as needed
   - **AC**: Docs complete
@@ -1652,25 +1820,25 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 
 ### Total Estimated Hours by Service
 
-| Service | Estimated Hours |
-|---------|----------------|
-| Global Infrastructure | 150h |
-| Auth Service | 180h |
-| Academic Core Service | 220h |
-| Attendance Service | 90h |
-| Assessment Service | 150h |
-| Admission Service | 120h |
-| Finance Service | 120h |
-| Notification Service | 110h |
-| API Gateway | 42h |
-| Supporting Services | 50h |
-| Performance & Optimization | 60h |
-| Security Hardening | 50h |
-| Deployment & DevOps | 100h |
-| Documentation | 70h |
-| Testing | 112h |
-| Production Readiness | 64h |
-| **TOTAL** | **1,688h** |
+| Service                    | Estimated Hours |
+| -------------------------- | --------------- |
+| Global Infrastructure      | 150h            |
+| Auth Service               | 180h            |
+| Academic Core Service      | 220h            |
+| Attendance Service         | 90h             |
+| Assessment Service         | 150h            |
+| Admission Service          | 120h            |
+| Finance Service            | 120h            |
+| Notification Service       | 110h            |
+| API Gateway                | 42h             |
+| Supporting Services        | 50h             |
+| Performance & Optimization | 60h             |
+| Security Hardening         | 50h             |
+| Deployment & DevOps        | 100h            |
+| Documentation              | 70h             |
+| Testing                    | 112h            |
+| Production Readiness       | 64h             |
+| **TOTAL**                  | **1,688h**      |
 
 ### Priority Breakdown
 
@@ -1681,10 +1849,12 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### Team Size Estimation
 
 Assuming:
+
 - 1 developer = 160h/month (40h/week × 4 weeks)
 - Total hours = 1,688h
 
 **Options**:
+
 1. **4 developers × 3 months** = 1,920h (buffer: 232h)
 2. **5 developers × 2 months** = 1,600h (tight schedule)
 3. **3 developers × 4 months** = 1,920h (comfortable pace)
@@ -1696,6 +1866,7 @@ Assuming:
 ## Quick Start Checklist
 
 ### Week 1 Priority Tasks (Must Complete)
+
 - [ ] Setup monorepo structure
 - [ ] Create docker-compose.yml
 - [ ] Create Makefile
@@ -1705,6 +1876,7 @@ Assuming:
 - [ ] Setup first database migrations
 
 ### Critical Path Items (Blocking Others)
+
 1. ✅ Shared packages (blocks all services)
 2. ✅ Auth service (blocks all protected endpoints)
 3. ✅ Academic core (blocks attendance, assessment)
@@ -1723,6 +1895,7 @@ Assuming:
 ## Notes
 
 ### Development Best Practices
+
 - Always write tests before marking task complete
 - Update documentation as you code
 - Create small, focused PRs
@@ -1731,6 +1904,7 @@ Assuming:
 - Keep task list up-to-date
 
 ### When Task is Blocked
+
 1. Update task status to ⏳
 2. Document blocker in task notes
 3. Notify team lead
@@ -1738,7 +1912,9 @@ Assuming:
 5. Regularly check blocker status
 
 ### Definition of Done
+
 A task is complete when:
+
 - [ ] Code written & tested
 - [ ] Unit tests passing (>70% coverage)
 - [ ] Code reviewed & approved
