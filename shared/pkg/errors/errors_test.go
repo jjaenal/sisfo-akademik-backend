@@ -75,3 +75,15 @@ func TestErrorStringIncludesInner(t *testing.T) {
 		t.Fatalf("error string should include inner context")
 	}
 }
+
+func TestToHTTPStatusOverride(t *testing.T) {
+	e := New("DUPLICATE_ENTRY", "dup")
+	e.Status = http.StatusTeapot
+	status, body := ToHTTP(e)
+	if status != http.StatusTeapot {
+		t.Fatalf("status override not applied")
+	}
+	if body["success"].(bool) != false {
+		t.Fatalf("success should be false")
+	}
+}

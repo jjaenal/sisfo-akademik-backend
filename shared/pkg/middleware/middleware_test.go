@@ -105,6 +105,18 @@ func TestAuthUnauthorized(t *testing.T) {
 	}
 }
 
+func TestAuthWrongScheme(t *testing.T) {
+	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) })
+	h := Auth("secret", fn)
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/", nil)
+	req.Header.Set("Authorization", "Basic abc")
+	h.ServeHTTP(rr, req)
+	if rr.Code != http.StatusUnauthorized {
+		t.Fatalf("should be unauthorized with wrong scheme")
+	}
+}
+
 func TestRecover(t *testing.T) {
 	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { panic("x") })
 	h := Recover(fn)
@@ -126,6 +138,20 @@ func TestAuth(t *testing.T) {
 	h.ServeHTTP(rr, req)
 	if rr.Code != 200 {
 		t.Fatalf("code=%d want 200", rr.Code)
+	}
+}
+
+func TestAuthInvalidToken(t *testing.T) {
+	validSecret := "s"
+	token, _ := jwtutil.GenerateAccess(validSecret, time.Minute, jwtutil.Claims{UserID: uuid.New(), TenantID: "t"})
+	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) })
+	h := Auth("other", fn)
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
+	h.ServeHTTP(rr, req)
+	if rr.Code != http.StatusUnauthorized {
+		t.Fatalf("should be unauthorized with invalid token")
 	}
 }
 
