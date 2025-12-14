@@ -8,13 +8,16 @@ down:
 	@docker compose --env-file .env.example down
 
 test:
-	@go test ./...
+	@cd shared && go test ./...
 
 test-coverage:
-	@go test ./... -coverprofile=coverage.out
+	@cd shared && go test ./... -coverprofile=coverage.out && mv coverage.out ../coverage.out
 
 lint:
-	@if command -v golangci-lint >/dev/null 2>&1; then golangci-lint run; else echo "golangci-lint not installed"; fi
+	@if command -v golangci-lint >/dev/null 2>&1; then (cd shared && golangci-lint run); else echo "golangci-lint not installed"; fi
+
+deps:
+	@cd shared && go mod tidy
 
 migrate-up:
 	@echo "migrate-up not implemented yet"
