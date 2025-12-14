@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.env.*
+.idea/
+.vscode/
+bin/
+tmp/
+dist/
+coverage/
+*.out
+*.log
+vendor/
+docker-compose.override.yml
+.cache/
