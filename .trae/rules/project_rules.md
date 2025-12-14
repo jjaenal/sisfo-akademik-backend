@@ -98,6 +98,14 @@ service-name/
 - **Table-driven tests** untuk multiple scenarios
 - **Test naming**: `TestFunctionName_Scenario_ExpectedBehavior`
 
+#### Coverage Threshold Policy
+
+- **Global targets**: ≥90% statement coverage and ≥85% branch coverage across critical paths
+- **Commit gating**: Jika total coverage < 80%, commit perubahan yang berorientasi coverage dengan pesan komit yang menyertakan persentase saat ini, contoh: `chore(coverage): raise coverage to 78.4%`
+- **Quality gate**: Semua komit coverage harus lulus lint dan tes sebelum merge
+- **Backward compatibility**: Perluas test suite tanpa mengubah perilaku publik; gunakan mocking untuk dependensi eksternal
+- **Integration tests**: Gunakan Testcontainers untuk Postgres/Redis saat memungkinkan; test akan di-skip aman jika lingkungan tidak mendukung
+
 ---
 
 ## 3. API Rules
