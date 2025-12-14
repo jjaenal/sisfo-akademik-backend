@@ -78,3 +78,28 @@ func TestGenerateRefreshAndValidate(t *testing.T) {
 		t.Fatalf("subject mismatch")
 	}
 }
+
+func TestMalformedToken(t *testing.T) {
+	var out Claims
+	if err := Validate("s", "not-a-jwt", &out); err == nil {
+		t.Fatalf("expected parse error for malformed token")
+	}
+}
+
+func TestNotBeforeFuture(t *testing.T) {
+	secret := "s"
+	now := time.Now()
+	c := Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(now.Add(time.Minute)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			NotBefore: jwt.NewNumericDate(now.Add(time.Hour)),
+		},
+	}
+	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
+	s, _ := tkn.SignedString([]byte(secret))
+	var out Claims
+	if err := Validate(secret, s, &out); err == nil {
+		t.Fatalf("expected not-before error")
+	}
+}

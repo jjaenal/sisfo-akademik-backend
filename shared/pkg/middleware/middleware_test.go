@@ -155,6 +155,18 @@ func TestAuthInvalidToken(t *testing.T) {
 	}
 }
 
+func TestAuthEmptyBearerToken(t *testing.T) {
+	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) })
+	h := Auth("secret", fn)
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/", nil)
+	req.Header.Set("Authorization", "Bearer ")
+	h.ServeHTTP(rr, req)
+	if rr.Code != http.StatusUnauthorized {
+		t.Fatalf("should be unauthorized with empty bearer token")
+	}
+}
+
 func TestRateLimit(t *testing.T) {
 	f := &fakeRedis{count: map[string]int64{}}
 	fn := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(200) })

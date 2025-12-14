@@ -87,3 +87,25 @@ func TestToHTTPStatusOverride(t *testing.T) {
 		t.Fatalf("success should be false")
 	}
 }
+
+func TestErrorNoInner(t *testing.T) {
+	e := New("4001", "bad")
+	if s := e.Error(); s == "" {
+		t.Fatalf("error string should not be empty")
+	}
+}
+
+func TestToHTTPNilDetails(t *testing.T) {
+	e := New("NOT_FOUND", "missing")
+	status, body := ToHTTP(e)
+	if status != http.StatusNotFound {
+		t.Fatalf("status mismatch")
+	}
+	errMap := body["error"].(map[string]any)
+	if errMap["details"] != nil {
+		dets := errMap["details"].([]FieldError)
+		if len(dets) != 0 {
+			t.Fatalf("details should be empty when not set")
+		}
+	}
+}
