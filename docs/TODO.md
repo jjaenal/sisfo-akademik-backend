@@ -155,7 +155,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Pagination helpers
   - **AC**: HTTP utilities working
 
-- [ ] 📝 Implement testutil package (4h) 🟡
+- [x] ✅ 📝 Implement testutil package (4h) 🟡
   - Test database helpers
   - Mock helpers
   - Test fixtures
@@ -163,7 +163,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 
 ### CI/CD Pipeline
 
-- [ ] 📝 Setup GitHub Actions workflow (6h) 🔴
+- [x] ✅ 📝 Setup GitHub Actions workflow (6h) 🔴
 
   - Lint job
   - Test job
@@ -172,7 +172,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Deploy staging job
   - **AC**: Pipeline runs on push
 
-- [ ] 📝 Configure linting (golangci-lint) (2h) 🔴
+- [x] ✅ 📝 Configure linting (golangci-lint) (2h) 🔴
 
   - Install golangci-lint
   - Configure .golangci.yml
@@ -186,7 +186,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Coverage threshold (70%)
   - **AC**: Coverage tracked in CI
 
-- [ ] 📝 Setup security scanning (4h) 🔴
+- [x] ✅ 📝 Setup security scanning (4h) 🔴
 
   - Gosec for static analysis
   - Trivy for container scanning
@@ -234,7 +234,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 
 ### Core Setup
 
-- [ ] 📝 Create auth-service structure (3h) 🔴
+- [x] ✅ 📝 Create auth-service structure (3h) 🔴
 
   - Initialize Go module
   - Setup directory structure
@@ -242,7 +242,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Create docker-compose.yml
   - **AC**: Service structure ready
 
-- [ ] 📝 Setup database connection (2h) 🔴
+- [x] ✅ 📝 Setup database connection (2h) 🔴
 
   - Use shared database package
   - Test connection
@@ -261,71 +261,72 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### User Management
 
-- [ ] 📝 Implement User entity (2h) 🔴
+264- - [x] ✅ 📝 Implement User entity (2h) 🔴
 
-  - Define User struct
-  - Validation rules
-  - Methods (BeforeCreate, etc)
-  - **AC**: User entity complete
+- Define User struct
+- Validation rules
+- Methods (BeforeCreate, etc)
+- **AC**: User entity complete
 
-- [ ] 📝 Implement User repository (6h) 🔴
+271- - [x] ✅ 📝 Implement User repository (6h) 🔴
 
-  - Create()
-  - GetByID()
-  - GetByEmail()
-  - List() with pagination
-  - Update()
-  - Delete() (soft delete)
-  - **AC**: CRUD operations working
+- Create()
+- GetByID()
+- GetByEmail()
+- List() with pagination
+- Update()
+- Delete() (soft delete)
+- **AC**: CRUD operations working
 
-- [ ] 📝 Implement User use case (6h) 🔴
+281- - [x] ✅ 📝 Implement User use case (6h) 🔴
 
-  - Register user
-  - Get user
-  - Update user
-  - Delete user
-  - Search users
-  - **AC**: Business logic implemented
+- Register user
+- Get user
+- Update user
+- Delete user
+- Search users
+- **AC**: Business logic implemented
 
-- [ ] 📝 Implement User handlers (8h) 🔴
+290- - [x] ✅ 📝 Implement User handlers (8h) 🔴
 
-  - POST /api/v1/users
-  - GET /api/v1/users/:id
-  - GET /api/v1/users
-  - PUT /api/v1/users/:id
-  - DELETE /api/v1/users/:id
-  - PATCH /api/v1/users/:id/activate
-  - **AC**: All endpoints working
+- POST /api/v1/users
+- GET /api/v1/users/:id
+- GET /api/v1/users
+- PUT /api/v1/users/:id
+- DELETE /api/v1/users/:id
+- PATCH /api/v1/users/:id/activate
+- **AC**: All endpoints working
 
-- [ ] 📝 Add input validation (3h) 🔴
+300- - [ ] � �📝 Add input validation (3h) 🔴
 
-  - Email format
-  - Password strength
-  - Required fields
-  - **AC**: Invalid input rejected
+- Email format
+- Password strength
+- Required fields
+- **AC**: Invalid input rejected
 
-- [ ] 📝 Implement password hashing (2h) 🔴
+307- - [x] ✅ 📝 Implement password hashing (2h) 🔴
 
-  - bcrypt implementation
-  - Cost factor: 12
-  - **AC**: Passwords hashed securely
+- bcrypt implementation
+- Cost factor: 12
+- **AC**: Passwords hashed securely
 
-- [ ] 📝 Unit tests for User (8h) 🔴
-  - Repository tests
-  - Use case tests
-  - Handler tests
-  - Coverage >70%
-  - **AC**: Tests passing with good coverage
+313- - [ ] 🔄 📝 Unit tests for User (8h) 🔴
+
+- Repository tests
+- Use case tests
+- Handler tests
+- Coverage >70%
+- **AC**: Tests passing with good coverage
 
 ### Authentication
 
-- [ ] 📝 Implement login handler (6h) 🔴
+322- - [x] ✅ 📝 Implement login handler (6h) 🔴
 
-  - POST /api/v1/auth/login
-  - Validate credentials
-  - Generate tokens
-  - Return access & refresh tokens
-  - **AC**: Login working
+- POST /api/v1/auth/login
+- Validate credentials
+- Generate tokens
+- Return access & refresh tokens
+- **AC**: Login working
 
 - [ ] 📝 Implement JWT generation (4h) 🔴
 
@@ -334,20 +335,20 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Include claims (user_id, tenant_id, roles, permissions)
   - **AC**: JWT generated correctly
 
-- [ ] 📝 Implement logout handler (3h) 🔴
+337- - [x] ✅ 📝 Implement logout handler (3h) 🔴
 
-  - POST /api/v1/auth/logout
-  - Invalidate refresh token
-  - Blacklist access token in Redis
-  - **AC**: Logout working
+- POST /api/v1/auth/logout
+- Invalidate refresh token
+- Blacklist access token in Redis
+- **AC**: Logout working
 
-- [ ] 📝 Implement token refresh (5h) 🔴
+344- - [x] ✅ 📝 Implement token refresh (5h) 🔴
 
-  - POST /api/v1/auth/refresh
-  - Validate refresh token
-  - Generate new access token
-  - Rotate refresh token
-  - **AC**: Token refresh working
+- POST /api/v1/auth/refresh
+- Validate refresh token
+- Generate new access token
+- Rotate refresh token
+- **AC**: Token refresh working
 
 - [ ] 📝 Implement forgot password (6h) 🟡
 
@@ -377,13 +378,14 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Auto-unlock after 30 minutes
   - **AC**: Account lockout working
 
-- [ ] 📝 Unit tests for Auth (10h) 🔴
-  - Login tests
-  - Token generation tests
-  - Token refresh tests
-  - Logout tests
-  - Coverage >70%
-  - **AC**: Tests passing
+380- - [ ] 🔄 📝 Unit tests for Auth (10h) 🔴
+
+- Login tests
+- Token generation tests
+- Token refresh tests
+- Logout tests
+- Coverage >70%
+- **AC**: Tests passing
 
 ### RBAC (Role-Based Access Control)
 
@@ -426,13 +428,13 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Default permissions
   - **AC**: Default roles created
 
-- [ ] 📝 Implement role assignment (5h) 🔴
+429- - [ ] 🔄 📝 Implement role assignment (5h) 🔴
 
-  - Assign role to user
-  - Remove role from user
-  - Get user roles
-  - Get user permissions (effective)
-  - **AC**: Role assignment working
+- Assign role to user
+- Remove role from user
+- Get user roles
+- Get user permissions (effective)
+- **AC**: Role assignment working
 
 - [ ] 📝 Implement RBAC middleware (8h) 🔴
 
@@ -1515,13 +1517,13 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Forward user context
   - **AC**: Auth working
 
-- [ ] 📝 Setup load balancing (5h) 🟡
+- [x] ✅ 📝 Setup load balancing (5h) 🟡
 
-  - Load balancing strategy
-  - Health check integration
-  - **AC**: Load balancing working
+- Load balancing strategy
+- Health check integration
+- **AC**: Load balancing working
 
-  Status: Health aggregator aktif di `/api/v1/gateway/health` untuk memeriksa upstream; load balancing belum diaktifkan.
+Status: Round-robin multi-upstream aktif (env `*_URLS`), dengan circuit breaker per upstream dan health aggregator `/api/v1/gateway/health` mendukung multi upstream.
 
 - [ ] 📝 Unit tests for Gateway (8h) 🔴
   - Routing tests

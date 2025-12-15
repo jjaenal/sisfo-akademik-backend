@@ -14,6 +14,10 @@ func main() {
 	if port == "" {
 		port = "9092"
 	}
+	name := os.Getenv("APP_SERVICE_NAME")
+	if name == "" {
+		name = "academic-service"
+	}
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v1/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -21,7 +25,7 @@ func main() {
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"success": true,
 			"data": map[string]any{
-				"service": "academic-service",
+				"service": name,
 			},
 			"meta": map[string]any{
 				"timestamp":  time.Now().UTC(),

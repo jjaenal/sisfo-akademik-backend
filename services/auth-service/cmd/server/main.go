@@ -8,6 +8,7 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/services/auth-service/internal/handler"
 	"github.com/jjaenal/sisfo-akademik-backend/services/auth-service/internal/middleware"
 	"github.com/jjaenal/sisfo-akademik-backend/services/auth-service/internal/repository"
+	"github.com/jjaenal/sisfo-akademik-backend/services/auth-service/internal/usecase"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
@@ -41,10 +42,22 @@ func main() {
 	auditRepo := repository.NewAuditRepo(db)
 	authHandler := handler.NewAuthHandler(authRepo, cfg, redis, auditRepo)
 	authHandler.Register(r)
+	if cfg.Env == "development" {
+		handler.NewDevHandler(authRepo).Register(r)
+	}
 	// Protect routes
 	protected := r.Group("/")
 	protected.Use(middleware.Auth(cfg.JWTAccessSecret, cfg))
 	authHandler.RegisterProtected(protected)
+	// Users handlers
+	usersUC := usecase.NewUsers(authRepo)
+	usersHandler := handler.NewUsersHandler(usersUC)
+	usersHandler.RegisterProtected(protected)
+	// Roles handlers
+	rolesRepo := repository.NewRolesRepo(db)
+	rolesUC := usecase.NewRoles(authRepo, rolesRepo)
+	rolesHandler := handler.NewRolesHandler(rolesUC)
+	rolesHandler.RegisterProtected(protected)
 	addr := fmt.Sprintf(":%d", cfg.HTTPPort)
 	if err := r.Run(addr); err != nil {
 		log.Fatal("server failed", zap.Error(err))

@@ -14,10 +14,11 @@ test:
 	@cd shared && env -u GOROOT go test ./...
 
 test-coverage:
-	@cd shared && env -u GOROOT go test ./... -covermode=atomic -coverprofile=coverage.out && mv coverage.out ../coverage.out
+	@cd shared && env -u GOROOT go test ./... -covermode=atomic -coverprofile=coverage_shared.out
+	@cd services/auth-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=coverage_auth.out
 
 lint:
-	@if command -v golangci-lint >/dev/null 2>&1; then (cd shared && golangci-lint run); else echo "golangci-lint not installed"; fi
+	@if command -v golangci-lint >/dev/null 2>&1; then (cd shared && golangci-lint run --config .golangci.shared.yml); else echo "golangci-lint not installed"; fi
 
 deps:
 	@cd shared && env -u GOROOT go mod tidy
@@ -46,7 +47,7 @@ migrate-down:
 	fi
 
 clean:
-	@rm -f coverage.out
+	@rm -f coverage.out coverage_shared.out coverage_auth.out
 	@find . -name \"*.out\" -delete
 
 docker-build-all:

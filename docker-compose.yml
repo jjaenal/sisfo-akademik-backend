@@ -86,8 +86,8 @@ services:
       - APP_JWT_AUDIENCE=api
       - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
       - APP_RATE_LIMIT_PER_MINUTE=60
-      - APP_UPSTREAM_AUTH_URL=http://host.docker.internal:9091
-      - APP_UPSTREAM_ACADEMIC_URL=http://academic-service:9092
+      - APP_UPSTREAM_AUTH_URL=http://auth-service:9091
+      - APP_UPSTREAM_ACADEMIC_URLS=http://academic-service:9092,http://academic-service-2:9092
       - APP_UPSTREAM_ATTENDANCE_URL=http://attendance-service:9093
       - APP_UPSTREAM_ASSESSMENT_URL=http://assessment-service:9094
       - APP_UPSTREAM_ADMISSION_URL=http://admission-service:9095
@@ -112,17 +112,28 @@ services:
 
   # --- Service placeholders (sleeping containers for dev orchestration) ---
   auth-service:
-    image: golang:1.21-alpine
+    image: golang:1.23-alpine
     container_name: auth-service
     profiles: ["services"]
-    working_dir: /workspace/services/auth-service
-    command: ["sh", "-c", "sleep infinity"]
+    working_dir: /app
+    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
     volumes:
-      - ./:/workspace
+      - ./services/auth-service:/app
+      - ./shared:/shared
     environment:
+      - APP_ENV=development
+      - APP_SERVICE_NAME=auth-service
+      - APP_HTTP_PORT=9091
+      - APP_POSTGRES_URL=postgres://dev:dev@postgres:5432/devdb?sslmode=disable
+      - APP_REDIS_ADDR=redis:6379
+      - APP_RABBIT_URL=amqp://dev:dev@rabbitmq:5672/
+      - APP_JWT_ACCESS_SECRET=devaccess
+      - APP_JWT_REFRESH_SECRET=devrefresh
       - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
       - APP_JWT_ISSUER=sisfo-akademik
       - APP_JWT_AUDIENCE=api
+    ports:
+      - "9091:9091"
     depends_on:
       postgres:
         condition: service_healthy
@@ -130,6 +141,12 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
+    healthcheck:
+      test:
+        ["CMD-SHELL", "wget -qO- http://localhost:9091/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   academic-service:
     image: golang:1.23-alpine
@@ -140,12 +157,35 @@ services:
     volumes:
       - ./services/academic-service:/app
     environment:
+      - APP_SERVICE_NAME=academic-service
       - APP_HTTP_PORT=9092
       - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
       - APP_JWT_ISSUER=sisfo-akademik
       - APP_JWT_AUDIENCE=api
     ports:
       - "9092:9092"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  academic-service-2:
+    image: golang:1.23-alpine
+    container_name: academic-service-2
+    profiles: ["services"]
+    working_dir: /app
+    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    volumes:
+      - ./services/academic-service:/app
+    environment:
+      - APP_SERVICE_NAME=academic-service-2
+      - APP_HTTP_PORT=9092
+      - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
+      - APP_JWT_ISSUER=sisfo-akademik
+      - APP_JWT_AUDIENCE=api
     depends_on:
       postgres:
         condition: service_healthy
