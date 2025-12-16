@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -149,4 +150,68 @@ func (r *curriculumRepository) ListSubjects(ctx context.Context, curriculumID uu
 	}
 
 	return subjects, nil
+}
+
+func (r *curriculumRepository) AddGradingRule(ctx context.Context, rule *entity.GradingRule) error {
+	query := `
+		INSERT INTO grading_rules (
+			id, tenant_id, curriculum_id, grade, min_score, max_score, points, description,
+			created_at, updated_at, created_by, updated_by
+		) VALUES (
+			$1, $2, $3, $4, $5, $6, $7, $8,
+			$9, $10, $11, $12
+		)
+	`
+	if rule.ID == uuid.Nil {
+		rule.ID = uuid.New()
+	}
+	now := time.Now()
+	if rule.CreatedAt.IsZero() {
+		rule.CreatedAt = now
+	}
+	if rule.UpdatedAt.IsZero() {
+		rule.UpdatedAt = now
+	}
+
+	_, err := r.db.Exec(ctx, query,
+		rule.ID, rule.TenantID, rule.CurriculumID, rule.Grade, rule.MinScore, rule.MaxScore, rule.Points, rule.Description,
+		rule.CreatedAt, rule.UpdatedAt, rule.CreatedBy, rule.UpdatedBy,
+	)
+	return err
+}
+
+func (r *curriculumRepository) ListGradingRules(ctx context.Context, curriculumID uuid.UUID) ([]entity.GradingRule, error) {
+	query := `
+		SELECT 
+			id, tenant_id, curriculum_id, grade, min_score, max_score, points, description,
+			created_at, updated_at, created_by, updated_by
+		FROM grading_rules
+		WHERE curriculum_id = $1 AND deleted_at IS NULL
+		ORDER BY min_score DESC
+	`
+	rows, err := r.db.Query(ctx, query, curriculumID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var rules []entity.GradingRule
+	for rows.Next() {
+		var rule entity.GradingRule
+		err := rows.Scan(
+			&rule.ID, &rule.TenantID, &rule.CurriculumID, &rule.Grade, &rule.MinScore, &rule.MaxScore, &rule.Points, &rule.Description,
+			&rule.CreatedAt, &rule.UpdatedAt, &rule.CreatedBy, &rule.UpdatedBy,
+		)
+		if err != nil {
+			return nil, err
+		}
+		rules = append(rules, rule)
+	}
+	return rules, nil
+}
+
+func (r *curriculumRepository) DeleteGradingRule(ctx context.Context, id uuid.UUID) error {
+	query := `UPDATE grading_rules SET deleted_at = NOW() WHERE id = $1`
+	_, err := r.db.Exec(ctx, query, id)
+	return err
 }

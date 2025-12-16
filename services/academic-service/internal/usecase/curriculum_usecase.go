@@ -98,3 +98,24 @@ func (u *curriculumUseCase) ListSubjects(ctx context.Context, curriculumID uuid.
 
 	return u.repo.ListSubjects(ctx, curriculumID)
 }
+
+func (u *curriculumUseCase) AddGradingRule(ctx context.Context, rule *entity.GradingRule) error {
+	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
+	defer cancel()
+
+	if errMap := rule.Validate(); len(errMap) > 0 {
+		// return validation error
+		for _, v := range errMap {
+			return errors.New(v)
+		}
+	}
+
+	return u.repo.AddGradingRule(ctx, rule)
+}
+
+func (u *curriculumUseCase) GetGradingRules(ctx context.Context, curriculumID uuid.UUID) ([]entity.GradingRule, error) {
+	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
+	defer cancel()
+
+	return u.repo.ListGradingRules(ctx, curriculumID)
+}

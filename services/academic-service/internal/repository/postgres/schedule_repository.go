@@ -49,6 +49,58 @@ func (r *scheduleRepository) Create(ctx context.Context, s *entity.Schedule) err
 	return err
 }
 
+func (r *scheduleRepository) CheckConflicts(ctx context.Context, s *entity.Schedule) ([]entity.Schedule, error) {
+	query := `
+		SELECT 
+			id, tenant_id, class_id, subject_id, teacher_id, day_of_week,
+			start_time, end_time, room, created_at, updated_at, created_by, updated_by
+		FROM schedules
+		WHERE 
+			tenant_id = $1 
+			AND deleted_at IS NULL
+			AND day_of_week = $2
+			AND (
+				class_id = $3 OR 
+				teacher_id = $4 OR 
+				(room = $5 AND room != '')
+			)
+			AND (
+				(start_time < $6 AND end_time > $7) -- Overlap condition
+			)
+			AND id != $8 -- Exclude self (for updates)
+	`
+
+	// Note: s.ID might be uuid.Nil for creation, so passing it is fine (it won't match any existing ID)
+
+	rows, err := r.db.Query(ctx, query,
+		s.TenantID,
+		s.DayOfWeek,
+		s.ClassID,
+		s.TeacherID,
+		s.Room,
+		s.EndTime,   // Overlap logic: Existing Start < New End
+		s.StartTime, // Overlap logic: Existing End > New Start
+		s.ID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var conflicts []entity.Schedule
+	for rows.Next() {
+		var cs entity.Schedule
+		if err := rows.Scan(
+			&cs.ID, &cs.TenantID, &cs.ClassID, &cs.SubjectID, &cs.TeacherID, &cs.DayOfWeek,
+			&cs.StartTime, &cs.EndTime, &cs.Room, &cs.CreatedAt, &cs.UpdatedAt, &cs.CreatedBy, &cs.UpdatedBy,
+		); err != nil {
+			return nil, err
+		}
+		conflicts = append(conflicts, cs)
+	}
+	return conflicts, nil
+}
+
 func (r *scheduleRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.Schedule, error) {
 	query := `
 		SELECT 

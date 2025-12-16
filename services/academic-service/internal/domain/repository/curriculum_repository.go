@@ -18,4 +18,9 @@ type CurriculumRepository interface {
 	AddSubject(ctx context.Context, cs *entity.CurriculumSubject) error
 	RemoveSubject(ctx context.Context, id uuid.UUID) error
 	ListSubjects(ctx context.Context, curriculumID uuid.UUID) ([]entity.CurriculumSubject, error)
+
+	// Grading Rules
+	AddGradingRule(ctx context.Context, rule *entity.GradingRule) error
+	ListGradingRules(ctx context.Context, curriculumID uuid.UUID) ([]entity.GradingRule, error)
+	DeleteGradingRule(ctx context.Context, id uuid.UUID) error
 }

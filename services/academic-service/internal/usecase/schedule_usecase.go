@@ -35,6 +35,15 @@ func (u *scheduleUseCase) Create(ctx context.Context, schedule *entity.Schedule)
 		}
 	}
 
+	// Check for conflicts
+	conflicts, err := u.repo.CheckConflicts(ctx, schedule)
+	if err != nil {
+		return err
+	}
+	if len(conflicts) > 0 {
+		return errors.New("schedule conflict detected: overlapping with existing schedule")
+	}
+
 	return u.repo.Create(ctx, schedule)
 }
 
@@ -67,6 +76,15 @@ func (u *scheduleUseCase) Update(ctx context.Context, schedule *entity.Schedule)
 		for _, v := range errMap {
 			return errors.New(v)
 		}
+	}
+
+	// Check for conflicts
+	conflicts, err := u.repo.CheckConflicts(ctx, schedule)
+	if err != nil {
+		return err
+	}
+	if len(conflicts) > 0 {
+		return errors.New("schedule conflict detected: overlapping with existing schedule")
 	}
 
 	return u.repo.Update(ctx, schedule)

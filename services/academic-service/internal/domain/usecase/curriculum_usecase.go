@@ -17,4 +17,7 @@ type CurriculumUseCase interface {
 	AddSubject(ctx context.Context, cs *entity.CurriculumSubject) error
 	RemoveSubject(ctx context.Context, id uuid.UUID) error
 	ListSubjects(ctx context.Context, curriculumID uuid.UUID) ([]entity.CurriculumSubject, error)
+
+	AddGradingRule(ctx context.Context, rule *entity.GradingRule) error
+	GetGradingRules(ctx context.Context, curriculumID uuid.UUID) ([]entity.GradingRule, error)
 }

@@ -14,4 +14,5 @@ type ScheduleRepository interface {
 	ListByClass(ctx context.Context, classID uuid.UUID) ([]entity.Schedule, error)
 	Update(ctx context.Context, schedule *entity.Schedule) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	CheckConflicts(ctx context.Context, schedule *entity.Schedule) ([]entity.Schedule, error)
 }

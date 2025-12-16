@@ -210,6 +210,65 @@ func (h *CurriculumHandler) ListSubjects(c *gin.Context) {
 	httputil.Success(c.Writer, subjects)
 }
 
+// Grading Rules Handlers
+
+func (h *CurriculumHandler) AddGradingRule(c *gin.Context) {
+	idStr := c.Param("id")
+	curriculumID, err := uuid.Parse(idStr)
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid ID", "ID must be a valid UUID")
+		return
+	}
+
+	var req struct {
+		TenantID    string  `json:"tenant_id" binding:"required"`
+		Grade       string  `json:"grade" binding:"required"`
+		MinScore    float64 `json:"min_score" binding:"required"`
+		MaxScore    float64 `json:"max_score" binding:"required"`
+		Points      float64 `json:"points" binding:"required"`
+		Description string  `json:"description"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", err.Error())
+		return
+	}
+
+	rule := &entity.GradingRule{
+		TenantID:     req.TenantID,
+		CurriculumID: curriculumID,
+		Grade:        req.Grade,
+		MinScore:     req.MinScore,
+		MaxScore:     req.MaxScore,
+		Points:       req.Points,
+		Description:  req.Description,
+	}
+
+	if err := h.useCase.AddGradingRule(c.Request.Context(), rule); err != nil {
+		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Internal Server Error", err.Error())
+		return
+	}
+
+	httputil.Success(c.Writer, rule)
+}
+
+func (h *CurriculumHandler) ListGradingRules(c *gin.Context) {
+	idStr := c.Param("id")
+	curriculumID, err := uuid.Parse(idStr)
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid ID", "ID must be a valid UUID")
+		return
+	}
+
+	rules, err := h.useCase.GetGradingRules(c.Request.Context(), curriculumID)
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Internal Server Error", err.Error())
+		return
+	}
+
+	httputil.Success(c.Writer, rules)
+}
+
 func (h *CurriculumHandler) RemoveSubject(c *gin.Context) {
 	idStr := c.Param("subject_id") // curriculum_subject_id
 	id, err := uuid.Parse(idStr)

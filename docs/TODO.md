@@ -629,7 +629,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Store in object storage
   - **AC**: Logo upload working
 
-- [ ] 📝 Unit tests for School (8h) 🔴
+- [x] ✅ 📝 Unit tests for School (8h) 🔴
   - Repository tests
   - Use case tests
   - Handler tests
@@ -689,7 +689,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Only 1 active semester per year
   - **AC**: Validation working
 
-- [ ] 📝 Unit tests for AcademicYear & Semester (10h) 🔴
+- [x] ✅ 📝 Unit tests for AcademicYear & Semester (10h) 🔴
   - Repository tests
   - Use case tests
   - Handler tests
@@ -743,7 +743,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Prevent over-enrollment
   - **AC**: Capacity enforced
 
-- [ ] 📝 Unit tests for Class (10h) 🔴
+- [x] ✅ 📝 Unit tests for Class (10h) 🔴
   - Repository tests
   - Use case tests
   - Handler tests
@@ -788,7 +788,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Validation
   - **AC**: Teacher assignment working
 
-- [ ] 📝 Unit tests for Subject (8h) 🔴
+- [x] ✅ 📝 Unit tests for Subject (8h) 🔴
   - Repository tests
   - Use case tests
   - Handler tests
@@ -803,7 +803,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Support multiple curricula per tenant
   - **AC**: Curriculum entity complete
 
-- [ ] 📝 Implement GradingRule entity (3h) 🔴
+- [x] ✅ 📝 Implement GradingRule entity (3h) 🔴
 
   - KKM configuration
   - Grade components & weights
@@ -827,7 +827,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - POST /api/v1/curricula/:id/grading-rules
   - **AC**: All endpoints working
 
-- [ ] 📝 Unit tests for Curriculum (8h) 🟡
+- [x] ✅ 📝 Unit tests for Curriculum (8h) 🟡
   - Repository tests
   - Use case tests
   - Handler tests
@@ -849,7 +849,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - CheckConflicts()
   - **AC**: Schedule operations working
 
-- [ ] 📝 Implement conflict detection (6h) 🔴
+- [x] ✅ 📝 Implement conflict detection (6h) 🔴
 
   - Class conflict check
   - Teacher conflict check

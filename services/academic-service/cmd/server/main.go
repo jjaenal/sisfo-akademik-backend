@@ -192,6 +192,10 @@ func main() {
 			curricula.POST("/:id/subjects", curriculumHandler.AddSubject)
 			curricula.GET("/:id/subjects", curriculumHandler.ListSubjects)
 			curricula.DELETE("/:id/subjects/:subject_id", curriculumHandler.RemoveSubject)
+
+			// Grading Rules
+			curricula.POST("/:id/grading-rules", curriculumHandler.AddGradingRule)
+			curricula.GET("/:id/grading-rules", curriculumHandler.ListGradingRules)
 		}
 
 		enrollments := v1.Group("/enrollments")
