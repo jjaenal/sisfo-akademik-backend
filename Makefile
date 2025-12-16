@@ -60,4 +60,10 @@ clean:
 	@find . -name \"*.out\" -delete
 
 docker-build-all:
-	@for d in services/*; do if [ -f $$d/Dockerfile ]; then docker build -t sisfo-`basename $$d` $$d; else echo "skip $$d (no Dockerfile)"; fi; done
+	@for d in services/*; do \
+		if [ -f $$d/Dockerfile ]; then \
+			docker build -f $$d/Dockerfile -t sisfo-`basename $$d` .; \
+		else \
+			echo "skip $$d (no Dockerfile)"; \
+		fi; \
+	done

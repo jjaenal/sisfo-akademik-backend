@@ -1,5 +1,12 @@
 go 1.23.0
+
 use ./shared
+
 use ./services/auth-service
+
 use ./services/api-gateway
-use ./services/notification-service
+
+use (
+	./services/academic-service
+	./services/notification-service
+)

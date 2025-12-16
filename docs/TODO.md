@@ -350,21 +350,21 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 - Rotate refresh token
 - **AC**: Token refresh working
 
-- [x] 📝 Implement forgot password (6h) 🟡
+- [x] ✅ 📝 Implement forgot password (6h) 🟡
 
   - POST /api/v1/auth/forgot-password
   - Generate reset token
   - Send reset email
   - **AC**: Reset email sent
 
-- [x] 📝 Implement reset password (5h) 🟡
+- [x] ✅ 📝 Implement reset password (5h) 🟡
 
   - POST /api/v1/auth/reset-password
   - Validate reset token
   - Update password
   - **AC**: Password reset working
 
-- [x] 📝 Implement change password (4h) 🟡
+- [x] ✅ 📝 Implement change password (4h) 🟡
 
   - POST /api/v1/auth/change-password
   - Validate old password
@@ -389,19 +389,19 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### RBAC (Role-Based Access Control)
 
-- [ ] 📝 Implement Role entity (2h) 🔴
+- [x] ✅ 📝 Implement Role entity (2h) 🔴
 
   - Define Role struct
   - Validation rules
   - **AC**: Role entity complete
 
-- [ ] 📝 Implement Permission entity (2h) 🔴
+- [x] ✅ 📝 Implement Permission entity (2h) 🔴
 
   - Define Permission struct
   - Resource:Action format
   - **AC**: Permission entity complete
 
-- [ ] 📝 Implement Role repository (6h) 🔴
+- [x] ✅ 📝 Implement Role repository (6h) 🔴
 
   - Create()
   - GetByID()
@@ -411,7 +411,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - AssignPermissions()
   - **AC**: Role CRUD working
 
-- [ ] 📝 Implement Permission repository (4h) 🔴
+- [x] ✅ 📝 Implement Permission repository (4h) 🔴
 
   - Create()
   - List()
@@ -428,22 +428,22 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Default permissions
   - **AC**: Default roles created
 
-429- - [ ] 🔄 📝 Implement role assignment (5h) 🔴
+- [x] ✅ 📝 Implement role assignment (5h) 🔴
 
-- Assign role to user
-- Remove role from user
-- Get user roles
-- Get user permissions (effective)
-- **AC**: Role assignment working
+  - Assign role to user
+  - Remove role from user
+  - Get user roles
+  - Get user permissions (effective)
+  - **AC**: Role assignment working
 
-439- - [x] ✅ 📝 Implement RBAC middleware (8h) 🔴
+- [x] ✅ 📝 Implement RBAC middleware (8h) 🔴
 
-- Check user authentication
-- Check user permissions
-- Context-aware (tenant-based)
-- **AC**: Protected endpoints secured
+  - Check user authentication
+  - Check user permissions
+  - Context-aware (tenant-based)
+  - **AC**: Protected endpoints secured
 
-- [x] 📝 Implement role handlers (8h) 🟡
+- [x] ✅ 📝 Implement role handlers (8h) 🟡
 
   - POST /api/v1/roles
   - GET /api/v1/roles
@@ -452,7 +452,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - DELETE /api/v1/roles/:id
   - **AC**: Role management working
 
-- [ ] 📝 Unit tests for RBAC (10h) 🔴
+- [x] ✅ 📝 Unit tests for RBAC (10h) 🔴
   - Role tests
   - Permission tests
   - Middleware tests
@@ -461,77 +461,77 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Audit Logging
 
-- [ ] 📝 Implement audit log entity (2h) 🔴
+- [x] ✅ 📝 Implement audit log entity (2h) 🔴
 
   - Define AuditLog struct
   - Fields: user, action, resource, changes
   - **AC**: Audit log entity complete
 
-- [ ] 📝 Implement audit log repository (4h) 🔴
+- [x] ✅ 📝 Implement audit log repository (4h) 🔴
 
   - Create()
   - List() with filters
   - Search()
   - **AC**: Audit logs stored
 
-- [ ] 📝 Implement audit middleware (6h) 🔴
+- [x] ✅ 📝 Implement audit middleware (6h) 🔴
 
   - Capture request details
   - Log after response
   - Async logging (don't block)
   - **AC**: All actions logged
 
-- [ ] 📝 Implement audit log handlers (4h) 🟡
+- [x] ✅ 📝 Implement audit log handlers (4h) 🟡
 
   - GET /api/v1/audit-logs
   - GET /api/v1/audit-logs/search
   - Export audit logs
   - **AC**: Audit logs viewable
 
-- [ ] 📝 Setup log retention (2h) 🟡
+- [x] ✅ 📝 Setup log retention (2h) 🟡
   - 90-day retention
   - Automated cleanup job
   - **AC**: Old logs cleaned up
 
 ### Security Enhancements
 
-498- - [x] ✅ 📝 Implement rate limiting (6h) 🔴
+- [x] ✅ 📝 Implement rate limiting (6h) 🔴
 
-- Redis-based rate limiter
-- Different limits per endpoint type
-- Rate limit headers
-- **AC**: Rate limiting active
+  - Redis-based rate limiter
+  - Different limits per endpoint type
+  - Rate limit headers
+  - **AC**: Rate limiting active
 
-505- - [x] ✅ 📝 Implement security headers (3h) 🔴
+- [x] ✅ 📝 Implement security headers (3h) 🔴
 
-- X-Content-Type-Options
-- X-Frame-Options
-- X-XSS-Protection
-- Strict-Transport-Security
-- CSP
-- **AC**: Security headers present
+  - X-Content-Type-Options
+  - X-Frame-Options
+  - X-XSS-Protection
+  - Strict-Transport-Security
+  - CSP
+  - **AC**: Security headers present
 
-514- - [x] ✅ 📝 Configure CORS (2h) 🔴
+- [x] ✅ 📝 Configure CORS (2h) 🔴
 
-- Whitelist origins
-- Allowed methods & headers
-- **AC**: CORS working
+  - Whitelist origins
+  - Allowed methods & headers
+  - **AC**: CORS working
 
-- [ ] 📝 Implement password validation (3h) 🟡
+- [x] ✅ 📝 Implement password validation (3h) 🟡
 
   - Minimum 8 characters
   - Complexity requirements
   - Common password check
   - **AC**: Weak passwords rejected
 
-- [ ] 📝 Implement password history (3h) 🟡
+- [x] ✅ 📝 Implement password history (3h) 🟡
   - Track last 5 passwords
   - Prevent reuse
   - **AC**: Password reuse prevented
 
 ### Integration Tests
 
-- [ ] 📝 Auth service integration tests (12h) 🔴
+- [x] ✅ 📝 Auth service integration tests (12h) 🔴
   - User registration flow
   - Login flow
   - Token refresh flow
@@ -554,7 +554,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Setup Swagger UI
   - **AC**: API docs accessible
 
-- [ ] 📝 Create Postman collection (3h) 🟡
+- [x] ✅ 📝 Create Postman collection (3h) 🟡
   - All endpoints
   - Example requests
   - Environment variables
@@ -566,20 +566,20 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Core Setup
 
-- [ ] 📝 Create academic-service structure (3h) 🔴
+- [x] ✅ 📝 Create academic-service structure (3h) 🔴
 
   - Initialize Go module
   - Setup directory structure
   - Create Dockerfile
   - **AC**: Service structure ready
 
-- [ ] 📝 Setup database connection (2h) 🔴
+- [x] ✅ 📝 Setup database connection (2h) 🔴
 
   - Use shared database package
   - Test connection
   - **AC**: Service connects to DB
 
-- [ ] 📝 Create database migrations (8h) 🔴
+- [x] ✅ 📝 Create database migrations (8h) 🔴
   - Schools table
   - Academic_years table
   - Semesters table
@@ -595,25 +595,25 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### School Management
 
-- [ ] 📝 Implement School entity (2h) 🔴
+- [x] ✅ 📝 Implement School entity (2h) 🔴
 
   - Define School struct
   - Validation rules
   - **AC**: School entity complete
 
-- [ ] 📝 Implement School repository (6h) 🔴
+- [x] ✅ 📝 Implement School repository (6h) 🔴
 
   - CRUD operations
   - GetByTenantID()
   - **AC**: School CRUD working
 
-- [ ] 📝 Implement School use case (4h) 🔴
+- [x] ✅ 📝 Implement School use case (4h) 🔴
 
   - Business logic
   - Validation
   - **AC**: School operations working
 
-- [ ] 📝 Implement School handlers (8h) 🔴
+- [x] ✅ 📝 Implement School handlers (8h) 🔴
 
   - POST /api/v1/schools
   - GET /api/v1/schools
@@ -638,33 +638,33 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Academic Year & Semester
 
-- [ ] 📝 Implement AcademicYear entity (2h) 🔴
+- [x] ✅ 📝 Implement AcademicYear entity (2h) 🔴
 
   - Define AcademicYear struct
   - Validation (dates, active flag)
   - **AC**: AcademicYear entity complete
 
-- [ ] 📝 Implement Semester entity (2h) 🔴
+- [x] ✅ 📝 Implement Semester entity (2h) 🔴
 
   - Define Semester struct
   - Validation
   - **AC**: Semester entity complete
 
-- [ ] 📝 Implement AcademicYear repository (6h) 🔴
+- [x] ✅ 📝 Implement AcademicYear repository (6h) 🔴
 
   - CRUD operations
   - GetActive()
   - ValidateNonOverlap()
   - **AC**: AcademicYear CRUD working
 
-- [ ] 📝 Implement Semester repository (5h) 🔴
+- [x] ✅ 📝 Implement Semester repository (5h) 🔴
 
   - CRUD operations
   - GetBySemester()
   - GetActive()
   - **AC**: Semester CRUD working
 
-- [ ] 📝 Implement academic year handlers (8h) 🔴
+- [x] ✅ 📝 Implement academic year handlers (8h) 🔴
 
   - POST /api/v1/academic-years
   - GET /api/v1/academic-years
@@ -674,7 +674,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - DELETE /api/v1/academic-years/:id
   - **AC**: All endpoints working
 
-- [ ] 📝 Implement semester handlers (8h) 🔴
+- [x] ✅ 📝 Implement semester handlers (8h) 🔴
 
   - POST /api/v1/semesters
   - GET /api/v1/semesters
@@ -683,7 +683,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - PATCH /api/v1/semesters/:id/activate
   - **AC**: All endpoints working
 
-- [ ] 📝 Implement active year/semester validation (3h) 🔴
+- [x] ✅ 📝 Implement active year/semester validation (3h) 🔴
 
   - Only 1 active year per tenant
   - Only 1 active semester per year
@@ -698,19 +698,19 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Class Management
 
-- [ ] 📝 Implement Class entity (3h) 🔴
+- [x] ✅ 📝 Implement Class entity (3h) 🔴
 
   - Define Class struct
   - Validation rules
   - **AC**: Class entity complete
 
-- [ ] 📝 Implement ClassStudent entity (2h) 🔴
+- [x] ✅ 📝 Implement ClassStudent entity (Enrollment) (2h) 🔴
 
   - Enrollment tracking
   - Status (active, transferred, graduated)
   - **AC**: ClassStudent entity complete
 
-- [ ] 📝 Implement Class repository (8h) 🔴
+- [x] ✅ 📝 Implement Class repository (8h) 🔴
 
   - CRUD operations
   - GetByAcademicYear()
@@ -718,14 +718,14 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - EnrollStudent()
   - **AC**: Class operations working
 
-- [ ] 📝 Implement class handlers (10h) 🔴
+- [x] ✅ 📝 Implement class handlers (10h) 🔴
 
   - POST /api/v1/classes
   - GET /api/v1/classes
   - GET /api/v1/classes/:id
   - PUT /api/v1/classes/:id
   - DELETE /api/v1/classes/:id
-  - POST /api/v1/classes/:id/students
+  - POST /api/v1/classes/:id/students (Implemented via Enrollment)
   - GET /api/v1/classes/:id/students
   - DELETE /api/v1/classes/:id/students/:student_id
   - **AC**: All endpoints working
@@ -752,25 +752,25 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Subject Management
 
-- [ ] 📝 Implement Subject entity (2h) 🔴
+- [x] ✅ 📝 Implement Subject entity (2h) 🔴
 
   - Define Subject struct
   - Categories (Wajib, Peminatan, Mulok)
   - **AC**: Subject entity complete
 
-- [ ] 📝 Implement ClassSubject entity (2h) 🔴
+- [x] ✅ 📝 Implement ClassSubject entity (2h) 🔴
 
   - Subject-class-teacher mapping
   - **AC**: ClassSubject entity complete
 
-- [ ] 📝 Implement Subject repository (6h) 🔴
+- [x] ✅ 📝 Implement Subject repository (6h) 🔴
 
   - CRUD operations
   - GetByCategory()
   - AssignToClass()
   - **AC**: Subject operations working
 
-- [ ] 📝 Implement subject handlers (10h) 🔴
+- [x] ✅ 📝 Implement subject handlers (10h) 🔴
 
   - POST /api/v1/subjects
   - GET /api/v1/subjects
@@ -782,7 +782,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - DELETE /api/v1/classes/:id/subjects/:subject_id
   - **AC**: All endpoints working
 
-- [ ] 📝 Implement teacher assignment (4h) 🔴
+- [x] ✅ 📝 Implement teacher assignment (4h) 🔴
 
   - PUT /api/v1/classes/:id/subjects/:subject_id/teacher
   - Validation
@@ -797,7 +797,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Curriculum Management
 
-- [ ] 📝 Implement Curriculum entity (3h) 🔴
+- [x] ✅ 📝 Implement Curriculum entity (3h) 🔴
 
   - Define Curriculum struct
   - Support multiple curricula per tenant
@@ -809,14 +809,14 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Grade components & weights
   - **AC**: GradingRule entity complete
 
-- [ ] 📝 Implement Curriculum repository (6h) 🔴
+- [x] ✅ 📝 Implement Curriculum repository (6h) 🔴
 
   - CRUD operations
   - GetSubjects()
   - GetGradingRules()
   - **AC**: Curriculum operations working
 
-- [ ] 📝 Implement curriculum handlers (10h) 🟡
+- [x] ✅ 📝 Implement curriculum handlers (10h) 🟡
 
   - POST /api/v1/curricula
   - GET /api/v1/curricula
@@ -836,13 +836,13 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Schedule Management
 
-- [ ] 📝 Implement Schedule entity (3h) 🔴
+- [x] ✅ 📝 Implement Schedule entity (3h) 🔴
 
   - Define Schedule struct
   - Day of week, time slots
   - **AC**: Schedule entity complete
 
-- [ ] 📝 Implement Schedule repository (6h) 🔴
+- [x] ✅ 📝 Implement Schedule repository (6h) 🔴
 
   - CRUD operations
   - GetWeeklySchedule()
@@ -856,7 +856,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Room conflict check
   - **AC**: Conflicts detected
 
-- [ ] 📝 Implement schedule handlers (10h) 🔴
+- [x] ✅ 📝 Implement schedule handlers (10h) 🔴
 
   - POST /api/v1/schedules
   - GET /api/v1/schedules

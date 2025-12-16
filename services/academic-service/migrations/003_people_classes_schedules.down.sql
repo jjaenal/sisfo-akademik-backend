@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS schedules;
+DROP TABLE IF EXISTS class_students;
+DROP TABLE IF EXISTS classes;
+DROP TABLE IF EXISTS teachers;
+DROP TABLE IF EXISTS students;

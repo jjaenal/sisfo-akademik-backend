@@ -86,7 +86,7 @@ services:
       - APP_JWT_AUDIENCE=api
       - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
       - APP_RATE_LIMIT_PER_MINUTE=60
-      - APP_UPSTREAM_AUTH_URL=http://auth-service:9091
+      - APP_UPSTREAM_AUTH_URL=http://host.docker.internal:10091
       - APP_UPSTREAM_ACADEMIC_URLS=http://academic-service:9092,http://academic-service-2:9092
       - APP_UPSTREAM_ATTENDANCE_URL=http://attendance-service:9093
       - APP_UPSTREAM_ASSESSMENT_URL=http://assessment-service:9094
@@ -121,7 +121,7 @@ services:
       - ./services/auth-service:/app
       - ./shared:/shared
     environment:
-      - APP_ENV=test
+      - APP_ENV=development
       - APP_SERVICE_NAME=auth-service
       - APP_HTTP_PORT=9091
       - APP_POSTGRES_URL=postgres://dev:dev@postgres:5432/devdb?sslmode=disable
@@ -156,9 +156,16 @@ services:
     command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
     volumes:
       - ./services/academic-service:/app
+      - ./shared:/shared
     environment:
+      - APP_ENV=development
       - APP_SERVICE_NAME=academic-service
       - APP_HTTP_PORT=9092
+      - APP_POSTGRES_URL=postgres://dev:dev@postgres:5432/devdb?sslmode=disable
+      - APP_REDIS_ADDR=redis:6379
+      - APP_RABBIT_URL=amqp://dev:dev@rabbitmq:5672/
+      - APP_JWT_ACCESS_SECRET=devaccess
+      - APP_JWT_REFRESH_SECRET=devrefresh
       - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
       - APP_JWT_ISSUER=sisfo-akademik
       - APP_JWT_AUDIENCE=api
@@ -171,6 +178,12 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_healthy
+    healthcheck:
+      test:
+        ["CMD-SHELL", "wget -qO- http://localhost:9092/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   academic-service-2:
     image: golang:1.23-alpine
