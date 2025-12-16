@@ -14,4 +14,5 @@ type EnrollmentUseCase interface {
 	ListByClass(ctx context.Context, classID uuid.UUID) ([]entity.Enrollment, error)
 	ListByStudent(ctx context.Context, studentID uuid.UUID) ([]entity.Enrollment, error)
 	UpdateStatus(ctx context.Context, id uuid.UUID, status string) error
+	BulkEnroll(ctx context.Context, classID uuid.UUID, studentIDs []uuid.UUID) error
 }

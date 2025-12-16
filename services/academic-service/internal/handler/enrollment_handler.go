@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/csv"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -140,4 +141,71 @@ func (h *EnrollmentHandler) UpdateStatus(c *gin.Context) {
 	}
 
 	httputil.Success(c.Writer, map[string]string{"message": "Enrollment status updated successfully"})
+}
+
+func (h *EnrollmentHandler) BulkEnroll(c *gin.Context) {
+	classIDStr := c.Param("id")
+	classID, err := uuid.Parse(classIDStr)
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid ID", "Class ID must be a valid UUID")
+		return
+	}
+
+	// For simplicity, we'll accept a JSON array of student IDs first, as CSV parsing might be better done in a separate utility.
+	// However, the prompt asked for CSV. Let's support CSV file upload.
+	// But to keep it simple and robust, let's start with JSON array of student_ids.
+	// If the user insisted on CSV, I would implement it. The user said "CSV import" in TODO.
+	// Let's support both or just CSV. Let's do CSV.
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "File is required")
+		return
+	}
+
+	f, err := file.Open()
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Internal Server Error", "Failed to open file")
+		return
+	}
+	defer f.Close()
+
+	// Parse CSV
+	// Expected format: student_id (UUID)
+	// Or maybe we should support looking up by NIS/Email?
+	// For now, let's assume the CSV contains student_ids.
+	
+	reader := csv.NewReader(f)
+	records, err := reader.ReadAll()
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "Failed to parse CSV")
+		return
+	}
+
+	var studentIDs []uuid.UUID
+	for _, record := range records {
+		if len(record) > 0 {
+			// Skip header if present? Or assume no header?
+			// Let's try to parse.
+			id, err := uuid.Parse(record[0])
+			if err == nil {
+				studentIDs = append(studentIDs, id)
+			}
+		}
+	}
+
+	if len(studentIDs) == 0 {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "No valid student IDs found in CSV")
+		return
+	}
+
+	if err := h.useCase.BulkEnroll(c.Request.Context(), classID, studentIDs); err != nil {
+		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Internal Server Error", err.Error())
+		return
+	}
+
+	httputil.Success(c.Writer, map[string]interface{}{
+		"message": "Bulk enrollment successful",
+		"count":   len(studentIDs),
+	})
 }

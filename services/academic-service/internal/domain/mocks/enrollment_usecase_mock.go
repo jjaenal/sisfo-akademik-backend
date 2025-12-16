@@ -42,6 +42,20 @@ func (m *MockEnrollmentUseCase) EXPECT() *MockEnrollmentUseCaseMockRecorder {
 	return m.recorder
 }
 
+// BulkEnroll mocks base method.
+func (m *MockEnrollmentUseCase) BulkEnroll(ctx context.Context, classID uuid.UUID, studentIDs []uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BulkEnroll", ctx, classID, studentIDs)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BulkEnroll indicates an expected call of BulkEnroll.
+func (mr *MockEnrollmentUseCaseMockRecorder) BulkEnroll(ctx, classID, studentIDs any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BulkEnroll", reflect.TypeOf((*MockEnrollmentUseCase)(nil).BulkEnroll), ctx, classID, studentIDs)
+}
+
 // Enroll mocks base method.
 func (m *MockEnrollmentUseCase) Enroll(ctx context.Context, enrollment *entity.Enrollment) error {
 	m.ctrl.T.Helper()

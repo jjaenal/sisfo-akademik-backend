@@ -208,6 +208,7 @@ func main() {
 
 		// Additional routes
 		classes.GET("/:id/students", enrollmentHandler.ListByClass)
+		classes.POST("/:id/students/bulk", enrollmentHandler.BulkEnroll)
 		students.GET("/:id/classes", enrollmentHandler.ListByStudent)
 	}
 

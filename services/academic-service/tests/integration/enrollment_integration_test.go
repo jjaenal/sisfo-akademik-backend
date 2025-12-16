@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -110,6 +111,58 @@ func TestEnrollmentIntegration(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &resp)
 		assert.NoError(t, err)
 		assert.True(t, resp.Success)
+	})
+
+	t.Run("Bulk Enroll Success", func(t *testing.T) {
+		classID := uuid.New()
+		
+		// Setup Router for this specific route (since it's under /classes)
+		classes := r.Group("/api/v1/classes")
+		classes.POST("/:id/students/bulk", h.BulkEnroll)
+
+		// Create CSV content
+		studentID1 := uuid.New()
+		studentID2 := uuid.New()
+		csvContent := studentID1.String() + "\n" + studentID2.String() + "\n"
+		
+		body := new(bytes.Buffer)
+		writer := multipart.NewWriter(body)
+		part, _ := writer.CreateFormFile("file", "students.csv")
+		part.Write([]byte(csvContent))
+		writer.Close()
+
+		validClass := &entity.Class{
+			ID:       classID,
+			TenantID: "tenant-1",
+			Name:     "Class 1A",
+			Capacity: 30,
+		}
+
+		// Mock Expectations
+		mockClassRepo.EXPECT().GetByID(gomock.Any(), classID).Return(validClass, nil)
+		mockRepo.EXPECT().ListByClass(gomock.Any(), classID).Return([]entity.Enrollment{}, nil)
+		mockRepo.EXPECT().BulkEnroll(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, enrollments []*entity.Enrollment) error {
+			assert.Len(t, enrollments, 2)
+			assert.Equal(t, studentID1, enrollments[0].StudentID)
+			assert.Equal(t, studentID2, enrollments[1].StudentID)
+			return nil
+		})
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodPost, "/api/v1/classes/"+classID.String()+"/students/bulk", body)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+		r.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		
+		var resp struct {
+			Success bool                   `json:"success"`
+			Data    map[string]interface{} `json:"data"`
+		}
+		err := json.Unmarshal(w.Body.Bytes(), &resp)
+		assert.NoError(t, err)
+		assert.True(t, resp.Success)
+		assert.Equal(t, float64(2), resp.Data["count"])
 	})
 
 	t.Run("Get Enrollment Success", func(t *testing.T) {

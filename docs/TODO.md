@@ -730,7 +730,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - DELETE /api/v1/classes/:id/students/:student_id
   - **AC**: All endpoints working
 
-- [ ] 📝 Implement bulk enrollment (5h) 🟡
+- [x] ✅ 📝 Implement bulk enrollment (5h) 🟡
 
   - POST /api/v1/classes/:id/students/bulk
   - CSV import

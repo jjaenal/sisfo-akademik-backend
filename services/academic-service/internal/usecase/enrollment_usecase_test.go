@@ -98,6 +98,47 @@ func TestEnrollmentUseCase_CRUD(t *testing.T) {
 		assert.Error(t, err)
 	})
 
+	t.Run("BulkEnroll Success", func(t *testing.T) {
+		studentIDs := []uuid.UUID{uuid.New(), uuid.New()}
+		mockClassRepo.EXPECT().GetByID(gomock.Any(), classID).Return(validClass, nil)
+		mockRepo.EXPECT().ListByClass(gomock.Any(), classID).Return([]entity.Enrollment{}, nil)
+		mockRepo.EXPECT().BulkEnroll(gomock.Any(), gomock.Any()).Return(nil)
+
+		err := u.BulkEnroll(context.Background(), classID, studentIDs)
+		assert.NoError(t, err)
+	})
+
+	t.Run("BulkEnroll Validation Error (Empty)", func(t *testing.T) {
+		err := u.BulkEnroll(context.Background(), classID, []uuid.UUID{})
+		assert.Error(t, err)
+		assert.Equal(t, "student IDs are required", err.Error())
+	})
+
+	t.Run("BulkEnroll Class Not Found", func(t *testing.T) {
+		studentIDs := []uuid.UUID{uuid.New()}
+		mockClassRepo.EXPECT().GetByID(gomock.Any(), classID).Return(nil, nil)
+		
+		err := u.BulkEnroll(context.Background(), classID, studentIDs)
+		assert.Error(t, err)
+		assert.Equal(t, "class not found", err.Error())
+	})
+
+	t.Run("BulkEnroll Capacity Exceeded", func(t *testing.T) {
+		smallClass := &entity.Class{
+			ID:       classID,
+			TenantID: tenantID,
+			Capacity: 1,
+		}
+		studentIDs := []uuid.UUID{uuid.New(), uuid.New()} // 2 students
+		
+		mockClassRepo.EXPECT().GetByID(gomock.Any(), classID).Return(smallClass, nil)
+		mockRepo.EXPECT().ListByClass(gomock.Any(), classID).Return([]entity.Enrollment{}, nil) // 0 existing
+
+		err := u.BulkEnroll(context.Background(), classID, studentIDs)
+		assert.Error(t, err)
+		assert.Equal(t, "class capacity exceeded", err.Error())
+	})
+
 	t.Run("GetByID Success", func(t *testing.T) {
 		mockRepo.EXPECT().GetByID(gomock.Any(), id).Return(validEnrollment, nil)
 		res, err := u.GetByID(context.Background(), id)

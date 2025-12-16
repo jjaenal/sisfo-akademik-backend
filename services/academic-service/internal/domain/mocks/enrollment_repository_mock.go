@@ -42,6 +42,20 @@ func (m *MockEnrollmentRepository) EXPECT() *MockEnrollmentRepositoryMockRecorde
 	return m.recorder
 }
 
+// BulkEnroll mocks base method.
+func (m *MockEnrollmentRepository) BulkEnroll(ctx context.Context, enrollments []*entity.Enrollment) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BulkEnroll", ctx, enrollments)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BulkEnroll indicates an expected call of BulkEnroll.
+func (mr *MockEnrollmentRepositoryMockRecorder) BulkEnroll(ctx, enrollments any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BulkEnroll", reflect.TypeOf((*MockEnrollmentRepository)(nil).BulkEnroll), ctx, enrollments)
+}
+
 // Enroll mocks base method.
 func (m *MockEnrollmentRepository) Enroll(ctx context.Context, enrollment *entity.Enrollment) error {
 	m.ctrl.T.Helper()

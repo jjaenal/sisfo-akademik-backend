@@ -101,3 +101,50 @@ func (u *enrollmentUseCase) UpdateStatus(ctx context.Context, id uuid.UUID, stat
 
 	return u.repo.UpdateStatus(ctx, id, status)
 }
+
+func (u *enrollmentUseCase) BulkEnroll(ctx context.Context, classID uuid.UUID, studentIDs []uuid.UUID) error {
+	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
+	defer cancel()
+
+	if len(studentIDs) == 0 {
+		return errors.New("student IDs are required")
+	}
+
+	// Get Class details to check capacity
+	class, err := u.classRepo.GetByID(ctx, classID)
+	if err != nil {
+		return err
+	}
+	if class == nil {
+		return errors.New("class not found")
+	}
+
+	// Count existing enrollments
+	existingEnrollments, err := u.repo.ListByClass(ctx, classID)
+	if err != nil {
+		return err
+	}
+
+	// Check capacity
+	if len(existingEnrollments)+len(studentIDs) > class.Capacity {
+		return errors.New("class capacity exceeded")
+	}
+
+	var enrollments []*entity.Enrollment
+	for _, studentID := range studentIDs {
+		enrollment := &entity.Enrollment{
+			TenantID:  class.TenantID, // Assuming same tenant
+			ClassID:   classID,
+			StudentID: studentID,
+			Status:    "active",
+		}
+		if errMap := enrollment.Validate(); len(errMap) > 0 {
+			for _, v := range errMap {
+				return errors.New(v)
+			}
+		}
+		enrollments = append(enrollments, enrollment)
+	}
+
+	return u.repo.BulkEnroll(ctx, enrollments)
+}

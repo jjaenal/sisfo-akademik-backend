@@ -128,3 +128,31 @@ func (r *enrollmentRepository) UpdateStatus(ctx context.Context, id uuid.UUID, s
 	_, err := r.db.Exec(ctx, query, status, id)
 	return err
 }
+
+func (r *enrollmentRepository) BulkEnroll(ctx context.Context, enrollments []*entity.Enrollment) error {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	query := `
+		INSERT INTO class_students (tenant_id, class_id, student_id, status, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, NOW(), NOW())
+		RETURNING id, created_at, updated_at
+	`
+
+	for _, e := range enrollments {
+		if e.Status == "" {
+			e.Status = "active"
+		}
+		err := tx.QueryRow(ctx, query,
+			e.TenantID, e.ClassID, e.StudentID, e.Status,
+		).Scan(&e.ID, &e.CreatedAt, &e.UpdatedAt)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit(ctx)
+}
