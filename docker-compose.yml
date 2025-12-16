@@ -121,7 +121,7 @@ services:
       - ./services/auth-service:/app
       - ./shared:/shared
     environment:
-      - APP_ENV=development
+      - APP_ENV=test
       - APP_SERVICE_NAME=auth-service
       - APP_HTTP_PORT=9091
       - APP_POSTGRES_URL=postgres://dev:dev@postgres:5432/devdb?sslmode=disable

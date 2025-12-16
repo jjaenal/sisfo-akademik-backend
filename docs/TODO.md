@@ -26,7 +26,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Setup .gitignore for Go projects
   - **AC**: Directory structure matches standard layout
 
-- [ ] 📝 Setup GitHub/GitLab organization (2h) 🔴
+- [x] ✅ 📝 Setup GitHub/GitLab organization (2h) 🔴
 
   - Create organization/group
   - Setup team permissions
@@ -193,7 +193,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Snyk for dependencies
   - **AC**: Security scans in CI
 
-- [ ] 📝 Configure Docker registry (2h) 🔴
+- [x] ✅ 📝 Configure Docker registry (2h) 🔴
   - GitHub Container Registry or Docker Hub
   - Setup credentials
   - Image tagging strategy
@@ -261,14 +261,14 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### User Management
 
-264- - [x] ✅ 📝 Implement User entity (2h) 🔴
+- [x] ✅ 📝 Implement User entity (2h) 🔴
 
 - Define User struct
 - Validation rules
 - Methods (BeforeCreate, etc)
 - **AC**: User entity complete
 
-271- - [x] ✅ 📝 Implement User repository (6h) 🔴
+- [x] ✅ 📝 Implement User repository (6h) 🔴
 
 - Create()
 - GetByID()
@@ -278,7 +278,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 - Delete() (soft delete)
 - **AC**: CRUD operations working
 
-281- - [x] ✅ 📝 Implement User use case (6h) 🔴
+- [x] ✅ 📝 Implement User use case (6h) 🔴
 
 - Register user
 - Get user
@@ -287,7 +287,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 - Search users
 - **AC**: Business logic implemented
 
-290- - [x] ✅ 📝 Implement User handlers (8h) 🔴
+- [x] ✅ 📝 Implement User handlers (8h) 🔴
 
 - POST /api/v1/users
 - GET /api/v1/users/:id
@@ -297,20 +297,20 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 - PATCH /api/v1/users/:id/activate
 - **AC**: All endpoints working
 
-300- - [ ] � �📝 Add input validation (3h) 🔴
+- [x] ✅ 📝 Add input validation (3h) 🔴
 
 - Email format
 - Password strength
 - Required fields
 - **AC**: Invalid input rejected
 
-307- - [x] ✅ 📝 Implement password hashing (2h) 🔴
+- [x] ✅ 📝 Implement password hashing (2h) 🔴
 
 - bcrypt implementation
 - Cost factor: 12
 - **AC**: Passwords hashed securely
 
-313- - [ ] 🔄 📝 Unit tests for User (8h) 🔴
+- [x] ✅ 📝 Unit tests for User (8h) 🔴
 
 - Repository tests
 - Use case tests
@@ -320,7 +320,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Authentication
 
-322- - [x] ✅ 📝 Implement login handler (6h) 🔴
+- [x] ✅ 📝 Implement login handler (6h) 🔴
 
 - POST /api/v1/auth/login
 - Validate credentials
@@ -328,21 +328,21 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 - Return access & refresh tokens
 - **AC**: Login working
 
-- [ ] 📝 Implement JWT generation (4h) 🔴
+- [x] ✅ 📝 Implement JWT generation (4h) 🔴
 
   - Access token (15 min TTL)
   - Refresh token (7 days TTL)
   - Include claims (user_id, tenant_id, roles, permissions)
   - **AC**: JWT generated correctly
 
-337- - [x] ✅ 📝 Implement logout handler (3h) 🔴
+- [x] ✅ 📝 Implement logout handler (3h) 🔴
 
 - POST /api/v1/auth/logout
 - Invalidate refresh token
 - Blacklist access token in Redis
 - **AC**: Logout working
 
-344- - [x] ✅ 📝 Implement token refresh (5h) 🔴
+- [x] ✅ 📝 Implement token refresh (5h) 🔴
 
 - POST /api/v1/auth/refresh
 - Validate refresh token
@@ -350,35 +350,35 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 - Rotate refresh token
 - **AC**: Token refresh working
 
-- [ ] 📝 Implement forgot password (6h) 🟡
+- [x] 📝 Implement forgot password (6h) 🟡
 
   - POST /api/v1/auth/forgot-password
   - Generate reset token
   - Send reset email
   - **AC**: Reset email sent
 
-- [ ] 📝 Implement reset password (5h) 🟡
+- [x] 📝 Implement reset password (5h) 🟡
 
   - POST /api/v1/auth/reset-password
   - Validate reset token
   - Update password
   - **AC**: Password reset working
 
-- [ ] 📝 Implement change password (4h) 🟡
+- [x] 📝 Implement change password (4h) 🟡
 
   - POST /api/v1/auth/change-password
   - Validate old password
   - Update password
   - **AC**: Password change working
 
-- [ ] 📝 Implement failed login tracking (4h) 🟡
+- [x] ✅ 📝 Implement failed login tracking (4h) 🟡
 
   - Track failed attempts
   - Lock account after 5 failures
   - Auto-unlock after 30 minutes
   - **AC**: Account lockout working
 
-380- - [ ] 🔄 📝 Unit tests for Auth (10h) 🔴
+- [x] ✅ 🔄 📝 Unit tests for Auth (10h) 🔴
 
 - Login tests
 - Token generation tests
@@ -436,14 +436,14 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 - Get user permissions (effective)
 - **AC**: Role assignment working
 
-- [ ] 📝 Implement RBAC middleware (8h) 🔴
+439- - [x] ✅ 📝 Implement RBAC middleware (8h) 🔴
 
-  - Check user authentication
-  - Check user permissions
-  - Context-aware (tenant-based)
-  - **AC**: Protected endpoints secured
+- Check user authentication
+- Check user permissions
+- Context-aware (tenant-based)
+- **AC**: Protected endpoints secured
 
-- [ ] 📝 Implement role handlers (8h) 🟡
+- [x] 📝 Implement role handlers (8h) 🟡
 
   - POST /api/v1/roles
   - GET /api/v1/roles
@@ -495,27 +495,27 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Security Enhancements
 
-- [ ] 📝 Implement rate limiting (6h) 🔴
+498- - [x] ✅ 📝 Implement rate limiting (6h) 🔴
 
-  - Redis-based rate limiter
-  - Different limits per endpoint type
-  - Rate limit headers
-  - **AC**: Rate limiting active
+- Redis-based rate limiter
+- Different limits per endpoint type
+- Rate limit headers
+- **AC**: Rate limiting active
 
-- [ ] 📝 Implement security headers (3h) 🔴
+505- - [x] ✅ 📝 Implement security headers (3h) 🔴
 
-  - X-Content-Type-Options
-  - X-Frame-Options
-  - X-XSS-Protection
-  - Strict-Transport-Security
-  - CSP
-  - **AC**: Security headers present
+- X-Content-Type-Options
+- X-Frame-Options
+- X-XSS-Protection
+- Strict-Transport-Security
+- CSP
+- **AC**: Security headers present
 
-- [ ] 📝 Configure CORS (2h) 🔴
+514- - [x] ✅ 📝 Configure CORS (2h) 🔴
 
-  - Whitelist origins
-  - Allowed methods & headers
-  - **AC**: CORS working
+- Whitelist origins
+- Allowed methods & headers
+- **AC**: CORS working
 
 - [ ] 📝 Implement password validation (3h) 🟡
 
@@ -1525,7 +1525,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 Status: Round-robin multi-upstream aktif (env `*_URLS`), dengan circuit breaker per upstream dan health aggregator `/api/v1/gateway/health` mendukung multi upstream.
 
-- [ ] 📝 Unit tests for Gateway (8h) 🔴
+- [x] 📝 Unit tests for Gateway (8h) 🔴
   - Routing tests
   - Rate limiting tests
   - Coverage >70%
@@ -1591,7 +1591,7 @@ Status: Round-robin multi-upstream aktif (env `*_URLS`), dengan circuit breaker 
   - Test performance
   - **AC**: Queries faster
 
-- [ ] 📝 Implement connection pooling (3h) 🔴
+- [x] 📝 Implement connection pooling (3h) 🔴
   - Configure pool size
   - Monitor connections
   - **AC**: Pooling working
@@ -1623,21 +1623,21 @@ Status: Round-robin multi-upstream aktif (env `*_URLS`), dengan circuit breaker 
   - Key management
   - **AC**: Sensitive data encrypted
 
-- [ ] 📝 Setup Gosec scanning (3h) 🔴
+- [x] 📝 Setup Gosec scanning (3h) 🔴
 
   - Configure Gosec
   - Add to CI
   - Fix issues
   - **AC**: Security scan passing
 
-- [ ] 📝 Setup Trivy scanning (3h) 🔴
+- [x] 📝 Setup Trivy scanning (3h) 🔴
 
   - Configure Trivy
   - Scan containers
   - Fix vulnerabilities
   - **AC**: No critical vulnerabilities
 
-- [ ] 📝 Implement security headers (2h) 🔴
+- [x] 📝 Implement security headers (2h) 🔴
   - Add security headers
   - Test headers
   - **AC**: Headers present

@@ -74,7 +74,7 @@ func TestRolesHandler_AssignListUnassign(t *testing.T) {
 	h.RegisterProtected(protected)
 
 	// create user
-	body := map[string]string{"email": "u2@test.local", "password": "password123"}
+	body := map[string]string{"email": "u2@test.local", "password": "Password123!"}
 	b, _ := json.Marshal(body)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodPost, "/api/v1/users", bytes.NewReader(b))
@@ -148,5 +148,22 @@ func TestRolesHandler_AssignListUnassign(t *testing.T) {
 	r.ServeHTTP(w, req)
 	if w.Code != http.StatusBadRequest {
 		t.Fatalf("expected 400 got %d", w.Code)
+	}
+
+	// assign with invalid user id -> expect 400
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest(http.MethodPost, "/api/v1/users/not-a-uuid/roles", strings.NewReader(`{"role_name":"teacher"}`))
+	req.Header.Set("Content-Type", "application/json")
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid user id assign, got %d body=%s", w.Code, w.Body.String())
+	}
+
+	// list with invalid user id -> expect 400
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest(http.MethodGet, "/api/v1/users/not-a-uuid/roles", nil)
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid user id list, got %d body=%s", w.Code, w.Body.String())
 	}
 }

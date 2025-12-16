@@ -4,9 +4,11 @@ import (
 	"context"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/google/uuid"
 	"github.com/jjaenal/sisfo-akademik-backend/services/auth-service/internal/repository"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/validator"
 )
 
 type UserRegisterInput struct {
@@ -43,8 +45,20 @@ func (u *users) Register(ctx context.Context, in UserRegisterInput) (*repository
 	if email == "" || pwd == "" {
 		return nil, repository.ErrValidation("email and password required")
 	}
+	var payload = struct {
+		Email string `validate:"required,email"`
+	}{Email: email}
+	if err := validator.Validate(payload); err != nil {
+		return nil, repository.ErrValidation("invalid email format")
+	}
 	if len(pwd) < 8 {
 		return nil, repository.ErrValidation("password must be at least 8 characters")
+	}
+	if !isStrongPassword(pwd) {
+		return nil, repository.ErrValidation("password must include uppercase, lowercase, number, and symbol")
+	}
+	if isCommonPassword(pwd) {
+		return nil, repository.ErrValidation("password too common")
 	}
 	return u.repo.Create(ctx, repository.CreateUserParams{
 		TenantID: in.TenantID,
@@ -76,12 +90,26 @@ func (u *users) Update(ctx context.Context, id uuid.UUID, in UserUpdateInput) (*
 	}
 	if in.Email != nil {
 		e := strings.TrimSpace(*in.Email)
+		if e != "" {
+			var payload = struct {
+				Email string `validate:"required,email"`
+			}{Email: e}
+			if err := validator.Validate(payload); err != nil {
+				return nil, repository.ErrValidation("invalid email format")
+			}
+		}
 		params.Email = &e
 	}
 	if in.Password != nil {
 		p := strings.TrimSpace(*in.Password)
 		if p != "" && len(p) < 8 {
 			return nil, repository.ErrValidation("password must be at least 8 characters")
+		}
+		if p != "" && !isStrongPassword(p) {
+			return nil, repository.ErrValidation("password must include uppercase, lowercase, number, and symbol")
+		}
+		if p != "" && isCommonPassword(p) {
+			return nil, repository.ErrValidation("password too common")
 		}
 		params.Password = &p
 	}
@@ -90,4 +118,40 @@ func (u *users) Update(ctx context.Context, id uuid.UUID, in UserUpdateInput) (*
 
 func (u *users) Delete(ctx context.Context, id uuid.UUID) error {
 	return u.repo.SoftDelete(ctx, id)
+}
+
+func isStrongPassword(s string) bool {
+	hasUpper := false
+	hasLower := false
+	hasDigit := false
+	hasSymbol := false
+	for _, r := range s {
+		if unicode.IsUpper(r) {
+			hasUpper = true
+		} else if unicode.IsLower(r) {
+			hasLower = true
+		} else if unicode.IsDigit(r) {
+			hasDigit = true
+		} else {
+			hasSymbol = true
+		}
+	}
+	return hasUpper && hasLower && hasDigit && hasSymbol
+}
+
+func isCommonPassword(s string) bool {
+	l := strings.ToLower(s)
+	common := map[string]struct{}{
+		"password":  {},
+		"password1": {},
+		"passw0rd":  {},
+		"p@ssw0rd":  {},
+		"123456":    {},
+		"qwerty":    {},
+		"admin":     {},
+		"welcome":   {},
+		"letmein":   {},
+	}
+	_, ok := common[l]
+	return ok
 }

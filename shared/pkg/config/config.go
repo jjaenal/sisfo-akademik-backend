@@ -22,6 +22,10 @@ type Config struct {
 	JWTAudience         string
 	CORSAllowedOrigins  []string
 	RateLimitPerMinute  int
+	LockoutThreshold    int
+	LockoutTTL          time.Duration
+	FailWindowTTL       time.Duration
+	AuditRetentionDays  int
 }
 
 func Load() (Config, error) {
@@ -38,6 +42,10 @@ func Load() (Config, error) {
 	v.SetDefault("CORS_ALLOWED_ORIGINS", []string{"*"})
 	v.SetDefault("JWT_ISSUER", "sisfo-akademik")
 	v.SetDefault("JWT_AUDIENCE", "api")
+	v.SetDefault("LOCKOUT_THRESHOLD", 5)
+	v.SetDefault("LOCKOUT_TTL", "15m")
+	v.SetDefault("FAIL_WINDOW_TTL", "15m")
+	v.SetDefault("AUDIT_RETENTION_DAYS", 90)
 
 	cfg := Config{
 		Env:                v.GetString("ENV"),
@@ -54,6 +62,10 @@ func Load() (Config, error) {
 		JWTAudience:        v.GetString("JWT_AUDIENCE"),
 		CORSAllowedOrigins: v.GetStringSlice("CORS_ALLOWED_ORIGINS"),
 		RateLimitPerMinute: v.GetInt("RATE_LIMIT_PER_MINUTE"),
+		LockoutThreshold:   v.GetInt("LOCKOUT_THRESHOLD"),
+		LockoutTTL:         mustParseDuration(v.GetString("LOCKOUT_TTL")),
+		FailWindowTTL:      mustParseDuration(v.GetString("FAIL_WINDOW_TTL")),
+		AuditRetentionDays: v.GetInt("AUDIT_RETENTION_DAYS"),
 	}
 	if err := cfg.Validate(); err != nil {
 		return Config{}, err

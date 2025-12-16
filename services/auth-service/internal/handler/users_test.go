@@ -69,7 +69,7 @@ func TestUsersHandler_CRUD(t *testing.T) {
 	h.RegisterProtected(protected)
 
 	// create
-	body := map[string]string{"email": "u1@test.local", "password": "password123"}
+	body := map[string]string{"email": "u1@test.local", "password": "Password123!"}
 	b, _ := json.Marshal(body)
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest(http.MethodPost, "/api/v1/users", bytes.NewReader(b))
@@ -118,11 +118,61 @@ func TestUsersHandler_CRUD(t *testing.T) {
 		t.Fatalf("expected 400 for short password, got %d body=%s", w.Code, w.Body.String())
 	}
 
+	// create with invalid email -> expect 400
+	w = httptest.NewRecorder()
+	bodyInvalidEmail := map[string]string{"email": "invalid-email", "password": "password123!"}
+	b, _ = json.Marshal(bodyInvalidEmail)
+	req, _ = http.NewRequest(http.MethodPost, "/api/v1/users", bytes.NewReader(b))
+	req.Header.Set("Content-Type", "application/json")
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid email, got %d body=%s", w.Code, w.Body.String())
+	}
+
+	// update with invalid email -> expect 400
+	w = httptest.NewRecorder()
+	invalidEmailUpd := map[string]string{"email": "not-an-email"}
+	b, _ = json.Marshal(invalidEmailUpd)
+	req, _ = http.NewRequest(http.MethodPut, "/api/v1/users/"+idStr, bytes.NewReader(b))
+	req.Header.Set("Content-Type", "application/json")
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid email update, got %d body=%s", w.Code, w.Body.String())
+	}
+
+	// update with weak password (no symbol) -> expect 400
+	w = httptest.NewRecorder()
+	weakPwd := map[string]string{"password": "password123"}
+	b, _ = json.Marshal(weakPwd)
+	req, _ = http.NewRequest(http.MethodPut, "/api/v1/users/"+idStr, bytes.NewReader(b))
+	req.Header.Set("Content-Type", "application/json")
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for weak password update, got %d body=%s", w.Code, w.Body.String())
+	}
+
+	// update with empty body -> expect 200 and unchanged email
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest(http.MethodPut, "/api/v1/users/"+idStr, bytes.NewReader([]byte(`{}`)))
+	req.Header.Set("Content-Type", "application/json")
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected 200 for empty update, got %d body=%s", w.Code, w.Body.String())
+	}
+
 	// delete
 	w = httptest.NewRecorder()
 	req, _ = http.NewRequest(http.MethodDelete, "/api/v1/users/"+idStr, nil)
 	r.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Fatalf("delete status=%d body=%s", w.Code, w.Body.String())
+	}
+
+	// get after delete -> expect 404
+	w = httptest.NewRecorder()
+	req, _ = http.NewRequest(http.MethodGet, "/api/v1/users/"+idStr, nil)
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for deleted user, got %d body=%s", w.Code, w.Body.String())
 	}
 }

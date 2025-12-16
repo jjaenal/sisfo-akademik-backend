@@ -10,6 +10,8 @@ require (
 	go.uber.org/zap v1.27.1
 )
 
+require github.com/rabbitmq/amqp091-go v1.10.0 // indirect
+
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

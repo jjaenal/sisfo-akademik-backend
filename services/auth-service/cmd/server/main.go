@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jjaenal/sisfo-akademik-backend/services/auth-service/internal/handler"
@@ -12,6 +13,7 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/rabbit"
 	redisutil "github.com/jjaenal/sisfo-akademik-backend/shared/pkg/redis"
 	"go.uber.org/zap"
 )
@@ -35,12 +37,17 @@ func main() {
 	r.Use(gin.Logger(), gin.Recovery())
 	r.Use(middleware.CORS(cfg.CORSAllowedOrigins))
 	limiter := redisutil.NewLimiterFromCounter(redis.Raw())
-	// Rate limit applied globally using shared config
-	r.Use(middleware.RateLimit(limiter, cfg.RateLimitPerMinute))
+	// Rate limit policy: READ=100/min, WRITE=30/min, AUTH prefix override=5/min
+	r.Use(middleware.RateLimitByPolicy(limiter, 100, 30, map[string]int{"/api/v1/auth/": 5}))
 	handler.NewHealthHandler(db, redis).Register(r)
 	authRepo := repository.NewUsersRepo(db)
 	auditRepo := repository.NewAuditRepo(db)
-	authHandler := handler.NewAuthHandler(authRepo, cfg, redis, auditRepo)
+	prRepo := repository.NewPasswordResetRepo(db)
+	rb := rabbit.New(cfg.RabbitURL)
+	phRepo := repository.NewPasswordHistoryRepo(db)
+	// Audit middleware logs after response asynchronously
+	r.Use(middleware.Audit(auditRepo))
+	authHandler := handler.NewAuthHandler(authRepo, cfg, redis, auditRepo, prRepo, rb, phRepo)
 	authHandler.Register(r)
 	if cfg.Env == "development" {
 		handler.NewDevHandler(authRepo).Register(r)
@@ -58,6 +65,17 @@ func main() {
 	rolesUC := usecase.NewRoles(authRepo, rolesRepo)
 	rolesHandler := handler.NewRolesHandler(rolesUC)
 	rolesHandler.RegisterProtected(protected)
+	// Audit handlers
+	auditHandler := handler.NewAuditHandler(auditRepo)
+	auditHandler.RegisterProtected(protected)
+	// Log retention job
+	go func() {
+		for {
+			cutoff := time.Now().UTC().Add(-time.Duration(cfg.AuditRetentionDays) * 24 * time.Hour)
+			_, _ = auditRepo.CleanupOlderThan(context.Background(), cutoff)
+			time.Sleep(24 * time.Hour)
+		}
+	}()
 	addr := fmt.Sprintf(":%d", cfg.HTTPPort)
 	if err := r.Run(addr); err != nil {
 		log.Fatal("server failed", zap.Error(err))

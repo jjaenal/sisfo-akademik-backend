@@ -48,9 +48,15 @@ func TestUsersUsecase_RegisterGetListUpdateDelete(t *testing.T) {
 	}); err == nil {
 		t.Fatalf("expected error for short password")
 	}
+	// weak password missing symbol
+	if _, err := uc.Register(context.Background(), UserRegisterInput{
+		TenantID: tenant, Email: "ucweak@test.local", Password: "password123",
+	}); err == nil {
+		t.Fatalf("expected error for weak password without symbol")
+	}
 	// register
 	u, err := uc.Register(context.Background(), UserRegisterInput{
-		TenantID: tenant, Email: "uc1@test.local", Password: "password123",
+		TenantID: tenant, Email: "uc1@test.local", Password: "Password123!",
 	})
 	if err != nil {
 		t.Fatalf("register err: %v", err)
@@ -76,6 +82,24 @@ func TestUsersUsecase_RegisterGetListUpdateDelete(t *testing.T) {
 	}
 	if upd.Email != newEmail {
 		t.Fatalf("email not updated: %s", upd.Email)
+	}
+	// update password weak
+	if _, err := uc.Update(context.Background(), u.ID, UserUpdateInput{
+		Password: func(s string) *string { return &s }("password123"),
+	}); err == nil {
+		t.Fatalf("expected error for weak password update")
+	}
+	// register common password
+	if _, err := uc.Register(context.Background(), UserRegisterInput{
+		TenantID: tenant, Email: "uc2@test.local", Password: "p@ssw0rd",
+	}); err == nil {
+		t.Fatalf("expected error for common password register")
+	}
+	// update password common
+	if _, err := uc.Update(context.Background(), u.ID, UserUpdateInput{
+		Password: func(s string) *string { return &s }("p@ssw0rd"),
+	}); err == nil {
+		t.Fatalf("expected error for common password update")
 	}
 	// delete
 	if err := uc.Delete(context.Background(), u.ID); err != nil {
