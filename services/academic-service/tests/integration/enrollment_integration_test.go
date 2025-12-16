@@ -27,9 +27,10 @@ func TestEnrollmentIntegration(t *testing.T) {
 
 	// Mock Repository
 	mockRepo := mocks.NewMockEnrollmentRepository(ctrl)
+	mockClassRepo := mocks.NewMockClassRepository(ctrl)
 
 	// Real UseCase with Mock Repo
-	u := usecase.NewEnrollmentUseCase(mockRepo, time.Second*2)
+	u := usecase.NewEnrollmentUseCase(mockRepo, mockClassRepo, time.Second*2)
 
 	// Real Handler with Real UseCase
 	h := handler.NewEnrollmentHandler(u)
@@ -44,13 +45,25 @@ func TestEnrollmentIntegration(t *testing.T) {
 	}
 
 	t.Run("Enroll Student Success", func(t *testing.T) {
+		classID := uuid.New()
 		reqBody := map[string]interface{}{
 			"tenant_id":  "tenant-1",
-			"class_id":   uuid.New().String(),
+			"class_id":   classID.String(),
 			"student_id": uuid.New().String(),
 			"status":     "enrolled",
 		}
 		body, _ := json.Marshal(reqBody)
+
+		validClass := &entity.Class{
+			ID:       classID,
+			TenantID: "tenant-1",
+			Name:     "Class 1A",
+			Capacity: 30,
+		}
+
+		// Expect Class Check and Capacity Check
+		mockClassRepo.EXPECT().GetByID(gomock.Any(), classID).Return(validClass, nil)
+		mockRepo.EXPECT().ListByClass(gomock.Any(), classID).Return([]entity.Enrollment{}, nil)
 
 		// Expect Enroll
 		mockRepo.EXPECT().Enroll(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, e *entity.Enrollment) error {

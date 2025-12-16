@@ -13,14 +13,16 @@ import (
 
 type enrollmentUseCase struct {
 	repo           repository.EnrollmentRepository
+	classRepo      repository.ClassRepository
 	contextTimeout time.Duration
 }
 
 var _ domainUseCase.EnrollmentUseCase = (*enrollmentUseCase)(nil)
 
-func NewEnrollmentUseCase(repo repository.EnrollmentRepository, timeout time.Duration) domainUseCase.EnrollmentUseCase {
+func NewEnrollmentUseCase(repo repository.EnrollmentRepository, classRepo repository.ClassRepository, timeout time.Duration) domainUseCase.EnrollmentUseCase {
 	return &enrollmentUseCase{
 		repo:           repo,
+		classRepo:      classRepo,
 		contextTimeout: timeout,
 	}
 }
@@ -33,6 +35,29 @@ func (u *enrollmentUseCase) Enroll(ctx context.Context, e *entity.Enrollment) er
 		for _, v := range errMap {
 			return errors.New(v)
 		}
+	}
+
+	// Get Class details to check capacity
+	class, err := u.classRepo.GetByID(ctx, e.ClassID)
+	if err != nil {
+		return err
+	}
+	if class == nil {
+		return errors.New("class not found")
+	}
+
+	// Count existing enrollments
+	existingEnrollments, err := u.repo.ListByClass(ctx, e.ClassID)
+	if err != nil {
+		return err
+	}
+
+	// Check capacity
+	// Assuming existingEnrollments includes only active students.
+	// We might need to filter by status if ListByClass returns all.
+	// For now, let's assume simple count.
+	if len(existingEnrollments) >= class.Capacity {
+		return errors.New("class capacity exceeded")
 	}
 
 	return u.repo.Enroll(ctx, e)

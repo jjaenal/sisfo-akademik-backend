@@ -18,7 +18,8 @@ func TestEnrollmentUseCase_CRUD(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockEnrollmentRepository(ctrl)
-	u := usecase.NewEnrollmentUseCase(mockRepo, time.Second*2)
+	mockClassRepo := mocks.NewMockClassRepository(ctrl)
+	u := usecase.NewEnrollmentUseCase(mockRepo, mockClassRepo, time.Second*2)
 
 	tenantID := "tenant-1"
 	id := uuid.New()
@@ -33,7 +34,16 @@ func TestEnrollmentUseCase_CRUD(t *testing.T) {
 		Status:    "active",
 	}
 
+	validClass := &entity.Class{
+		ID:       classID,
+		TenantID: tenantID,
+		Name:     "Class 1A",
+		Capacity: 30,
+	}
+
 	t.Run("Enroll Success", func(t *testing.T) {
+		mockClassRepo.EXPECT().GetByID(gomock.Any(), classID).Return(validClass, nil)
+		mockRepo.EXPECT().ListByClass(gomock.Any(), classID).Return([]entity.Enrollment{}, nil)
 		mockRepo.EXPECT().Enroll(gomock.Any(), validEnrollment).Return(nil)
 		err := u.Enroll(context.Background(), validEnrollment)
 		assert.NoError(t, err)
@@ -45,7 +55,32 @@ func TestEnrollmentUseCase_CRUD(t *testing.T) {
 		assert.Error(t, err)
 	})
 
+	t.Run("Enroll Class Not Found", func(t *testing.T) {
+		mockClassRepo.EXPECT().GetByID(gomock.Any(), classID).Return(nil, nil)
+		err := u.Enroll(context.Background(), validEnrollment)
+		assert.Error(t, err)
+		assert.Equal(t, "class not found", err.Error())
+	})
+
+	t.Run("Enroll Capacity Exceeded", func(t *testing.T) {
+		smallClass := &entity.Class{
+			ID:       classID,
+			TenantID: tenantID,
+			Capacity: 1,
+		}
+		existingEnrollment := entity.Enrollment{ID: uuid.New(), ClassID: classID}
+
+		mockClassRepo.EXPECT().GetByID(gomock.Any(), classID).Return(smallClass, nil)
+		mockRepo.EXPECT().ListByClass(gomock.Any(), classID).Return([]entity.Enrollment{existingEnrollment}, nil)
+		
+		err := u.Enroll(context.Background(), validEnrollment)
+		assert.Error(t, err)
+		assert.Equal(t, "class capacity exceeded", err.Error())
+	})
+
 	t.Run("Enroll Repo Error", func(t *testing.T) {
+		mockClassRepo.EXPECT().GetByID(gomock.Any(), classID).Return(validClass, nil)
+		mockRepo.EXPECT().ListByClass(gomock.Any(), classID).Return([]entity.Enrollment{}, nil)
 		mockRepo.EXPECT().Enroll(gomock.Any(), validEnrollment).Return(assert.AnError)
 		err := u.Enroll(context.Background(), validEnrollment)
 		assert.Error(t, err)

@@ -737,7 +737,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Validation
   - **AC**: Bulk enrollment working
 
-- [ ] 📝 Implement capacity management (3h) 🟡
+- [x] ✅ 📝 Implement capacity management (3h) 🟡
 
   - Check max_students
   - Prevent over-enrollment

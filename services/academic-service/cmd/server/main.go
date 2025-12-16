@@ -72,7 +72,7 @@ func main() {
 	curriculumHandler := handler.NewCurriculumHandler(curriculumUseCase)
 
 	enrollmentRepo := postgres.NewEnrollmentRepository(dbPool)
-	enrollmentUseCase := usecase.NewEnrollmentUseCase(enrollmentRepo, 5*time.Second)
+	enrollmentUseCase := usecase.NewEnrollmentUseCase(enrollmentRepo, classRepo, 5*time.Second)
 	enrollmentHandler := handler.NewEnrollmentHandler(enrollmentUseCase)
 
 	classSubjectRepo := postgres.NewClassSubjectRepository(dbPool)
