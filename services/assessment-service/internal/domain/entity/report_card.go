@@ -25,6 +25,7 @@ type ReportCard struct {
 	TotalCredits int              `json:"total_credits"`
 	Attendance   string           `json:"attendance"` // JSON string summary
 	Comments     string           `json:"comments"`
+	PDFUrl       string           `json:"pdf_url"`
 	GeneratedAt  *time.Time       `json:"generated_at"`
 	PublishedAt  *time.Time       `json:"published_at"`
 	CreatedAt    time.Time        `json:"created_at"`

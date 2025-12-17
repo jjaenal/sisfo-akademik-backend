@@ -23,8 +23,9 @@ func TestReportCardUseCase_Generate(t *testing.T) {
 	mockGradeRepo := mocks.NewMockGradeRepository(ctrl)
 	mockAssessmentRepo := mocks.NewMockAssessmentRepository(ctrl)
 	mockCategoryRepo := mocks.NewMockGradeCategoryRepository(ctrl)
+	mockFileStorage := mocks.NewMockFileStorage(ctrl)
 
-	u := usecase.NewReportCardUseCase(mockReportRepo, mockGradeRepo, mockAssessmentRepo, mockCategoryRepo)
+	u := usecase.NewReportCardUseCase(mockReportRepo, mockGradeRepo, mockAssessmentRepo, mockCategoryRepo, mockFileStorage)
 
 	ctx := context.Background()
 	tenantID := uuid.New()
@@ -67,13 +68,17 @@ func TestReportCardUseCase_Generate(t *testing.T) {
 		}
 		mockCategoryRepo.EXPECT().GetByID(ctx, categoryID).Return(category, nil)
 
-		// 5. Create Report Card
+		// 5. Upload PDF
+		mockFileStorage.EXPECT().Upload(ctx, gomock.Any(), gomock.Any()).Return("http://example.com/report.pdf", nil)
+
+		// 6. Create Report Card
 		mockReportRepo.EXPECT().Create(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, rc *entity.ReportCard) error {
 			assert.Equal(t, studentID, rc.StudentID)
 			assert.Equal(t, entity.ReportCardStatusGenerated, rc.Status)
 			assert.Len(t, rc.Details, 1)
 			assert.Equal(t, 85.0, rc.Details[0].FinalScore)
 			assert.Equal(t, "B", rc.Details[0].GradeLetter)
+			assert.Equal(t, "http://example.com/report.pdf", rc.PDFUrl)
 			return nil
 		})
 
@@ -104,8 +109,9 @@ func TestReportCardUseCase_GetPDF(t *testing.T) {
 	mockGradeRepo := mocks.NewMockGradeRepository(ctrl)
 	mockAssessmentRepo := mocks.NewMockAssessmentRepository(ctrl)
 	mockCategoryRepo := mocks.NewMockGradeCategoryRepository(ctrl)
+	mockFileStorage := mocks.NewMockFileStorage(ctrl)
 
-	u := usecase.NewReportCardUseCase(mockReportRepo, mockGradeRepo, mockAssessmentRepo, mockCategoryRepo)
+	u := usecase.NewReportCardUseCase(mockReportRepo, mockGradeRepo, mockAssessmentRepo, mockCategoryRepo, mockFileStorage)
 	ctx := context.Background()
 	id := uuid.New()
 

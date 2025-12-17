@@ -19,7 +19,7 @@ func TestApplicationUseCase_SubmitApplication(t *testing.T) {
 
 	mockRepo := mocks.NewMockApplicationRepository(ctrl)
 	timeout := 2 * time.Second
-	u := usecase.NewApplicationUseCase(mockRepo, timeout)
+	u := usecase.NewApplicationUseCase(mockRepo, nil, timeout)
 
 	t.Run("success", func(t *testing.T) {
 		application := &entity.Application{
@@ -62,7 +62,7 @@ func TestApplicationUseCase_GetApplicationStatus(t *testing.T) {
 
 	mockRepo := mocks.NewMockApplicationRepository(ctrl)
 	timeout := 2 * time.Second
-	u := usecase.NewApplicationUseCase(mockRepo, timeout)
+	u := usecase.NewApplicationUseCase(mockRepo, nil, timeout)
 
 	regNum := "REG-20250101-1234"
 
@@ -82,7 +82,7 @@ func TestApplicationUseCase_VerifyApplication(t *testing.T) {
 
 	mockRepo := mocks.NewMockApplicationRepository(ctrl)
 	timeout := 2 * time.Second
-	u := usecase.NewApplicationUseCase(mockRepo, timeout)
+	u := usecase.NewApplicationUseCase(mockRepo, nil, timeout)
 
 	id := uuid.New()
 

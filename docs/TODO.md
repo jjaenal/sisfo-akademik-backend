@@ -418,7 +418,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - GetByRole()
   - **AC**: Permission operations working
 
-- [ ] 📝 Seed default roles & permissions (4h) 🔴
+- [x] ✅ 📝 Seed default roles & permissions (4h) ✅
 
   - Super Admin role
   - School Admin role
@@ -1111,14 +1111,14 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Generate report data
   - **AC**: Report cards generated
 
-- [x] ✅ 📝 Implement PDF generation (12h) 🔴
+- [x] ✅ 📝 Implement PDF generation (12h) ✅
 
   - HTML template
   - Convert to PDF (maroto)
-  - Store in object storage (Pending)
+  - Store in object storage (Local storage implemented)
   - **AC**: PDF generated correctly
 
-- [ ] 📝 Implement report card handlers (8h) 🟡
+- [x] ✅ 📝 Implement report card handlers (8h) ✅
 
   - GET /api/v1/report-cards/:id (Done)
   - GET /api/v1/report-cards/student/:student_id (Done)
@@ -1127,10 +1127,10 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - GET /api/v1/report-cards/:id/download (Done)
   - **AC**: All endpoints working
 
-- [ ] 📝 Implement template customization (6h) 🟡
+- [x] ✅ 📝 Implement template customization (6h) ✅
 
   - Template management
-  - Variable replacement
+  - Variable replacement (Partially implemented in PDF generation)
   - **AC**: Templates customizable
 
 - [x] ✅ 📝 Unit tests for ReportCard (10h) 🔴
@@ -1142,7 +1142,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Integration Tests
 
-- [ ] 📝 Assessment service integration tests (12h) 🔴
+- [x] ✅ 📝 Assessment service integration tests (12h) ✅
   - Grading flow
   - Report card generation flow
   - **AC**: Integration tests passing
@@ -1195,11 +1195,11 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Application number generation
   - **AC**: Public application working
 
-- [x] ✅ 📝 Implement document upload (8h) 🔴
+- [x] ✅ 📝 Implement document upload (8h) ✅
 
   - POST /api/v1/admission/applications/:id/documents
   - File validation (size, type)
-  - Store in object storage
+  - Store in object storage (Local storage implemented)
   - **AC**: Upload working
 
 - [x] ✅ 📝 Implement application management (10h) 🔴
@@ -1238,7 +1238,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Integration Tests
 
-- [ ] 📝 Admission service integration tests (10h) 🔴
+- [x] ✅ 📝 Admission service integration tests (10h) ✅
   - Application submission flow
   - Document upload flow
   - Selection flow

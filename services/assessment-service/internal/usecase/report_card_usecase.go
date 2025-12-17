@@ -1,13 +1,16 @@
 package usecase
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/domain/entity"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/domain/repository"
+	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/domain/service"
 	domainUseCase "github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/domain/usecase"
 )
 
@@ -16,6 +19,7 @@ type reportCardUseCase struct {
 	gradeRepo         repository.GradeRepository
 	assessmentRepo    repository.AssessmentRepository
 	gradeCategoryRepo repository.GradeCategoryRepository
+	fileStorage       service.FileStorage
 }
 
 func NewReportCardUseCase(
@@ -23,12 +27,14 @@ func NewReportCardUseCase(
 	gRepo repository.GradeRepository,
 	aRepo repository.AssessmentRepository,
 	gcRepo repository.GradeCategoryRepository,
+	fileStorage service.FileStorage,
 ) domainUseCase.ReportCardUseCase {
 	return &reportCardUseCase{
 		reportCardRepo:    rcRepo,
 		gradeRepo:         gRepo,
 		assessmentRepo:    aRepo,
 		gradeCategoryRepo: gcRepo,
+		fileStorage:       fileStorage,
 	}
 }
 
@@ -150,6 +156,16 @@ func (u *reportCardUseCase) Generate(ctx context.Context, tenantID, studentID, c
 		Attendance:   "{}", // Placeholder
 		Details:      details,
 		GeneratedAt:  func() *time.Time { t := time.Now(); return &t }(),
+	}
+
+	// 7. Generate PDF
+	pdfBytes, err := u.generatePDF(rc)
+	if err == nil {
+		fileName := fmt.Sprintf("report_cards/%s/%s.pdf", tenantID, rc.ID)
+		url, err := u.fileStorage.Upload(ctx, fileName, bytes.NewReader(pdfBytes))
+		if err == nil {
+			rc.PDFUrl = url
+		}
 	}
 
 	if existing != nil {

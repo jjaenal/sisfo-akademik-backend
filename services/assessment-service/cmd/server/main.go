@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/handler"
+	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/infrastructure/storage"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/repository/postgres"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/usecase"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
@@ -49,12 +50,20 @@ func main() {
 	assessmentHandler := handler.NewAssessmentHandler(gradingUC)
 	gradeHandler := handler.NewGradeHandler(gradingUC)
 
+	fileStorage := storage.NewLocalStorage("./storage", "http://localhost:8084/storage")
+
 	reportCardRepo := postgres.NewReportCardRepository(dbPool)
-	reportCardUC := usecase.NewReportCardUseCase(reportCardRepo, gradeRepo, assessmentRepo, repo)
+	reportCardUC := usecase.NewReportCardUseCase(reportCardRepo, gradeRepo, assessmentRepo, repo, fileStorage)
 	reportCardHandler := handler.NewReportCardHandler(reportCardUC)
+
+	templateRepo := postgres.NewTemplateRepository(dbPool)
+	templateUC := usecase.NewTemplateUseCase(templateRepo)
+	templateHandler := handler.NewTemplateHandler(templateUC)
 
 	// Init Gin
 	r := gin.Default()
+
+	r.Static("/storage", "./storage")
 
 	r.GET("/api/v1/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -101,6 +110,15 @@ func main() {
 		reportCards.GET("/:id", reportCardHandler.GetByID)
 		reportCards.GET("/:id/pdf", reportCardHandler.GetPDF)
 		reportCards.POST("/:id/publish", reportCardHandler.Publish)
+	}
+
+	templates := v1.Group("/templates")
+	{
+		templates.POST("", templateHandler.Create)
+		templates.GET("", templateHandler.List)
+		templates.GET("/:id", templateHandler.GetByID)
+		templates.PUT("/:id", templateHandler.Update)
+		templates.DELETE("/:id", templateHandler.Delete)
 	}
 
 	port := os.Getenv("APP_HTTP_PORT")
