@@ -17,7 +17,30 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/handler"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/repository/postgres"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/usecase"
+
+	_ "github.com/jjaenal/sisfo-akademik-backend/services/academic-service/docs" // Import docs
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title           Academic Service API
+// @version         1.0
+// @description     Core service for managing academic operations in the Sisfo Akademik system.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name    API Support
+// @contact.url     http://www.swagger.io/support
+// @contact.email   support@swagger.io
+
+// @license.name    Apache 2.0
+// @license.url     http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host            localhost:9092
+// @BasePath        /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 
 func main() {
 	cfg, err := config.Load()
@@ -63,8 +86,12 @@ func main() {
 	subjectUseCase := usecase.NewSubjectUseCase(subjectRepo, 5*time.Second)
 	subjectHandler := handler.NewSubjectHandler(subjectUseCase)
 
+	scheduleTemplateRepo := postgres.NewScheduleTemplateRepository(dbPool)
+	scheduleTemplateUseCase := usecase.NewScheduleTemplateUseCase(scheduleTemplateRepo, 5*time.Second)
+	scheduleTemplateHandler := handler.NewScheduleTemplateHandler(scheduleTemplateUseCase)
+
 	scheduleRepo := postgres.NewScheduleRepository(dbPool)
-	scheduleUseCase := usecase.NewScheduleUseCase(scheduleRepo, 5*time.Second)
+	scheduleUseCase := usecase.NewScheduleUseCase(scheduleRepo, scheduleTemplateRepo, 5*time.Second)
 	scheduleHandler := handler.NewScheduleHandler(scheduleUseCase)
 
 	curriculumRepo := postgres.NewCurriculumRepository(dbPool)
@@ -80,7 +107,9 @@ func main() {
 	classSubjectHandler := handler.NewClassSubjectHandler(classSubjectUseCase)
 
 	r := gin.New()
-	r.SetTrustedProxies(nil)
+	if err := r.SetTrustedProxies(nil); err != nil {
+		log.Fatal("Failed to set trusted proxies", zap.Error(err))
+	}
 	r.Use(gin.Logger(), gin.Recovery())
 
 	// Health Check
@@ -96,6 +125,9 @@ func main() {
 		}
 		httputil.Success(c.Writer, map[string]string{"status": "ok", "service": "academic-service"})
 	})
+
+	// Swagger
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Routes
 	v1 := r.Group("/api/v1")
@@ -173,11 +205,22 @@ func main() {
 		schedules := v1.Group("/schedules")
 		{
 			schedules.POST("", scheduleHandler.Create)
+			schedules.POST("/from-template", scheduleHandler.CreateFromTemplate)
+			schedules.POST("/bulk", scheduleHandler.BulkCreate)
 			schedules.GET("/:id", scheduleHandler.GetByID)
 			schedules.GET("", scheduleHandler.List) // Query: ?tenant_id=...&limit=...&offset=...
 			schedules.GET("/class/:class_id", scheduleHandler.ListByClass)
 			schedules.PUT("/:id", scheduleHandler.Update)
 			schedules.DELETE("/:id", scheduleHandler.Delete)
+		}
+
+		scheduleTemplates := v1.Group("/schedule-templates")
+		{
+			scheduleTemplates.POST("", scheduleTemplateHandler.Create)
+			scheduleTemplates.GET("/:id", scheduleTemplateHandler.GetByID)
+			scheduleTemplates.GET("", scheduleTemplateHandler.List) // Query: ?tenant_id=...
+			scheduleTemplates.POST("/:id/items", scheduleTemplateHandler.AddItem)
+			scheduleTemplates.DELETE("/items/:item_id", scheduleTemplateHandler.RemoveItem)
 		}
 
 		curricula := v1.Group("/curricula")

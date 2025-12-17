@@ -86,7 +86,7 @@ services:
       - APP_JWT_AUDIENCE=api
       - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
       - APP_RATE_LIMIT_PER_MINUTE=60
-      - APP_UPSTREAM_AUTH_URL=http://host.docker.internal:10091
+      - APP_UPSTREAM_AUTH_URL=http://auth-service:9091
       - APP_UPSTREAM_ACADEMIC_URLS=http://academic-service:9092,http://academic-service-2:9092
       - APP_UPSTREAM_ATTENDANCE_URL=http://attendance-service:9093
       - APP_UPSTREAM_ASSESSMENT_URL=http://assessment-service:9094
@@ -115,11 +115,10 @@ services:
     image: golang:1.23-alpine
     container_name: auth-service
     profiles: ["services"]
-    working_dir: /app
-    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    working_dir: /workspace
+    command: ["sh", "-c", "cd services/auth-service && go run ./cmd/server"]
     volumes:
-      - ./services/auth-service:/app
-      - ./shared:/shared
+      - ./:/workspace
     environment:
       - APP_ENV=development
       - APP_SERVICE_NAME=auth-service
@@ -152,11 +151,10 @@ services:
     image: golang:1.23-alpine
     container_name: academic-service
     profiles: ["services"]
-    working_dir: /app
-    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    working_dir: /workspace
+    command: ["sh", "-c", "cd services/academic-service && go run ./cmd/server"]
     volumes:
-      - ./services/academic-service:/app
-      - ./shared:/shared
+      - ./:/workspace
     environment:
       - APP_ENV=development
       - APP_SERVICE_NAME=academic-service
@@ -189,10 +187,10 @@ services:
     image: golang:1.23-alpine
     container_name: academic-service-2
     profiles: ["services"]
-    working_dir: /app
-    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    working_dir: /workspace
+    command: ["sh", "-c", "cd services/academic-service && go run ./cmd/server"]
     volumes:
-      - ./services/academic-service:/app
+      - ./:/workspace
     environment:
       - APP_SERVICE_NAME=academic-service-2
       - APP_HTTP_PORT=9092
