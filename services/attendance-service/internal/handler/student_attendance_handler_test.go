@@ -30,10 +30,12 @@ func TestStudentAttendanceHandler_Create(t *testing.T) {
 	studentID := uuid.New()
 	classID := uuid.New()
 	semesterID := uuid.New()
+	tenantID := uuid.New()
 	now := time.Now()
 
 	t.Run("success", func(t *testing.T) {
 		reqBody := map[string]interface{}{
+			"tenant_id":       tenantID.String(),
 			"student_id":      studentID.String(),
 			"class_id":        classID.String(),
 			"semester_id":     semesterID.String(),
@@ -44,6 +46,7 @@ func TestStudentAttendanceHandler_Create(t *testing.T) {
 		body, _ := json.Marshal(reqBody)
 
 		mockUseCase.EXPECT().Create(gomock.Any(), gomock.Any()).DoAndReturn(func(_ interface{}, att *entity.StudentAttendance) error {
+			assert.Equal(t, tenantID.String(), att.TenantID)
 			assert.Equal(t, studentID, att.StudentID)
 			assert.Equal(t, classID, att.ClassID)
 			assert.Equal(t, semesterID, att.SemesterID)
@@ -79,6 +82,7 @@ func TestStudentAttendanceHandler_Create(t *testing.T) {
 
 	t.Run("usecase error", func(t *testing.T) {
 		reqBody := map[string]interface{}{
+			"tenant_id":       tenantID.String(),
 			"student_id":      studentID.String(),
 			"class_id":        classID.String(),
 			"semester_id":     semesterID.String(),
@@ -165,11 +169,13 @@ func TestStudentAttendanceHandler_BulkCreate(t *testing.T) {
 	studentID2 := uuid.New()
 	classID := uuid.New()
 	semesterID := uuid.New()
+	tenantID := uuid.New()
 	now := time.Now()
 
 	t.Run("success", func(t *testing.T) {
 		reqBody := []map[string]interface{}{
 			{
+				"tenant_id":       tenantID.String(),
 				"student_id":      studentID1.String(),
 				"class_id":        classID.String(),
 				"semester_id":     semesterID.String(),
@@ -177,6 +183,7 @@ func TestStudentAttendanceHandler_BulkCreate(t *testing.T) {
 				"status":          "present",
 			},
 			{
+				"tenant_id":       tenantID.String(),
 				"student_id":      studentID2.String(),
 				"class_id":        classID.String(),
 				"semester_id":     semesterID.String(),
@@ -222,6 +229,7 @@ func TestStudentAttendanceHandler_BulkCreate(t *testing.T) {
 	t.Run("usecase error", func(t *testing.T) {
 		reqBody := []map[string]interface{}{
 			{
+				"tenant_id":       tenantID.String(),
 				"student_id":      studentID1.String(),
 				"class_id":        classID.String(),
 				"semester_id":     semesterID.String(),

@@ -1765,7 +1765,7 @@ Status: Round-robin multi-upstream aktif (env `*_URLS`), dengan circuit breaker 
 
 ### Integration Tests
 
-- [ ] 📝 Write integration tests (32h) 🔴
+- [x] ✅ 📝 Write integration tests (32h) 🔴
   - Test service interactions
   - Test database operations
   - **AC**: Integration tests passing

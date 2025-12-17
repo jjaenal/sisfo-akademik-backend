@@ -1,6 +1,6 @@
 module github.com/jjaenal/sisfo-akademik-backend/services/auth-service
 
-go 1.23.0
+go 1.25.5
 
 require (
 	github.com/gin-gonic/gin v1.9.1

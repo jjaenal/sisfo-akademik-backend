@@ -28,10 +28,16 @@ func TestSchoolHandler_Create(t *testing.T) {
 		reqBody := map[string]interface{}{
 			"tenant_id": "tenant-1",
 			"name":      "SMA 1",
+			"latitude":  -6.2088,
+			"longitude": 106.8456,
 		}
 		body, _ := json.Marshal(reqBody)
 
-		mockUseCase.EXPECT().Create(gomock.Any(), gomock.Any()).Return(nil)
+		mockUseCase.EXPECT().Create(gomock.Any(), gomock.AssignableToTypeOf(&entity.School{})).DoAndReturn(func(ctx interface{}, school *entity.School) error {
+			assert.Equal(t, -6.2088, school.Latitude)
+			assert.Equal(t, 106.8456, school.Longitude)
+			return nil
+		})
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
@@ -80,13 +86,19 @@ func TestSchoolHandler_Update(t *testing.T) {
 
 	t.Run("Success", func(t *testing.T) {
 		reqBody := map[string]interface{}{
-			"name": "SMA 1 Updated",
+			"name":      "SMA 1 Updated",
+			"latitude":  -6.2000,
+			"longitude": 106.8000,
 		}
 		body, _ := json.Marshal(reqBody)
 
-		existing := &entity.School{ID: id, Name: "SMA 1"}
+		existing := &entity.School{ID: id, Name: "SMA 1", Latitude: -6.2088, Longitude: 106.8456}
 		mockUseCase.EXPECT().GetByID(gomock.Any(), id).Return(existing, nil)
-		mockUseCase.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
+		mockUseCase.EXPECT().Update(gomock.Any(), gomock.AssignableToTypeOf(&entity.School{})).DoAndReturn(func(ctx interface{}, school *entity.School) error {
+			assert.Equal(t, -6.2000, school.Latitude)
+			assert.Equal(t, 106.8000, school.Longitude)
+			return nil
+		})
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)

@@ -25,15 +25,15 @@ test:
 test-coverage:
 	@echo "Running coverage for all services..."
 	@mkdir -p coverage
-	@cd shared && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/shared.out
-	@cd services/auth-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/auth.out
-	@cd services/academic-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/academic.out
-	@cd services/admission-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/admission.out
-	@cd services/assessment-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/assessment.out
-	@cd services/attendance-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/attendance.out
-	@cd services/finance-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/finance.out
-	@cd services/notification-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/notification.out
-	@cd services/api-gateway && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/gateway.out
+	@cd shared && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/shared.out
+	@cd services/auth-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/auth.out
+	@cd services/academic-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/academic.out
+	@cd services/admission-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/admission.out
+	@cd services/assessment-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/assessment.out
+	@cd services/attendance-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/attendance.out
+	@cd services/finance-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/finance.out
+	@cd services/notification-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/notification.out
+	@cd services/api-gateway && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/gateway.out
 
 lint:
 	@if command -v golangci-lint >/dev/null 2>&1; then \

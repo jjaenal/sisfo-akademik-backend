@@ -15,6 +15,8 @@ type School struct {
 	Email         string     `json:"email" db:"email"`
 	Website       string     `json:"website" db:"website"`
 	LogoURL       string     `json:"logo_url" db:"logo_url"`
+	Latitude      float64    `json:"latitude" db:"latitude"`
+	Longitude     float64    `json:"longitude" db:"longitude"`
 	Accreditation string     `json:"accreditation" db:"accreditation"`
 	Headmaster    string     `json:"headmaster" db:"headmaster"`
 	CreatedAt     time.Time  `json:"created_at" db:"created_at"`

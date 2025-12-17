@@ -50,7 +50,16 @@ func main() {
 	assessmentHandler := handler.NewAssessmentHandler(gradingUC)
 	gradeHandler := handler.NewGradeHandler(gradingUC)
 
-	fileStorage := storage.NewLocalStorage("./storage", "http://localhost:8084/storage")
+	port := os.Getenv("APP_HTTP_PORT")
+	if port == "" {
+		port = "9094"
+	}
+
+	baseURL := os.Getenv("APP_BASE_URL")
+	if baseURL == "" {
+		baseURL = fmt.Sprintf("http://localhost:%s", port)
+	}
+	fileStorage := storage.NewLocalStorage("./storage", fmt.Sprintf("%s/storage", baseURL))
 
 	reportCardRepo := postgres.NewReportCardRepository(dbPool)
 	reportCardUC := usecase.NewReportCardUseCase(reportCardRepo, gradeRepo, assessmentRepo, repo, fileStorage)
@@ -119,11 +128,6 @@ func main() {
 		templates.GET("/:id", templateHandler.GetByID)
 		templates.PUT("/:id", templateHandler.Update)
 		templates.DELETE("/:id", templateHandler.Delete)
-	}
-
-	port := os.Getenv("APP_HTTP_PORT")
-	if port == "" {
-		port = "9092"
 	}
 
 	log.Info(fmt.Sprintf("starting server on port %s", port))

@@ -28,12 +28,12 @@ func (r *schoolRepository) Create(ctx context.Context, school *entity.School) er
 	query := `
 		INSERT INTO schools (
 			id, tenant_id, name, address, phone, email, website, 
-			logo_url, accreditation, headmaster, created_at, updated_at, 
+			logo_url, latitude, longitude, accreditation, headmaster, created_at, updated_at, 
 			created_by, updated_by
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, $7, 
-			$8, $9, $10, $11, $12, 
-			$13, $14
+			$8, $9, $10, $11, $12, $13, $14, 
+			$15, $16
 		)
 	`
 	if school.ID == uuid.Nil {
@@ -49,7 +49,7 @@ func (r *schoolRepository) Create(ctx context.Context, school *entity.School) er
 
 	_, err := r.db.Exec(ctx, query,
 		school.ID, school.TenantID, school.Name, school.Address, school.Phone, school.Email, school.Website,
-		school.LogoURL, school.Accreditation, school.Headmaster, school.CreatedAt, school.UpdatedAt,
+		school.LogoURL, school.Latitude, school.Longitude, school.Accreditation, school.Headmaster, school.CreatedAt, school.UpdatedAt,
 		school.CreatedBy, school.UpdatedBy,
 	)
 	return err
@@ -60,7 +60,7 @@ func (r *schoolRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.S
 	query := `
 		SELECT 
 			id, tenant_id, name, address, phone, email, website, 
-			logo_url, accreditation, headmaster, created_at, updated_at, 
+			logo_url, latitude, longitude, accreditation, headmaster, created_at, updated_at, 
 			created_by, updated_by, deleted_at
 		FROM schools 
 		WHERE id = $1 AND deleted_at IS NULL
@@ -68,7 +68,7 @@ func (r *schoolRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.S
 	var school entity.School
 	err := r.db.QueryRow(ctx, query, id).Scan(
 		&school.ID, &school.TenantID, &school.Name, &school.Address, &school.Phone, &school.Email, &school.Website,
-		&school.LogoURL, &school.Accreditation, &school.Headmaster, &school.CreatedAt, &school.UpdatedAt,
+		&school.LogoURL, &school.Latitude, &school.Longitude, &school.Accreditation, &school.Headmaster, &school.CreatedAt, &school.UpdatedAt,
 		&school.CreatedBy, &school.UpdatedBy, &school.DeletedAt,
 	)
 	if err != nil {
@@ -85,7 +85,7 @@ func (r *schoolRepository) GetByTenantID(ctx context.Context, tenantID string) (
 	query := `
 		SELECT 
 			id, tenant_id, name, address, phone, email, website, 
-			logo_url, accreditation, headmaster, created_at, updated_at, 
+			logo_url, latitude, longitude, accreditation, headmaster, created_at, updated_at, 
 			created_by, updated_by, deleted_at
 		FROM schools 
 		WHERE tenant_id = $1 AND deleted_at IS NULL
@@ -93,7 +93,7 @@ func (r *schoolRepository) GetByTenantID(ctx context.Context, tenantID string) (
 	var school entity.School
 	err := r.db.QueryRow(ctx, query, tenantID).Scan(
 		&school.ID, &school.TenantID, &school.Name, &school.Address, &school.Phone, &school.Email, &school.Website,
-		&school.LogoURL, &school.Accreditation, &school.Headmaster, &school.CreatedAt, &school.UpdatedAt,
+		&school.LogoURL, &school.Latitude, &school.Longitude, &school.Accreditation, &school.Headmaster, &school.CreatedAt, &school.UpdatedAt,
 		&school.CreatedBy, &school.UpdatedBy, &school.DeletedAt,
 	)
 	if err != nil {
@@ -110,13 +110,13 @@ func (r *schoolRepository) Update(ctx context.Context, school *entity.School) er
 	query := `
 		UPDATE schools SET
 			name = $1, address = $2, phone = $3, email = $4, website = $5,
-			logo_url = $6, accreditation = $7, headmaster = $8, updated_at = $9, updated_by = $10
-		WHERE id = $11 AND deleted_at IS NULL
+			logo_url = $6, latitude = $7, longitude = $8, accreditation = $9, headmaster = $10, updated_at = $11, updated_by = $12
+		WHERE id = $13 AND deleted_at IS NULL
 	`
 	school.UpdatedAt = time.Now()
 	_, err := r.db.Exec(ctx, query,
 		school.Name, school.Address, school.Phone, school.Email, school.Website,
-		school.LogoURL, school.Accreditation, school.Headmaster, school.UpdatedAt, school.UpdatedBy,
+		school.LogoURL, school.Latitude, school.Longitude, school.Accreditation, school.Headmaster, school.UpdatedAt, school.UpdatedBy,
 		school.ID,
 	)
 	return err

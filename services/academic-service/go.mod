@@ -1,6 +1,6 @@
 module github.com/jjaenal/sisfo-akademik-backend/services/academic-service
 
-go 1.23.0
+go 1.25.5
 
 require (
 	github.com/gin-gonic/gin v1.10.1
@@ -8,6 +8,7 @@ require (
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/jjaenal/sisfo-akademik-backend/shared v0.0.0-20251216053223-90859cfb615e
 	github.com/pashagolub/pgxmock/v3 v3.4.0
+	github.com/rabbitmq/amqp091-go v1.10.0 // indirect
 	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.0
@@ -77,3 +78,5 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/jjaenal/sisfo-akademik-backend/shared => ../../shared

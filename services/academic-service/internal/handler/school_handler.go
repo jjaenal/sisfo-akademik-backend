@@ -26,10 +26,12 @@ func (h *SchoolHandler) Create(c *gin.Context) {
 		Address       string `json:"address"`
 		Phone         string `json:"phone"`
 		Email         string `json:"email"`
-		Website       string `json:"website"`
-		LogoURL       string `json:"logo_url"`
-		Accreditation string `json:"accreditation"`
-		Headmaster    string `json:"headmaster"`
+		Website       string  `json:"website"`
+		LogoURL       string  `json:"logo_url"`
+		Latitude      float64 `json:"latitude"`
+		Longitude     float64 `json:"longitude"`
+		Accreditation string  `json:"accreditation"`
+		Headmaster    string  `json:"headmaster"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -45,6 +47,8 @@ func (h *SchoolHandler) Create(c *gin.Context) {
 		Email:         req.Email,
 		Website:       req.Website,
 		LogoURL:       req.LogoURL,
+		Latitude:      req.Latitude,
+		Longitude:     req.Longitude,
 		Accreditation: req.Accreditation,
 		Headmaster:    req.Headmaster,
 	}
@@ -122,10 +126,12 @@ func (h *SchoolHandler) Update(c *gin.Context) {
 		Address       string `json:"address"`
 		Phone         string `json:"phone"`
 		Email         string `json:"email"`
-		Website       string `json:"website"`
-		LogoURL       string `json:"logo_url"`
-		Accreditation string `json:"accreditation"`
-		Headmaster    string `json:"headmaster"`
+		Website       string  `json:"website"`
+		LogoURL       string  `json:"logo_url"`
+		Latitude      float64 `json:"latitude"`
+		Longitude     float64 `json:"longitude"`
+		Accreditation string  `json:"accreditation"`
+		Headmaster    string  `json:"headmaster"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -151,6 +157,8 @@ func (h *SchoolHandler) Update(c *gin.Context) {
 	existing.Email = req.Email
 	existing.Website = req.Website
 	existing.LogoURL = req.LogoURL
+	existing.Latitude = req.Latitude
+	existing.Longitude = req.Longitude
 	existing.Accreditation = req.Accreditation
 	existing.Headmaster = req.Headmaster
 
