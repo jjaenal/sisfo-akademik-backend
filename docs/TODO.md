@@ -1465,7 +1465,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Integration Tests
 
-- [ ] 📝 Notification service integration tests (10h) 🔴
+- [x] ✅ 📝 Notification service integration tests (10h) 🔴
   - Email sending flow
   - WhatsApp sending flow
   - Event-driven flow

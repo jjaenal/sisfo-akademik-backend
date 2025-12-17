@@ -11,11 +11,29 @@ down:
 	@docker compose down
 
 test:
+	@echo "Running tests for all services..."
 	@cd shared && env -u GOROOT go test ./...
+	@cd services/auth-service && env -u GOROOT go test ./...
+	@cd services/academic-service && env -u GOROOT go test ./...
+	@cd services/admission-service && env -u GOROOT go test ./...
+	@cd services/assessment-service && env -u GOROOT go test ./...
+	@cd services/attendance-service && env -u GOROOT go test ./...
+	@cd services/finance-service && env -u GOROOT go test ./...
+	@cd services/notification-service && env -u GOROOT go test ./...
+	@cd services/api-gateway && env -u GOROOT go test ./...
 
 test-coverage:
-	@cd shared && env -u GOROOT go test ./... -covermode=atomic -coverprofile=coverage_shared.out
-	@cd services/auth-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=coverage_auth.out
+	@echo "Running coverage for all services..."
+	@mkdir -p coverage
+	@cd shared && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/shared.out
+	@cd services/auth-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/auth.out
+	@cd services/academic-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/academic.out
+	@cd services/admission-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/admission.out
+	@cd services/assessment-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/assessment.out
+	@cd services/attendance-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/attendance.out
+	@cd services/finance-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/finance.out
+	@cd services/notification-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/notification.out
+	@cd services/api-gateway && env -u GOROOT go test ./... -covermode=atomic -coverprofile=../../coverage/gateway.out
 
 lint:
 	@if command -v golangci-lint >/dev/null 2>&1; then \
