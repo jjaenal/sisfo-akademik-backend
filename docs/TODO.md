@@ -866,15 +866,15 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - GET /api/v1/schedules/teacher/:teacher_id/weekly
   - **AC**: All endpoints working
 
-- [ ] 📝 Implement bulk schedule creation (5h) 🟡
+- [x] ✅ 📝 Implement bulk schedule creation (5h) 🟡
 
   - Template system
   - Batch creation
   - **AC**: Bulk creation working
 
-- [ ] 📝 Unit tests for Schedule (8h) 🔴
-  - Repository tests
-  - Conflict tests
+- [x] ✅ 📝 Unit tests for Schedule (8h) 🔴
+  - Repository tests (Mocked)
+  - Conflict tests (Mocked)
   - Handler tests
   - Coverage >70%
   - **AC**: Tests passing
@@ -1873,7 +1873,7 @@ Assuming:
 - [ ] Create docker-compose.yml
 - [ ] Create Makefile
 - [ ] Implement shared packages (config, database, logger)
-- [ ] Setup CI/CD pipeline basics
+- [x] Setup CI/CD pipeline basics
 - [ ] Create auth-service structure
 - [ ] Setup first database migrations
 
