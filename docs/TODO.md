@@ -881,7 +881,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Integration Tests
 
-- [ ] 📝 Academic service integration tests (12h) 🔴
+- [x] ✅ 📝 Academic service integration tests (12h) 🔴
   - School creation flow
   - Academic year setup flow
   - Class & student enrollment flow
@@ -890,7 +890,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Documentation
 
-- [ ] 📝 Write Academic service README (3h) 🟡
+- [x] ✅ 📝 Write Academic service README (3h) 🟡
 
   - Service overview
   - Setup instructions
@@ -947,7 +947,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - GetSummary()
   - **AC**: CRUD working
 
-- [ ] 📝 Implement attendance handlers (10h) 🔴
+- [x] ✅ 📝 Implement attendance handlers (10h) 🔴
 
   - POST /api/v1/attendance/students
   - POST /api/v1/attendance/students/bulk
@@ -956,7 +956,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - GET /api/v1/attendance/students/:student_id/summary
   - **AC**: All endpoints working
 
-- [ ] 📝 Implement bulk check-in (5h) 🔴
+- [x] ✅ 📝 Implement bulk check-in (5h) 🔴
 
   - Full class check-in
   - Validation
