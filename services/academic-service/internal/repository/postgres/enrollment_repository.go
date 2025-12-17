@@ -134,7 +134,7 @@ func (r *enrollmentRepository) BulkEnroll(ctx context.Context, enrollments []*en
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	query := `
 		INSERT INTO class_students (tenant_id, class_id, student_id, status, created_at, updated_at)

@@ -1,34 +1,146 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jjaenal/sisfo-akademik-backend/services/finance-service/internal/handler"
+	"github.com/jjaenal/sisfo-akademik-backend/services/finance-service/internal/repository/postgres"
+	"github.com/jjaenal/sisfo-akademik-backend/services/finance-service/internal/usecase"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
 )
 
 func main() {
-	port := os.Getenv("APP_HTTP_PORT")
-	if port == "" {
-		port = "9096"
+	cfg, err := config.Load()
+	if err != nil {
+		panic(fmt.Sprintf("Failed to load config: %v", err))
 	}
-	mux := http.NewServeMux()
-	mux.HandleFunc("/api/v1/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		_ = json.NewEncoder(w).Encode(map[string]any{
+
+	log, err := logger.New(cfg.Env)
+	if err != nil {
+		panic(err)
+	}
+	log.Info("config loaded")
+
+	// Connect to Database
+	dbPool, err := database.Connect(context.Background(), cfg.PostgresURL)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Failed to connect to database: %v", err))
+	}
+	defer dbPool.Close()
+	log.Info("database connected")
+
+	// Init Repositories
+	billingRepo := postgres.NewBillingConfigRepository(dbPool)
+	invoiceRepo := postgres.NewInvoiceRepository(dbPool)
+	paymentRepo := postgres.NewPaymentRepository(dbPool)
+	studentRepo := postgres.NewStudentRepository(dbPool)
+	reportRepo := postgres.NewReportRepository(dbPool)
+
+	// Init UseCases
+	timeout := 5 * time.Second
+	billingUC := usecase.NewBillingConfigUseCase(billingRepo, timeout)
+	invoiceUC := usecase.NewInvoiceUseCase(invoiceRepo, billingRepo, studentRepo, timeout)
+	paymentUC := usecase.NewPaymentUseCase(paymentRepo, invoiceRepo, timeout)
+	reportUC := usecase.NewReportUseCase(reportRepo, invoiceRepo, paymentRepo, timeout)
+
+	// Start Scheduler
+	go func() {
+		// Run initial check after 10 seconds
+		time.Sleep(10 * time.Second)
+		log.Info("Starting initial invoice generation check...")
+		if err := invoiceUC.GenerateAllMonthlyInvoices(context.Background()); err != nil {
+			log.Error(fmt.Sprintf("Failed to generate invoices: %v", err))
+		}
+
+		log.Info("Starting initial overdue invoice check...")
+		if err := invoiceUC.CheckOverdueInvoices(context.Background()); err != nil {
+			log.Error(fmt.Sprintf("Failed to check overdue invoices: %v", err))
+		}
+
+		// Run every 24 hours
+		ticker := time.NewTicker(24 * time.Hour)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			log.Info("Starting scheduled invoice generation check...")
+			if err := invoiceUC.GenerateAllMonthlyInvoices(context.Background()); err != nil {
+				log.Error(fmt.Sprintf("Failed to generate invoices: %v", err))
+			}
+
+			log.Info("Starting scheduled overdue invoice check...")
+			if err := invoiceUC.CheckOverdueInvoices(context.Background()); err != nil {
+				log.Error(fmt.Sprintf("Failed to check overdue invoices: %v", err))
+			}
+		}
+	}()
+
+	// Init Handlers
+	billingHandler := handler.NewBillingConfigHandler(billingUC)
+	invoiceHandler := handler.NewInvoiceHandler(invoiceUC)
+	paymentHandler := handler.NewPaymentHandler(paymentUC)
+	reportHandler := handler.NewReportHandler(reportUC)
+
+	// Init Gin
+	r := gin.Default()
+
+	r.GET("/api/v1/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
 			"success": true,
-			"data": map[string]any{
+			"data": gin.H{
 				"service": "finance-service",
+				"status":  "healthy",
+				"db":      "connected",
 			},
-			"meta": map[string]any{
+			"meta": gin.H{
 				"timestamp":  time.Now().UTC(),
 				"request_id": uuid.NewString(),
 			},
 		})
 	})
-	_ = http.ListenAndServe(":"+port, mux)
-}
 
+	// Routes
+	v1 := r.Group("/api/v1")
+	finance := v1.Group("/finance")
+	{
+		// Billing Configs
+		finance.POST("/billing-configs", billingHandler.Create)
+		finance.GET("/billing-configs", billingHandler.List)
+		finance.GET("/billing-configs/:id", billingHandler.GetByID)
+		finance.PUT("/billing-configs/:id", billingHandler.Update)
+		finance.DELETE("/billing-configs/:id", billingHandler.Delete)
+
+		// Invoices
+		finance.POST("/invoices/generate", invoiceHandler.Generate)
+		finance.GET("/invoices", invoiceHandler.List)
+		finance.GET("/invoices/:id", invoiceHandler.GetByID)
+
+		// Payments
+		finance.POST("/payments", paymentHandler.Record)
+		finance.GET("/payments/:id", paymentHandler.GetByID)
+		finance.GET("/invoices/:invoice_id/payments", paymentHandler.ListByInvoice)
+
+		// Reports
+		finance.GET("/reports/revenue/daily", reportHandler.GetDailyRevenue)
+		finance.GET("/reports/revenue/monthly", reportHandler.GetMonthlyRevenue)
+		finance.GET("/reports/outstanding", reportHandler.GetOutstandingInvoices)
+		finance.GET("/reports/student/:student_id/history", reportHandler.GetStudentHistory)
+	}
+
+	port := os.Getenv("APP_HTTP_PORT")
+	if port == "" {
+		port = "9096"
+	}
+
+	log.Info(fmt.Sprintf("starting server on port %s", port))
+	if err := r.Run(":" + port); err != nil {
+		log.Fatal(err.Error())
+	}
+}

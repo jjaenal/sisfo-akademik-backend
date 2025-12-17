@@ -14,4 +14,6 @@ type ScheduleUseCase interface {
 	ListByClass(ctx context.Context, classID uuid.UUID) ([]entity.Schedule, error)
 	Update(ctx context.Context, schedule *entity.Schedule) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	BulkCreate(ctx context.Context, schedules []*entity.Schedule) error
+	CreateFromTemplate(ctx context.Context, templateID uuid.UUID, classID uuid.UUID, teacherMap map[uuid.UUID]uuid.UUID) error
 }

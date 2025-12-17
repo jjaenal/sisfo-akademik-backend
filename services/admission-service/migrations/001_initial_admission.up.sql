@@ -5,11 +5,12 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS admission_periods (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    tenant_id TEXT NOT NULL,
+    tenant_id TEXT NOT NULL DEFAULT 'default',
     name TEXT NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open','closed')),
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    is_announced BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP WITH TIME ZONE
@@ -21,29 +22,31 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_admission_periods_tenant_name
 
 CREATE TABLE IF NOT EXISTS applications (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    tenant_id TEXT NOT NULL,
-    period_id UUID NOT NULL REFERENCES admission_periods(id),
-    application_number TEXT NOT NULL,
-    applicant_name TEXT NOT NULL,
-    applicant_email TEXT,
-    applicant_phone TEXT,
-    applicant_birth_date DATE,
-    applicant_address TEXT,
-    status TEXT NOT NULL DEFAULT 'submitted' CHECK (status IN ('submitted','verified','accepted','rejected','registered')),
-    test_score NUMERIC(7,2),
-    interview_score NUMERIC(7,2),
-    final_score NUMERIC(7,2),
+    tenant_id TEXT NOT NULL DEFAULT 'default', -- Added default for now as code might not set it
+    admission_period_id UUID NOT NULL REFERENCES admission_periods(id),
+    registration_number TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    email TEXT,
+    phone_number TEXT,
+    status TEXT NOT NULL DEFAULT 'submitted',
+    previous_school TEXT,
+    average_score NUMERIC(5,2),
+    submission_date TIMESTAMP WITH TIME ZONE,
+    test_score NUMERIC(5,2),
+    interview_score NUMERIC(5,2),
+    final_score NUMERIC(5,2),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMP WITH TIME ZONE
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_applications_number_unique
-    ON applications (tenant_id, application_number)
+    ON applications (tenant_id, registration_number)
     WHERE deleted_at IS NULL;
 
 CREATE INDEX IF NOT EXISTS idx_applications_period_status
-    ON applications (tenant_id, period_id, status)
+    ON applications (tenant_id, admission_period_id, status)
     WHERE deleted_at IS NULL;
 
 CREATE TABLE IF NOT EXISTS application_documents (
@@ -62,4 +65,3 @@ CREATE TABLE IF NOT EXISTS application_documents (
 CREATE INDEX IF NOT EXISTS idx_application_documents_app_type
     ON application_documents (application_id, document_type)
     WHERE deleted_at IS NULL;
-

@@ -6,18 +6,17 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/domain/entity"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/domain/repository"
 )
 
 type scheduleRepository struct {
-	db *pgxpool.Pool
+	db DBPool
 }
 
 var _ repository.ScheduleRepository = (*scheduleRepository)(nil)
 
-func NewScheduleRepository(db *pgxpool.Pool) repository.ScheduleRepository {
+func NewScheduleRepository(db DBPool) repository.ScheduleRepository {
 	return &scheduleRepository{db: db}
 }
 
@@ -207,4 +206,45 @@ func (r *scheduleRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	query := `UPDATE schedules SET deleted_at = $1 WHERE id = $2`
 	_, err := r.db.Exec(ctx, query, time.Now(), id)
 	return err
+}
+
+func (r *scheduleRepository) BulkCreate(ctx context.Context, schedules []*entity.Schedule) error {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	query := `
+		INSERT INTO schedules (
+			id, tenant_id, class_id, subject_id, teacher_id, day_of_week,
+			start_time, end_time, room, created_at, updated_at, created_by, updated_by
+		) VALUES (
+			$1, $2, $3, $4, $5, $6,
+			$7, $8, $9, $10, $11, $12, $13
+		)
+	`
+
+	for _, s := range schedules {
+		if s.ID == uuid.Nil {
+			s.ID = uuid.New()
+		}
+		now := time.Now()
+		if s.CreatedAt.IsZero() {
+			s.CreatedAt = now
+		}
+		if s.UpdatedAt.IsZero() {
+			s.UpdatedAt = now
+		}
+
+		_, err := tx.Exec(ctx, query,
+			s.ID, s.TenantID, s.ClassID, s.SubjectID, s.TeacherID, s.DayOfWeek,
+			s.StartTime, s.EndTime, s.Room, s.CreatedAt, s.UpdatedAt, s.CreatedBy, s.UpdatedBy,
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	return tx.Commit(ctx)
 }

@@ -13,6 +13,24 @@ type Meta struct {
 	RequestID string    `json:"request_id"`
 }
 
+type ErrorDetail struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+	Details any    `json:"details,omitempty"`
+}
+
+type ErrorResponse struct {
+	Success bool        `json:"success" example:"false"`
+	Error   ErrorDetail `json:"error"`
+	Meta    Meta        `json:"meta"`
+}
+
+type SuccessResponse struct {
+	Success bool `json:"success" example:"true"`
+	Data    any  `json:"data"`
+	Meta    Meta `json:"meta"`
+}
+
 func write(w http.ResponseWriter, status int, body any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -21,18 +39,24 @@ func write(w http.ResponseWriter, status int, body any) {
 
 func Success(w http.ResponseWriter, data any) {
 	m := Meta{Timestamp: time.Now().UTC(), RequestID: uuid.NewString()}
-	write(w, http.StatusOK, map[string]any{"success": true, "data": data, "meta": m})
+	resp := SuccessResponse{
+		Success: true,
+		Data:    data,
+		Meta:    m,
+	}
+	write(w, http.StatusOK, resp)
 }
 
 func Error(w http.ResponseWriter, status int, code string, message string, details any) {
 	m := Meta{Timestamp: time.Now().UTC(), RequestID: uuid.NewString()}
-	write(w, status, map[string]any{
-		"success": false,
-		"error": map[string]any{
-			"code":    code,
-			"message": message,
-			"details": details,
+	resp := ErrorResponse{
+		Success: false,
+		Error: ErrorDetail{
+			Code:    code,
+			Message: message,
+			Details: details,
 		},
-		"meta": m,
-	})
+		Meta: m,
+	}
+	write(w, status, resp)
 }

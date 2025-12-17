@@ -1,0 +1,438 @@
+basePath: /api/v1
+definitions:
+  github_com_jjaenal_sisfo-akademik-backend_services_academic-service_internal_domain_entity.Schedule:
+    properties:
+      class_id:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      day_of_week:
+        type: integer
+      deleted_at:
+        type: string
+      end_time:
+        description: 'Format: "15:04:05" or "15:04"'
+        type: string
+      id:
+        type: string
+      room:
+        type: string
+      start_time:
+        description: 'Format: "15:04:05" or "15:04"'
+        type: string
+      subject_id:
+        type: string
+      teacher_id:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+      updated_by:
+        type: string
+    type: object
+  httputil.ErrorDetail:
+    properties:
+      code:
+        type: string
+      details: {}
+      message:
+        type: string
+    type: object
+  httputil.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/httputil.ErrorDetail'
+      meta:
+        $ref: '#/definitions/httputil.Meta'
+      success:
+        example: false
+        type: boolean
+    type: object
+  httputil.Meta:
+    properties:
+      request_id:
+        type: string
+      timestamp:
+        type: string
+    type: object
+  internal_handler.CreateFromTemplateRequest:
+    properties:
+      assignments:
+        items:
+          properties:
+            subject_id:
+              type: string
+            teacher_id:
+              type: string
+          required:
+          - subject_id
+          - teacher_id
+          type: object
+        type: array
+      class_id:
+        type: string
+      template_id:
+        type: string
+    required:
+    - assignments
+    - class_id
+    - template_id
+    type: object
+  internal_handler.CreateScheduleRequest:
+    properties:
+      class_id:
+        type: string
+      day_of_week:
+        type: integer
+      end_time:
+        type: string
+      room:
+        type: string
+      start_time:
+        type: string
+      subject_id:
+        type: string
+      teacher_id:
+        type: string
+      tenant_id:
+        type: string
+    required:
+    - class_id
+    - day_of_week
+    - end_time
+    - start_time
+    - subject_id
+    - teacher_id
+    - tenant_id
+    type: object
+  internal_handler.UpdateScheduleRequest:
+    properties:
+      class_id:
+        type: string
+      day_of_week:
+        type: integer
+      end_time:
+        type: string
+      room:
+        type: string
+      start_time:
+        type: string
+      subject_id:
+        type: string
+      teacher_id:
+        type: string
+    required:
+    - class_id
+    - day_of_week
+    - end_time
+    - start_time
+    - subject_id
+    - teacher_id
+    type: object
+host: localhost:9092
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Core service for managing academic operations in the Sisfo Akademik
+    system.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Academic Service API
+  version: "1.0"
+paths:
+  /schedules:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of schedules with pagination
+      parameters:
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: List schedules
+      tags:
+      - schedules
+    post:
+      consumes:
+      - application/json
+      description: Create a single schedule entry
+      parameters:
+      - description: Schedule Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_academic-service_internal_domain_entity.Schedule'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Create a new schedule
+      tags:
+      - schedules
+  /schedules/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a schedule by ID
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Delete a schedule
+      tags:
+      - schedules
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a schedule
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_academic-service_internal_domain_entity.Schedule'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Get schedule by ID
+      tags:
+      - schedules
+    put:
+      consumes:
+      - application/json
+      description: Update details of an existing schedule
+      parameters:
+      - description: Schedule ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Schedule Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.UpdateScheduleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_academic-service_internal_domain_entity.Schedule'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Update a schedule
+      tags:
+      - schedules
+  /schedules/bulk:
+    post:
+      consumes:
+      - application/json
+      description: Create multiple schedule entries at once
+      parameters:
+      - description: List of Schedule Requests
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/internal_handler.CreateScheduleRequest'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Bulk create schedules
+      tags:
+      - schedules
+  /schedules/class/{class_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get all schedules for a specific class
+      parameters:
+      - description: Class ID
+        in: path
+        name: class_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_academic-service_internal_domain_entity.Schedule'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: List schedules by class
+      tags:
+      - schedules
+  /schedules/from-template:
+    post:
+      consumes:
+      - application/json
+      description: Create multiple schedules based on a predefined template and teacher
+        assignments
+      parameters:
+      - description: Template Assignment Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.CreateFromTemplateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Create schedules from template
+      tags:
+      - schedules
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

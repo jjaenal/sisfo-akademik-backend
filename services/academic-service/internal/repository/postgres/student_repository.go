@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -118,19 +117,6 @@ func (r *studentRepository) List(ctx context.Context, tenantID string, limit, of
 }
 
 func (r *studentRepository) Update(ctx context.Context, s *entity.Student) error {
-	// Build dynamic query
-	var updates []string
-	var args []interface{}
-	argID := 1
-
-	if s.Name != "" {
-		updates = append(updates, fmt.Sprintf("name = $%d", argID))
-		args = append(args, s.Name)
-		argID++
-	}
-	// ... (simplified for now, usually we update specific fields or all)
-	// For simplicity in this iteration, let's update all fields except ID/TenantID
-	
 	query := `
 		UPDATE students SET
 			user_id = $1, nis = $2, nisn = $3, name = $4, gender = $5,

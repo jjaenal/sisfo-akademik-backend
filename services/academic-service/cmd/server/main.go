@@ -14,9 +14,11 @@ import (
 	redisutil "github.com/jjaenal/sisfo-akademik-backend/shared/pkg/redis"
 	"go.uber.org/zap"
 
+	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/event"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/handler"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/repository/postgres"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/usecase"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/rabbit"
 
 	_ "github.com/jjaenal/sisfo-akademik-backend/services/academic-service/docs" // Import docs
 	swaggerFiles "github.com/swaggo/files"
@@ -105,6 +107,13 @@ func main() {
 	classSubjectRepo := postgres.NewClassSubjectRepository(dbPool)
 	classSubjectUseCase := usecase.NewClassSubjectUseCase(classSubjectRepo, 5*time.Second)
 	classSubjectHandler := handler.NewClassSubjectHandler(classSubjectUseCase)
+
+	// Event Consumer
+	rb := rabbit.New(cfg.RabbitURL)
+	if rb != nil {
+		consumer := event.NewConsumer(rb, studentUseCase)
+		consumer.Start()
+	}
 
 	r := gin.New()
 	if err := r.SetTrustedProxies(nil); err != nil {

@@ -42,6 +42,20 @@ func (m *MockScheduleUseCase) EXPECT() *MockScheduleUseCaseMockRecorder {
 	return m.recorder
 }
 
+// BulkCreate mocks base method.
+func (m *MockScheduleUseCase) BulkCreate(ctx context.Context, schedules []*entity.Schedule) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BulkCreate", ctx, schedules)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BulkCreate indicates an expected call of BulkCreate.
+func (mr *MockScheduleUseCaseMockRecorder) BulkCreate(ctx, schedules any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BulkCreate", reflect.TypeOf((*MockScheduleUseCase)(nil).BulkCreate), ctx, schedules)
+}
+
 // Create mocks base method.
 func (m *MockScheduleUseCase) Create(ctx context.Context, schedule *entity.Schedule) error {
 	m.ctrl.T.Helper()
@@ -54,6 +68,20 @@ func (m *MockScheduleUseCase) Create(ctx context.Context, schedule *entity.Sched
 func (mr *MockScheduleUseCaseMockRecorder) Create(ctx, schedule any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockScheduleUseCase)(nil).Create), ctx, schedule)
+}
+
+// CreateFromTemplate mocks base method.
+func (m *MockScheduleUseCase) CreateFromTemplate(ctx context.Context, templateID, classID uuid.UUID, teacherMap map[uuid.UUID]uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateFromTemplate", ctx, templateID, classID, teacherMap)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateFromTemplate indicates an expected call of CreateFromTemplate.
+func (mr *MockScheduleUseCaseMockRecorder) CreateFromTemplate(ctx, templateID, classID, teacherMap any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateFromTemplate", reflect.TypeOf((*MockScheduleUseCase)(nil).CreateFromTemplate), ctx, templateID, classID, teacherMap)
 }
 
 // Delete mocks base method.

@@ -9,4 +9,8 @@ use ./services/api-gateway
 use (
 	./services/academic-service
 	./services/notification-service
+	./services/admission-service
+	./services/attendance-service
+	./services/assessment-service
+	./services/finance-service
 )

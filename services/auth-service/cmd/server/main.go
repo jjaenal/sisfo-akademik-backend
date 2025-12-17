@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jjaenal/sisfo-akademik-backend/services/auth-service/internal/event"
 	"github.com/jjaenal/sisfo-akademik-backend/services/auth-service/internal/handler"
 	"github.com/jjaenal/sisfo-akademik-backend/services/auth-service/internal/middleware"
 	"github.com/jjaenal/sisfo-akademik-backend/services/auth-service/internal/repository"
@@ -65,6 +66,11 @@ func main() {
 	rolesUC := usecase.NewRoles(authRepo, rolesRepo)
 	rolesHandler := handler.NewRolesHandler(rolesUC)
 	rolesHandler.RegisterProtected(protected)
+	// Event Consumer
+	if rb != nil {
+		consumer := event.NewConsumer(rb, usersUC, rolesUC)
+		consumer.Start()
+	}
 	// Audit handlers
 	auditHandler := handler.NewAuditHandler(auditRepo)
 	auditHandler.RegisterProtected(protected)

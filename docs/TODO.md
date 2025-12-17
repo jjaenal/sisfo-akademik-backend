@@ -932,13 +932,13 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Student Attendance
 
-- [ ] 📝 Implement StudentAttendance entity (2h) 🔴
+- [x] ✅ 📝 Implement StudentAttendance entity (2h) 🔴
 
   - Define struct
   - Status types (present, absent, late, excused, sick)
   - **AC**: Entity complete
 
-- [ ] 📝 Implement StudentAttendance repository (6h) 🔴
+- [x] ✅ 📝 Implement StudentAttendance repository (6h) 🔴
 
   - Create()
   - Update()
@@ -968,7 +968,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Distance calculation
   - **AC**: GPS validation working
 
-- [ ] 📝 Unit tests for StudentAttendance (8h) 🔴
+- [x] ✅ 📝 Unit tests for StudentAttendance (8h) ✅
   - Repository tests
   - Handler tests
   - Coverage >70%
@@ -976,13 +976,13 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Teacher Attendance
 
-- [ ] 📝 Implement TeacherAttendance entity (2h) 🔴
+- [x] ✅ 📝 Implement TeacherAttendance entity (2h) 🔴
 
   - Define struct
   - Check-in/check-out times
   - **AC**: Entity complete
 
-- [ ] 📝 Implement TeacherAttendance repository (5h) 🔴
+- [x] ✅ 📝 Implement TeacherAttendance repository (5h) 🔴
 
   - Create()
   - Update()
@@ -990,7 +990,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - List()
   - **AC**: CRUD working
 
-- [ ] 📝 Implement teacher attendance handlers (8h) 🔴
+- [x] ✅ 📝 Implement teacher attendance handlers (8h) 🔴
 
   - POST /api/v1/attendance/teachers/check-in
   - POST /api/v1/attendance/teachers/check-out
@@ -998,7 +998,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - GET /api/v1/attendance/teachers/:teacher_id/summary
   - **AC**: All endpoints working
 
-- [ ] 📝 Unit tests for TeacherAttendance (6h) 🔴
+- [x] ✅ 📝 Unit tests for TeacherAttendance (6h) 🔴
   - Repository tests
   - Handler tests
   - Coverage >70%
@@ -1034,7 +1034,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 - [x] 📝 Create assessment-service structure (3h) ✅
 - [x] 📝 Setup database connection (2h) ✅
-- [ ] 📝 Create database migrations (6h) 🔴
+- [x] ✅ 📝 Create database migrations (6h) 🔴
   - Grade_categories table
   - Assessments table
   - Grades table
@@ -1043,17 +1043,17 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Grading System
 
-- [ ] 📝 Implement GradeCategory entity (2h) 🔴
-- [ ] 📝 Implement Assessment entity (3h) 🔴
-- [ ] 📝 Implement Grade entity (3h) 🔴
+- [x] ✅ 📝 Implement GradeCategory entity (2h) 🔴
+- [x] ✅ 📝 Implement Assessment entity (3h) 🔴
+- [x] ✅ 📝 Implement Grade entity (3h) 🔴
 
-- [ ] 📝 Implement grade repositories (8h) 🔴
+- [x] ✅ 📝 Implement grade repositories (8h) 🔴
 
   - GradeCategory CRUD
   - Assessment CRUD
   - Grade CRUD
 
-- [ ] 📝 Implement grade calculation engine (8h) 🔴
+- [x] ✅ 📝 Implement grade calculation engine (8h) 🔴
 
   - Calculate weighted scores
   - Final score calculation
@@ -1061,7 +1061,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - KKM validation
   - **AC**: Grades calculated correctly
 
-- [ ] 📝 Implement grade handlers (12h) 🔴
+- [x] ✅ 📝 Implement grade handlers (12h) 🔴
 
   - POST /api/v1/grade-categories
   - GET /api/v1/grade-categories
@@ -1081,7 +1081,8 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Audit trail
   - **AC**: Workflow working
 
-- [ ] 📝 Unit tests for Grading (10h) 🔴
+- [x] ✅ 📝 Unit tests for Grading (10h) 🔴
+  - [x] GradeCategory Repository & Handler tests
   - Calculation tests
   - Repository tests
   - Handler tests
@@ -1090,40 +1091,40 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Report Card Generation
 
-- [ ] 📝 Implement ReportCard entity (3h) 🔴
+- [x] ✅ 📝 Implement ReportCard entity (3h) ✅
 
   - Define struct
   - Status (draft, generated, published)
   - **AC**: Entity complete
 
-- [ ] 📝 Implement report card data aggregation (8h) 🔴
+- [x] ✅ 📝 Implement report card data aggregation (8h) ✅
 
   - Collect all grades
   - Calculate final scores
   - Get attendance summary
   - **AC**: Data aggregated correctly
 
-- [ ] 📝 Implement report card generation (12h) 🔴
+- [x] ✅ 📝 Implement report card generation (12h) ✅
 
   - POST /api/v1/report-cards/generate/:student_id/:semester_id
   - POST /api/v1/report-cards/generate/class/:class_id/:semester_id
   - Generate report data
   - **AC**: Report cards generated
 
-- [ ] 📝 Implement PDF generation (12h) 🔴
+- [x] ✅ 📝 Implement PDF generation (12h) 🔴
 
   - HTML template
-  - Convert to PDF (chromedp/gotenberg)
-  - Store in object storage
+  - Convert to PDF (maroto)
+  - Store in object storage (Pending)
   - **AC**: PDF generated correctly
 
-- [ ] 📝 Implement report card handlers (8h) 🔴
+- [ ] 📝 Implement report card handlers (8h) 🟡
 
-  - GET /api/v1/report-cards/:id
-  - GET /api/v1/report-cards/student/:student_id
-  - PATCH /api/v1/report-cards/:id/publish
-  - GET /api/v1/report-cards/:id/pdf
-  - GET /api/v1/report-cards/:id/download
+  - GET /api/v1/report-cards/:id (Done)
+  - GET /api/v1/report-cards/student/:student_id (Done)
+  - PATCH /api/v1/report-cards/:id/publish (Done)
+  - GET /api/v1/report-cards/:id/pdf (Done)
+  - GET /api/v1/report-cards/:id/download (Done)
   - **AC**: All endpoints working
 
 - [ ] 📝 Implement template customization (6h) 🟡
@@ -1132,7 +1133,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Variable replacement
   - **AC**: Templates customizable
 
-- [ ] 📝 Unit tests for ReportCard (10h) 🔴
+- [x] ✅ 📝 Unit tests for ReportCard (10h) 🔴
   - Generation tests
   - PDF tests
   - Handler tests
@@ -1158,26 +1159,26 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Core Setup
 
-- [x] 📝 Create admission-service structure (3h) ✅
-- [x] 📝 Setup database connection (2h) ✅
-- [ ] 📝 Create database migrations (5h) 🔴
+- [x] ✅ 📝 Create admission-service structure (3h) ✅
+- [x] ✅ 📝 Setup database connection (2h) ✅
+- [x] ✅ 📝 Create database migrations (5h) 🔴
   - Admission_periods table
   - Applications table
   - Application_documents table
 
 ### Admission Management
 
-- [ ] 📝 Implement AdmissionPeriod entity (2h) 🔴
-- [ ] 📝 Implement Application entity (3h) 🔴
-- [ ] 📝 Implement ApplicationDocument entity (2h) 🔴
+- [x] ✅ 📝 Implement AdmissionPeriod entity (2h) 🔴
+- [x] ✅ 📝 Implement Application entity (3h) 🔴
+- [x] ✅ 📝 Implement ApplicationDocument entity (2h) 🔴
 
-- [ ] 📝 Implement admission repositories (8h) 🔴
+- [x] ✅ 📝 Implement admission repositories (8h) 🔴
 
   - AdmissionPeriod CRUD
   - Application CRUD
   - ApplicationDocument CRUD
 
-- [ ] 📝 Implement admission period handlers (8h) 🔴
+- [x] ✅ 📝 Implement admission period handlers (8h) 🔴
 
   - POST /api/v1/admission/periods
   - GET /api/v1/admission/periods
@@ -1186,7 +1187,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - PATCH /api/v1/admission/periods/:id/close
   - **AC**: All endpoints working
 
-- [ ] 📝 Implement public application (10h) 🔴
+- [x] ✅ 📝 Implement public application (10h) 🔴
 
   - GET /api/v1/admission/public/periods
   - POST /api/v1/admission/applications
@@ -1194,14 +1195,14 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Application number generation
   - **AC**: Public application working
 
-- [ ] 📝 Implement document upload (8h) 🔴
+- [x] ✅ 📝 Implement document upload (8h) 🔴
 
   - POST /api/v1/admission/applications/:id/documents
   - File validation (size, type)
   - Store in object storage
   - **AC**: Upload working
 
-- [ ] 📝 Implement application management (10h) 🔴
+- [x] ✅ 📝 Implement application management (10h) 🔴
 
   - GET /api/v1/admission/applications
   - GET /api/v1/admission/applications/:id
@@ -1211,23 +1212,24 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - PATCH /api/v1/admission/applications/:id/reject
   - **AC**: Management working
 
-- [ ] 📝 Implement selection process (10h) 🟡
+- [x] ✅ 🔄 Implement selection process (10h) 🟡
 
-  - POST /api/v1/admission/applications/:id/test-score
-  - POST /api/v1/admission/applications/:id/interview-score
-  - POST /api/v1/admission/periods/:id/calculate-final-scores
-  - POST /api/v1/admission/periods/:id/announce
-  - Final score calculation
+  - [x] POST /api/v1/admission/applications/:id/test-score
+  - [x] POST /api/v1/admission/applications/:id/interview-score
+  - [x] POST /api/v1/admission/periods/:id/calculate-final-scores
+  - [x] POST /api/v1/admission/periods/:id/announce
+  - [x] Final score calculation
   - **AC**: Selection working
 
-- [ ] 📝 Implement student registration (8h) 🔴
+- [x] ✅ 📝 Implement student registration (8h) 🔴
 
   - POST /api/v1/admission/applications/:id/register
   - Create user account
   - Create student record
   - **AC**: Registration working
 
-- [ ] 📝 Unit tests for Admission (12h) 🔴
+- [x] ✅ 📝 Unit tests for Admission (12h) 🔴
+  - [x] AdmissionPeriod Repository & Handler tests
   - Repository tests
   - Handler tests
   - Selection logic tests
@@ -1254,33 +1256,33 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Core Setup
 
-- [ ] 📝 Create finance-service structure (3h) 🔴
-- [ ] 📝 Setup database connection (2h) 🔴
-- [ ] 📝 Create database migrations (4h) 🔴
+- [x] ✅ 📝 Create finance-service structure (3h) 🔴
+- [x] ✅ 📝 Setup database connection (2h) 🔴
+- [x] ✅ 📝 Create database migrations (4h) 🔴
   - Billing_configurations table
   - Invoices table
   - Payments table
 
 ### Finance Management
 
-- [ ] 📝 Implement BillingConfig entity (2h) 🔴
-- [ ] 📝 Implement Invoice entity (3h) 🔴
-- [ ] 📝 Implement Payment entity (2h) 🔴
+- [x] ✅ 📝 Implement BillingConfig entity (2h) 🔴
+- [x] ✅ 📝 Implement Invoice entity (3h) 🔴
+- [x] ✅ 📝 Implement Payment entity (2h) 🔴
 
-- [ ] 📝 Implement finance repositories (8h) 🔴
+- [x] ✅ 📝 Implement finance repositories (8h) 🔴
 
   - BillingConfig CRUD
   - Invoice CRUD
   - Payment CRUD
 
-- [ ] 📝 Implement billing configuration (8h) 🔴
+- [x] ✅ 📝 Implement billing configuration (8h) 🔴
 
   - POST /api/v1/finance/billing-configs
   - GET /api/v1/finance/billing-configs
   - PUT /api/v1/finance/billing-configs/:id
   - **AC**: Billing config working
 
-- [ ] 📝 Implement invoice generation (10h) 🔴
+- [x] ✅ 📝 Implement invoice generation (10h) 🔴
 
   - POST /api/v1/finance/invoices/generate
   - POST /api/v1/finance/invoices/generate/bulk
@@ -1288,13 +1290,13 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Invoice number generation
   - **AC**: Invoice generation working
 
-- [ ] 📝 Implement auto-generation (8h) 🟡
+- [x] ✅ 📝 Implement auto-generation (8h) 🟡
 
   - Scheduled job (cron)
   - Monthly SPP generation
   - **AC**: Auto-generation working
 
-- [ ] 📝 Implement invoice handlers (8h) 🔴
+- [x] ✅ 📝 Implement invoice handlers (8h) 🔴
 
   - GET /api/v1/finance/invoices
   - GET /api/v1/finance/invoices/:id
@@ -1303,7 +1305,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - GET /api/v1/finance/invoices/student/:student_id/outstanding
   - **AC**: Invoice management working
 
-- [ ] 📝 Implement payment recording (8h) 🔴
+- [x] ✅ 📝 Implement payment recording (8h) 🔴
 
   - POST /api/v1/finance/payments
   - GET /api/v1/finance/payments
@@ -1312,7 +1314,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Receipt generation
   - **AC**: Payment recording working
 
-- [ ] 📝 Implement financial reports (10h) 🟡
+- [x] ✅ 📝 Implement financial reports (10h) 🟡
 
   - GET /api/v1/finance/reports/revenue/daily
   - GET /api/v1/finance/reports/revenue/monthly
@@ -1320,13 +1322,13 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - GET /api/v1/finance/reports/student/:student_id/history
   - **AC**: Reports working
 
-- [ ] 📝 Implement overdue tracking (5h) 🟡
+- [x] ✅ 📝 Implement overdue tracking (5h) 🟡
 
   - Scheduled job
   - Mark overdue invoices
   - **AC**: Overdue tracking working
 
-- [ ] 📝 Unit tests for Finance (12h) 🔴
+- [x] ✅ 📝 Unit tests for Finance (12h) 🔴
   - Repository tests
   - Handler tests
   - Calculation tests
@@ -1352,23 +1354,23 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Core Setup
 
-- [ ] 📝 Create notification-service structure (3h) 🔴
-- [ ] 📝 Setup database connection (2h) 🔴
-- [ ] 📝 Create database migrations (3h) 🔴
+- [x] ✅ 📝 Create notification-service structure (3h) 🔴
+- [x] ✅ 📝 Setup database connection (2h) 🔴
+- [x] ✅ 📝 Create database migrations (3h) 🔴
   - Notification_templates table
   - Notifications table
 
 ### Notification Core
 
-- [ ] 📝 Implement NotificationTemplate entity (2h) 🔴
-- [ ] 📝 Implement Notification entity (2h) 🔴
+- [x] ✅ 📝 Implement NotificationTemplate entity (2h) 🔴
+- [x] ✅ 📝 Implement Notification entity (2h) 🔴
 
-- [ ] 📝 Implement notification repositories (6h) 🔴
+- [x] ✅ 📝 Implement notification repositories (6h) 🔴
 
   - Template CRUD
   - Notification CRUD
 
-- [ ] 📝 Implement template management (8h) 🟡
+- [x] ✅ 📝 Implement template management (8h) 🟡
   - POST /api/v1/notifications/templates
   - GET /api/v1/notifications/templates
   - PUT /api/v1/notifications/templates/:id
@@ -1377,13 +1379,13 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Email Service
 
-- [ ] 📝 Configure SMTP (3h) 🔴
+- [x] ✅ 📝 Configure SMTP (3h) 🔴
 
   - SMTP settings
   - Connection testing
   - **AC**: Email connection working
 
-- [ ] 📝 Implement email sending (8h) 🔴
+- [x] ✅ 📝 Implement email sending (8h) 🔴
 
   - HTML templates
   - Send function
@@ -1398,53 +1400,53 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### WhatsApp Integration
 
-- [ ] 📝 Configure WhatsApp API (4h) 🔴
+- [x] ✅ 📝 Configure WhatsApp API (4h) 🔴
 
   - API credentials
   - Connection testing
   - **AC**: WhatsApp connection working
 
-- [ ] 📝 Implement WhatsApp sending (8h) 🔴
+- [x] ✅ 📝 Implement WhatsApp sending (8h) 🔴
 
   - Text messages
   - Template messages
   - Error handling
   - **AC**: WhatsApp messages sent
 
-- [ ] 📝 Implement webhook handler (5h) 🟡
+- [x] ✅ 📝 Implement webhook handler (5h) 🟡
   - Receive status updates
   - Update notification status
   - **AC**: Webhook working
 
 ### Event-Driven Messaging
 
-- [ ] 📝 Setup RabbitMQ (4h) 🔴
+- [x] ✅ 📝 Setup RabbitMQ (4h) 🔴
 
   - RabbitMQ container
   - Connection configuration
   - **AC**: RabbitMQ running
 
-- [ ] 📝 Implement event publisher (6h) 🔴
+- [x] ✅ 📝 Implement event publisher (6h) 🔴
 
   - Publish function
   - Event schema
   - **AC**: Events published
 
-- [ ] 📝 Implement event consumer (8h) 🔴
+- [x] ✅ 📝 Implement event consumer (8h) 🔴
 
   - Subscribe to events
   - Process events
   - Send notifications
   - **AC**: Events consumed
 
-- [ ] 📝 Implement retry mechanism (5h) 🟡
+- [x] ✅ 📝 Implement retry mechanism (5h) 🟡
   - Retry failed notifications (3 attempts)
   - Dead letter queue
   - **AC**: Retry working
 
 ### Notification Handlers
 
-- [ ] 📝 Implement notification handlers (8h) 🔴
+- [x] ✅ 📝 Implement notification handlers (8h) 🔴
 
   - POST /api/v1/notifications/send
   - POST /api/v1/notifications/send/bulk

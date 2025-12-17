@@ -18,7 +18,8 @@ func TestScheduleUseCase_CRUD(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockScheduleRepository(ctrl)
-	u := usecase.NewScheduleUseCase(mockRepo, time.Second*2)
+	mockTemplateRepo := mocks.NewMockScheduleTemplateRepository(ctrl)
+	u := usecase.NewScheduleUseCase(mockRepo, mockTemplateRepo, time.Second*2)
 
 	tenantID := "tenant-1"
 	classID := uuid.New()
@@ -131,11 +132,78 @@ func TestScheduleUseCase_CRUD(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
+	t.Run("BulkCreate Success", func(t *testing.T) {
+		schedules := []*entity.Schedule{validSchedule}
+		mockRepo.EXPECT().CheckConflicts(gomock.Any(), validSchedule).Return([]entity.Schedule{}, nil)
+		mockRepo.EXPECT().BulkCreate(gomock.Any(), schedules).Return(nil)
+		err := u.BulkCreate(context.Background(), schedules)
+		assert.NoError(t, err)
+	})
+
+	t.Run("BulkCreate Validation Error", func(t *testing.T) {
+		invalidSchedule := &entity.Schedule{}
+		schedules := []*entity.Schedule{invalidSchedule}
+		err := u.BulkCreate(context.Background(), schedules)
+		assert.Error(t, err)
+	})
+
+	t.Run("BulkCreate Conflict", func(t *testing.T) {
+		schedules := []*entity.Schedule{validSchedule}
+		mockRepo.EXPECT().CheckConflicts(gomock.Any(), validSchedule).Return([]entity.Schedule{{ID: uuid.New()}}, nil)
+		err := u.BulkCreate(context.Background(), schedules)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "conflict detected")
+	})
+
+	t.Run("BulkCreate Repo Error", func(t *testing.T) {
+		schedules := []*entity.Schedule{validSchedule}
+		mockRepo.EXPECT().CheckConflicts(gomock.Any(), validSchedule).Return([]entity.Schedule{}, nil)
+		mockRepo.EXPECT().BulkCreate(gomock.Any(), schedules).Return(assert.AnError)
+		err := u.BulkCreate(context.Background(), schedules)
+		assert.Error(t, err)
+		assert.Equal(t, assert.AnError, err)
+	})
+
 	t.Run("ListByClass", func(t *testing.T) {
 		list := []entity.Schedule{*validSchedule}
 		mockRepo.EXPECT().ListByClass(gomock.Any(), classID).Return(list, nil)
 		res, err := u.ListByClass(context.Background(), classID)
 		assert.NoError(t, err)
 		assert.Equal(t, list, res)
+	})
+
+	t.Run("CreateFromTemplate Success", func(t *testing.T) {
+		templateID := uuid.New()
+		classID := uuid.New()
+		subjectID := uuid.New()
+		teacherID := uuid.New()
+
+		template := &entity.ScheduleTemplate{
+			ID:       templateID,
+			TenantID: tenantID,
+		}
+
+		items := []entity.ScheduleTemplateItem{
+			{
+				ID:         uuid.New(),
+				TemplateID: templateID,
+				SubjectID:  &subjectID,
+				DayOfWeek:  1,
+				StartTime:  "08:00",
+				EndTime:    "09:30",
+			},
+		}
+
+		teacherMap := map[uuid.UUID]uuid.UUID{
+			subjectID: teacherID,
+		}
+
+		mockTemplateRepo.EXPECT().GetByID(gomock.Any(), templateID).Return(template, nil)
+		mockTemplateRepo.EXPECT().ListItems(gomock.Any(), templateID).Return(items, nil)
+		mockRepo.EXPECT().CheckConflicts(gomock.Any(), gomock.Any()).Return([]entity.Schedule{}, nil)
+		mockRepo.EXPECT().BulkCreate(gomock.Any(), gomock.Any()).Return(nil)
+
+		err := u.CreateFromTemplate(context.Background(), templateID, classID, teacherMap)
+		assert.NoError(t, err)
 	})
 }

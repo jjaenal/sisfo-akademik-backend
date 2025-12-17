@@ -86,8 +86,8 @@ func (h *SemesterHandler) List(c *gin.Context) {
 	var err error
 
 	if academicYearIDStr != "" {
-		academicYearID, err := uuid.Parse(academicYearIDStr)
-		if err != nil {
+		academicYearID, parseErr := uuid.Parse(academicYearIDStr)
+		if parseErr != nil {
 			httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Academic Year ID", "Academic Year ID must be a valid UUID")
 			return
 		}

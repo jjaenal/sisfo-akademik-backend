@@ -127,9 +127,12 @@ func TestEnrollmentIntegration(t *testing.T) {
 		
 		body := new(bytes.Buffer)
 		writer := multipart.NewWriter(body)
-		part, _ := writer.CreateFormFile("file", "students.csv")
-		part.Write([]byte(csvContent))
-		writer.Close()
+		part, err := writer.CreateFormFile("file", "students.csv")
+		assert.NoError(t, err)
+		_, err = part.Write([]byte(csvContent))
+		assert.NoError(t, err)
+		err = writer.Close()
+		assert.NoError(t, err)
 
 		validClass := &entity.Class{
 			ID:       classID,
@@ -159,7 +162,7 @@ func TestEnrollmentIntegration(t *testing.T) {
 			Success bool                   `json:"success"`
 			Data    map[string]interface{} `json:"data"`
 		}
-		err := json.Unmarshal(w.Body.Bytes(), &resp)
+		err = json.Unmarshal(w.Body.Bytes(), &resp)
 		assert.NoError(t, err)
 		assert.True(t, resp.Success)
 		assert.Equal(t, float64(2), resp.Data["count"])

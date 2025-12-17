@@ -26,12 +26,26 @@ type Config struct {
 	LockoutTTL          time.Duration
 	FailWindowTTL       time.Duration
 	AuditRetentionDays  int
+	SMTPHost            string
+	SMTPPort            int
+	SMTPUser            string
+	SMTPPassword        string
+	SMTPFromEmail       string
+	SMTPFromName        string
+	WhatsAppAPIURL      string
+	WhatsAppAPIKey      string
 }
 
 func Load() (Config, error) {
 	v := viper.New()
 	v.SetEnvPrefix("APP")
 	v.AutomaticEnv()
+
+	// Also attempt to read from .env file
+	v.SetConfigName(".env")
+	v.SetConfigType("env")
+	v.AddConfigPath(".")
+	_ = v.ReadInConfig()
 
 	v.SetDefault("ENV", "development")
 	v.SetDefault("SERVICE_NAME", "service")
@@ -46,6 +60,7 @@ func Load() (Config, error) {
 	v.SetDefault("LOCKOUT_TTL", "15m")
 	v.SetDefault("FAIL_WINDOW_TTL", "15m")
 	v.SetDefault("AUDIT_RETENTION_DAYS", 90)
+	v.SetDefault("SMTP_PORT", 587)
 
 	cfg := Config{
 		Env:                v.GetString("ENV"),
@@ -66,6 +81,14 @@ func Load() (Config, error) {
 		LockoutTTL:         mustParseDuration(v.GetString("LOCKOUT_TTL")),
 		FailWindowTTL:      mustParseDuration(v.GetString("FAIL_WINDOW_TTL")),
 		AuditRetentionDays: v.GetInt("AUDIT_RETENTION_DAYS"),
+		SMTPHost:           v.GetString("SMTP_HOST"),
+		SMTPPort:           v.GetInt("SMTP_PORT"),
+		SMTPUser:           v.GetString("SMTP_USER"),
+		SMTPPassword:       v.GetString("SMTP_PASSWORD"),
+		SMTPFromEmail:      v.GetString("SMTP_FROM_EMAIL"),
+		SMTPFromName:       v.GetString("SMTP_FROM_NAME"),
+		WhatsAppAPIURL:     v.GetString("WHATSAPP_API_URL"),
+		WhatsAppAPIKey:     v.GetString("WHATSAPP_API_KEY"),
 	}
 	if err := cfg.Validate(); err != nil {
 		return Config{}, err

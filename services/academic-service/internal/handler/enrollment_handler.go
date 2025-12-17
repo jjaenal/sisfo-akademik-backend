@@ -168,7 +168,7 @@ func (h *EnrollmentHandler) BulkEnroll(c *gin.Context) {
 		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Internal Server Error", "Failed to open file")
 		return
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// Parse CSV
 	// Expected format: student_id (UUID)
