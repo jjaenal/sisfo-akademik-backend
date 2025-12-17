@@ -969,8 +969,8 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - **AC**: GPS validation working
 
 - [x] ✅ 📝 Unit tests for StudentAttendance (8h) ✅
-  - Repository tests
-  - Handler tests
+  - [x] Repository tests
+  - [x] Handler tests
   - Coverage >70%
   - **AC**: Tests passing
 
@@ -998,9 +998,9 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - GET /api/v1/attendance/teachers/:teacher_id/summary
   - **AC**: All endpoints working
 
-- [x] ✅ 📝 Unit tests for TeacherAttendance (6h) 🔴
-  - Repository tests
-  - Handler tests
+- [x] ✅ 📝 Unit tests for TeacherAttendance (6h) ✅
+  - [x] Repository tests
+  - [x] Handler tests
   - Coverage >70%
   - **AC**: Tests passing
 
@@ -1392,7 +1392,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Error handling
   - **AC**: Emails sent successfully
 
-- [ ] 📝 Implement email queue (6h) 🟡
+- [x] ✅ 📝 Implement email queue (6h) 🟡
   - Queue emails
   - Process queue
   - Retry on failure
@@ -1473,8 +1473,8 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Documentation
 
-- [ ] 📝 Write Notification service README (3h) 🟡
-- [ ] 📝 Generate Swagger docs (4h) 🟡
+- [x] ✅ 📝 Write Notification service README (3h) 🟡
+- [x] ✅ 📝 Generate Swagger docs (4h) 🟡
 - [ ] 📝 Create Postman collection (3h) 🟡
 
 ---
@@ -1527,7 +1527,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 Status: Round-robin multi-upstream aktif (env `*_URLS`), dengan circuit breaker per upstream dan health aggregator `/api/v1/gateway/health` mendukung multi upstream.
 
-- [x] 📝 Unit tests for Gateway (8h) 🔴
+- [x] ✅ Unit tests for Gateway (8h) 🔴
   - Routing tests
   - Rate limiting tests
   - Coverage >70%

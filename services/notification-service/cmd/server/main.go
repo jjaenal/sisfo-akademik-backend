@@ -24,6 +24,11 @@ import (
 	"go.uber.org/zap"
 )
 
+// @title Notification Service API
+// @version 1.0
+// @description Service for managing and sending notifications (Email, WhatsApp)
+// @host localhost:9097
+// @BasePath /api/v1
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
@@ -131,32 +136,62 @@ func startRabbitConsumer(url string, notifUC usecase.NotificationUseCase, logr *
 		return
 	}
 
-	msgs, err := rb.Consume("events", "notification-service.events", []string{"auth.password_reset.requested"})
+	// 1. Consume Events
+	msgsEvents, err := rb.Consume("events", "notification-service.events", []string{"auth.password_reset.requested"})
 	if err != nil {
-		logr.Error(fmt.Sprintf("rabbit consume error: %v", err))
+		logr.Error(fmt.Sprintf("rabbit consume events error: %v", err))
 		return
 	}
 
-	logr.Info("RabbitMQ consumer started")
-	for m := range msgs {
-		logr.Info(fmt.Sprintf("received event: rk=%s body=%s", m.RoutingKey, string(m.Body)))
-		var ev struct {
-			TenantID string `json:"tenant_id"`
-			UserID   string `json:"user_id"`
-			Email    string `json:"email"`
-			Token    string `json:"token"`
-			Type     string `json:"type"`
-		}
-		if err := json.Unmarshal(m.Body, &ev); err == nil && ev.Type == "password_reset" && ev.Email != "" && ev.Token != "" {
-			// Use UseCase to send notification
-			req := &usecase.SendNotificationRequest{
-				Channel:   entity.NotificationChannelEmail,
-				Recipient: ev.Email,
-				Subject:   "Reset Password",
-				Body:      fmt.Sprintf("Click here to reset your password: %s", ev.Token), // In real app, use template
+	// 2. Consume Notification Tasks
+	msgsTasks, err := rb.Consume("notifications", "notification-service.tasks", []string{"notification.send"})
+	if err != nil {
+		logr.Error(fmt.Sprintf("rabbit consume tasks error: %v", err))
+		return
+	}
+
+	logr.Info("RabbitMQ consumers started")
+
+	// Handle Events
+	go func() {
+		for m := range msgsEvents {
+			logr.Info(fmt.Sprintf("received event: rk=%s body=%s", m.RoutingKey, string(m.Body)))
+			var ev struct {
+				TenantID string `json:"tenant_id"`
+				UserID   string `json:"user_id"`
+				Email    string `json:"email"`
+				Token    string `json:"token"`
+				Type     string `json:"type"`
 			}
-			if err := notifUC.Send(context.Background(), req); err != nil {
-				log.Printf("failed to send email from event: %v", err)
+			if err := json.Unmarshal(m.Body, &ev); err == nil && ev.Type == "password_reset" && ev.Email != "" && ev.Token != "" {
+				// Use UseCase to send notification
+				req := &usecase.SendNotificationRequest{
+					Channel:   entity.NotificationChannelEmail,
+					Recipient: ev.Email,
+					Subject:   "Reset Password",
+					Body:      fmt.Sprintf("Click here to reset your password: %s", ev.Token), // In real app, use template
+				}
+				if err := notifUC.Send(context.Background(), req); err != nil {
+					log.Printf("failed to send email from event: %v", err)
+				}
+			}
+		}
+	}()
+
+	// Handle Tasks
+	for m := range msgsTasks {
+		logr.Info(fmt.Sprintf("received task: rk=%s", m.RoutingKey))
+		var task struct {
+			ID string `json:"id"`
+		}
+		if err := json.Unmarshal(m.Body, &task); err == nil && task.ID != "" {
+			id, err := uuid.Parse(task.ID)
+			if err == nil {
+				if err := notifUC.Process(context.Background(), id); err != nil {
+					logr.Error(fmt.Sprintf("failed to process notification %s: %v", id, err))
+				}
+			} else {
+				logr.Error(fmt.Sprintf("invalid uuid in task: %s", task.ID))
 			}
 		}
 	}

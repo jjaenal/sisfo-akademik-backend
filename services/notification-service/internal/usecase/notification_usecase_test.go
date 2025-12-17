@@ -109,22 +109,75 @@ func TestNotificationUseCase_Send(t *testing.T) {
 
 		mockTemplateRepo.EXPECT().GetByName(gomock.Any(), templateName).Return(template, nil)
 
-		// Note: The current implementation doesn't replace variables yet (TODO in code).
-		// So we expect the template raw strings.
+		expectedSubject := "Welcome John"
+		expectedBody := "Hi John, welcome!"
 
 		mockNotifRepo.EXPECT().Create(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, n *entity.Notification) error {
-			assert.Equal(t, template.SubjectTemplate, n.Subject)
-			assert.Equal(t, template.BodyTemplate, n.Body)
+			assert.Equal(t, expectedSubject, n.Subject)
+			assert.Equal(t, expectedBody, n.Body)
 			assert.Equal(t, template.ID, *n.TemplateID)
 			return nil
 		})
 
-		mockEmailService.EXPECT().SendEmail([]string{req.Recipient}, template.SubjectTemplate, template.BodyTemplate).Return(nil)
+		mockEmailService.EXPECT().SendEmail([]string{req.Recipient}, expectedSubject, expectedBody).Return(nil)
 		mockNotifRepo.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
 
 		err := u.Send(context.Background(), req)
 		assert.NoError(t, err)
 
 		time.Sleep(100 * time.Millisecond)
+	})
+}
+
+func TestNotificationUseCase_Process(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockNotifRepo := mocks.NewMockNotificationRepository(ctrl)
+	mockTemplateRepo := mocks.NewMockNotificationTemplateRepository(ctrl)
+	mockEmailService := mocks.NewMockEmailService(ctrl)
+	mockWAService := mocks.NewMockWhatsAppService(ctrl)
+
+	timeout := 2 * time.Second
+	u := usecase.NewNotificationUseCase(
+		mockNotifRepo,
+		mockTemplateRepo,
+		mockEmailService,
+		mockWAService,
+		nil,
+		timeout,
+	)
+
+	t.Run("process email notification success", func(t *testing.T) {
+		id := uuid.New()
+		notification := &entity.Notification{
+			ID:        id,
+			Channel:   entity.NotificationChannelEmail,
+			Recipient: "test@example.com",
+			Subject:   "Subject",
+			Body:      "Body",
+			Status:    entity.NotificationStatusPending,
+		}
+
+		mockNotifRepo.EXPECT().GetByID(gomock.Any(), id).Return(notification, nil)
+
+		mockEmailService.EXPECT().SendEmail([]string{notification.Recipient}, notification.Subject, notification.Body).Return(nil)
+
+		mockNotifRepo.EXPECT().Update(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, n *entity.Notification) error {
+			assert.Equal(t, entity.NotificationStatusSent, n.Status)
+			return nil
+		})
+
+		err := u.Process(context.Background(), id)
+		assert.NoError(t, err)
+	})
+
+	t.Run("process notification not found", func(t *testing.T) {
+		id := uuid.New()
+		mockNotifRepo.EXPECT().GetByID(gomock.Any(), id).Return(nil, nil)
+
+		err := u.Process(context.Background(), id)
+		assert.Error(t, err)
+		assert.Equal(t, "notification not found", err.Error())
 	})
 }

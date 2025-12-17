@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,6 +17,7 @@ import (
 
 type NotificationUseCase interface {
 	Send(ctx context.Context, req *SendNotificationRequest) error
+	Process(ctx context.Context, id uuid.UUID) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.Notification, error)
 	ListByRecipient(ctx context.Context, recipient string) ([]*entity.Notification, error)
 	UpdateStatus(ctx context.Context, id uuid.UUID, status entity.NotificationStatus, errorMessage string) error
@@ -78,10 +80,15 @@ func (u *notificationUseCase) Send(ctx context.Context, req *SendNotificationReq
 		req.Subject = template.SubjectTemplate
 		req.Body = template.BodyTemplate
 		req.Channel = template.Channel
-		
-		// Note: Variable replacement would happen here (e.g. using strings.Replace or text/template)
-		// For now we assume the body is ready or the data map is used by the caller to pre-format
-		// TODO: Implement template engine logic
+
+		if len(req.Data) > 0 {
+			// Simple substitution logic using strings.ReplaceAll
+			for key, val := range req.Data {
+				placeholder := "{{" + key + "}}"
+				req.Subject = strings.ReplaceAll(req.Subject, placeholder, val)
+				req.Body = strings.ReplaceAll(req.Body, placeholder, val)
+			}
+		}
 	}
 
 	// 2. Create Notification Record
@@ -104,8 +111,30 @@ func (u *notificationUseCase) Send(ctx context.Context, req *SendNotificationReq
 	}
 
 	// 3. Send Notification Async
-	go u.processNotification(notification)
+	if u.rabbitClient != nil {
+		payload := map[string]any{"id": notification.ID.String()}
+		// Use a dedicated exchange for notification tasks
+		if err := u.rabbitClient.PublishJSON("notifications", "notification.send", payload); err != nil {
+			log.Printf("Failed to publish to queue, falling back to goroutine: %v", err)
+			go u.processNotification(notification)
+		}
+	} else {
+		go u.processNotification(notification)
+	}
 
+	return nil
+}
+
+func (u *notificationUseCase) Process(ctx context.Context, id uuid.UUID) error {
+	n, err := u.notifRepo.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if n == nil {
+		return errors.New("notification not found")
+	}
+
+	u.processNotification(n)
 	return nil
 }
 

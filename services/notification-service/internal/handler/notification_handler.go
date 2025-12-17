@@ -16,6 +16,17 @@ func NewNotificationHandler(useCase usecase.NotificationUseCase) *NotificationHa
 	return &NotificationHandler{useCase: useCase}
 }
 
+// Send godoc
+// @Summary Send a notification
+// @Description Send a notification via Email or WhatsApp
+// @Tags notifications
+// @Accept json
+// @Produce json
+// @Param request body usecase.SendNotificationRequest true "Notification Request"
+// @Success 202 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /notifications/send [post]
 func (h *NotificationHandler) Send(c *gin.Context) {
 	var req usecase.SendNotificationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -31,6 +42,17 @@ func (h *NotificationHandler) Send(c *gin.Context) {
 	c.JSON(http.StatusAccepted, gin.H{"message": "notification queued"})
 }
 
+// GetByID godoc
+// @Summary Get notification by ID
+// @Description Get notification details
+// @Tags notifications
+// @Produce json
+// @Param id path string true "Notification ID"
+// @Success 200 {object} entity.Notification
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /notifications/{id} [get]
 func (h *NotificationHandler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -51,6 +73,16 @@ func (h *NotificationHandler) GetByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": notification})
 }
 
+// ListByRecipient godoc
+// @Summary List notifications by recipient
+// @Description Get all notifications sent to a recipient
+// @Tags notifications
+// @Produce json
+// @Param recipient query string true "Recipient"
+// @Success 200 {array} entity.Notification
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /notifications/recipient [get]
 func (h *NotificationHandler) ListByRecipient(c *gin.Context) {
 	recipient := c.Query("recipient")
 	if recipient == "" {
