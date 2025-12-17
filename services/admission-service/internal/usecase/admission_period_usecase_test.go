@@ -19,8 +19,9 @@ func TestAdmissionPeriodUseCase_Create(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockAdmissionPeriodRepository(ctrl)
+	mockAppRepo := mocks.NewMockApplicationRepository(ctrl)
 	timeout := 2 * time.Second
-	u := usecase.NewAdmissionPeriodUseCase(mockRepo, timeout)
+	u := usecase.NewAdmissionPeriodUseCase(mockRepo, mockAppRepo, timeout)
 
 	now := time.Now()
 	nextWeek := now.Add(7 * 24 * time.Hour)
@@ -54,8 +55,9 @@ func TestAdmissionPeriodUseCase_GetByID(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockAdmissionPeriodRepository(ctrl)
+	mockAppRepo := mocks.NewMockApplicationRepository(ctrl)
 	timeout := 2 * time.Second
-	u := usecase.NewAdmissionPeriodUseCase(mockRepo, timeout)
+	u := usecase.NewAdmissionPeriodUseCase(mockRepo, mockAppRepo, timeout)
 
 	id := uuid.New()
 
@@ -74,8 +76,9 @@ func TestAdmissionPeriodUseCase_GetActive(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockAdmissionPeriodRepository(ctrl)
+	mockAppRepo := mocks.NewMockApplicationRepository(ctrl)
 	timeout := 2 * time.Second
-	u := usecase.NewAdmissionPeriodUseCase(mockRepo, timeout)
+	u := usecase.NewAdmissionPeriodUseCase(mockRepo, mockAppRepo, timeout)
 
 	t.Run("success", func(t *testing.T) {
 		expected := &entity.AdmissionPeriod{IsActive: true}
@@ -92,8 +95,9 @@ func TestAdmissionPeriodUseCase_List(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockAdmissionPeriodRepository(ctrl)
+	mockAppRepo := mocks.NewMockApplicationRepository(ctrl)
 	timeout := 2 * time.Second
-	u := usecase.NewAdmissionPeriodUseCase(mockRepo, timeout)
+	u := usecase.NewAdmissionPeriodUseCase(mockRepo, mockAppRepo, timeout)
 
 	t.Run("success", func(t *testing.T) {
 		expected := []*entity.AdmissionPeriod{
@@ -113,8 +117,9 @@ func TestAdmissionPeriodUseCase_Update(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockAdmissionPeriodRepository(ctrl)
+	mockAppRepo := mocks.NewMockApplicationRepository(ctrl)
 	timeout := 2 * time.Second
-	u := usecase.NewAdmissionPeriodUseCase(mockRepo, timeout)
+	u := usecase.NewAdmissionPeriodUseCase(mockRepo, mockAppRepo, timeout)
 
 	id := uuid.New()
 	now := time.Now()
@@ -140,8 +145,9 @@ func TestAdmissionPeriodUseCase_Delete(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockAdmissionPeriodRepository(ctrl)
+	mockAppRepo := mocks.NewMockApplicationRepository(ctrl)
 	timeout := 2 * time.Second
-	u := usecase.NewAdmissionPeriodUseCase(mockRepo, timeout)
+	u := usecase.NewAdmissionPeriodUseCase(mockRepo, mockAppRepo, timeout)
 
 	id := uuid.New()
 
