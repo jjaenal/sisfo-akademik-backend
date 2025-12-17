@@ -1455,7 +1455,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - GET /api/v1/notifications/user/:user_id
   - **AC**: All endpoints working
 
-- [ ] 📝 Unit tests for Notification (10h) 🔴
+- [x] ✅ 📝 Unit tests for Notification (10h) 🔴
   - Repository tests
   - Email tests
   - WhatsApp tests
