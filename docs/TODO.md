@@ -1337,7 +1337,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Integration Tests
 
-- [ ] 📝 Finance service integration tests (10h) 🔴
+- [x] ✅ 📝 Finance service integration tests (10h) 🔴
   - Invoice generation flow
   - Payment recording flow
   - **AC**: Integration tests passing

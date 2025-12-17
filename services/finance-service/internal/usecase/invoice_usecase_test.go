@@ -20,8 +20,9 @@ func TestInvoiceUseCase_Generate(t *testing.T) {
 
 	mockInvoiceRepo := mocks.NewMockInvoiceRepository(ctrl)
 	mockBillingConfigRepo := mocks.NewMockBillingConfigRepository(ctrl)
+	mockStudentRepo := mocks.NewMockStudentRepository(ctrl)
 	timeout := 2 * time.Second
-	u := usecase.NewInvoiceUseCase(mockInvoiceRepo, mockBillingConfigRepo, timeout)
+	u := usecase.NewInvoiceUseCase(mockInvoiceRepo, mockBillingConfigRepo, mockStudentRepo, timeout)
 
 	tenantID := uuid.New()
 	studentID := uuid.New()

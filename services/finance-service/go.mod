@@ -1,12 +1,12 @@
 module github.com/jjaenal/sisfo-akademik-backend/services/finance-service
 
-go 1.23.0
+go 1.25.5
 
 require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.5.5
-	github.com/jjaenal/sisfo-akademik-backend/shared v0.0.0-20251217020703-3813f3637614
+	github.com/jjaenal/sisfo-akademik-backend/shared v0.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/mock v0.5.0
 )
@@ -65,3 +65,5 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/jjaenal/sisfo-akademik-backend/shared => ../../shared
