@@ -914,18 +914,18 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Core Setup
 
-- [ ] 📝 Create attendance-service structure (3h) 🔴
+- [x] 📝 Create attendance-service structure (3h) ✅
 
   - Initialize Go module
   - Setup directory structure
   - **AC**: Service structure ready
 
-- [ ] 📝 Setup database connection (2h) 🔴
+- [x] 📝 Setup database connection (2h) ✅
 
   - Use shared database package
   - **AC**: Service connects to DB
 
-- [ ] 📝 Create database migrations (4h) 🔴
+- [x] ✅ 📝 Create database migrations (4h) 🔴
   - Student_attendance table
   - Teacher_attendance table
   - **AC**: Migrations run
@@ -1032,8 +1032,8 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Core Setup
 
-- [ ] 📝 Create assessment-service structure (3h) 🔴
-- [ ] 📝 Setup database connection (2h) 🔴
+- [x] 📝 Create assessment-service structure (3h) ✅
+- [x] 📝 Setup database connection (2h) ✅
 - [ ] 📝 Create database migrations (6h) 🔴
   - Grade_categories table
   - Assessments table
@@ -1158,8 +1158,8 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Core Setup
 
-- [ ] 📝 Create admission-service structure (3h) 🔴
-- [ ] 📝 Setup database connection (2h) 🔴
+- [x] 📝 Create admission-service structure (3h) ✅
+- [x] 📝 Setup database connection (2h) ✅
 - [ ] 📝 Create database migrations (5h) 🔴
   - Admission_periods table
   - Applications table
