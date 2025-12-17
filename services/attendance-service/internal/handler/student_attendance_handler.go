@@ -21,12 +21,15 @@ func NewStudentAttendanceHandler(useCase usecase.StudentAttendanceUseCase) *Stud
 
 func (h *StudentAttendanceHandler) Create(c *gin.Context) {
 	var req struct {
-		StudentID      string                  `json:"student_id" binding:"required"`
-		ClassID        string                  `json:"class_id" binding:"required"`
-		SemesterID     string                  `json:"semester_id" binding:"required"`
-		AttendanceDate time.Time               `json:"attendance_date" binding:"required"`
-		Status         entity.AttendanceStatus `json:"status" binding:"required"`
-		Notes          string                  `json:"notes"`
+		TenantID         string                  `json:"tenant_id" binding:"required"`
+		StudentID        string                  `json:"student_id" binding:"required"`
+		ClassID          string                  `json:"class_id" binding:"required"`
+		SemesterID       string                  `json:"semester_id" binding:"required"`
+		AttendanceDate   time.Time               `json:"attendance_date" binding:"required"`
+		Status           entity.AttendanceStatus `json:"status" binding:"required"`
+		Notes            string                  `json:"notes"`
+		CheckInLatitude  *float64                `json:"check_in_latitude"`
+		CheckInLongitude *float64                `json:"check_in_longitude"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -53,12 +56,15 @@ func (h *StudentAttendanceHandler) Create(c *gin.Context) {
 	}
 
 	attendance := &entity.StudentAttendance{
-		StudentID:      studentID,
-		ClassID:        classID,
-		SemesterID:     semesterID,
-		AttendanceDate: req.AttendanceDate,
-		Status:         req.Status,
-		Notes:          req.Notes,
+		TenantID:         req.TenantID,
+		StudentID:        studentID,
+		ClassID:          classID,
+		SemesterID:       semesterID,
+		AttendanceDate:   req.AttendanceDate,
+		Status:           req.Status,
+		Notes:            req.Notes,
+		CheckInLatitude:  req.CheckInLatitude,
+		CheckInLongitude: req.CheckInLongitude,
 	}
 
 	if err := h.useCase.Create(c.Request.Context(), attendance); err != nil {
@@ -67,6 +73,93 @@ func (h *StudentAttendanceHandler) Create(c *gin.Context) {
 	}
 
 	httputil.Success(c.Writer, attendance)
+}
+
+func (h *StudentAttendanceHandler) BulkCreate(c *gin.Context) {
+	var reqs []struct {
+		TenantID         string                  `json:"tenant_id" binding:"required"`
+		StudentID        string                  `json:"student_id" binding:"required"`
+		ClassID          string                  `json:"class_id" binding:"required"`
+		SemesterID       string                  `json:"semester_id" binding:"required"`
+		AttendanceDate   time.Time               `json:"attendance_date" binding:"required"`
+		Status           entity.AttendanceStatus `json:"status" binding:"required"`
+		Notes            string                  `json:"notes"`
+		CheckInLatitude  *float64                `json:"check_in_latitude"`
+		CheckInLongitude *float64                `json:"check_in_longitude"`
+	}
+
+	if err := c.ShouldBindJSON(&reqs); err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", err.Error())
+		return
+	}
+
+	var attendances []*entity.StudentAttendance
+	for _, req := range reqs {
+		studentID, err := uuid.Parse(req.StudentID)
+		if err != nil {
+			httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "Invalid Student ID")
+			return
+		}
+
+		classID, err := uuid.Parse(req.ClassID)
+		if err != nil {
+			httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "Invalid Class ID")
+			return
+		}
+
+		semesterID, err := uuid.Parse(req.SemesterID)
+		if err != nil {
+			httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "Invalid Semester ID")
+			return
+		}
+
+		attendance := &entity.StudentAttendance{
+			TenantID:         req.TenantID,
+			StudentID:        studentID,
+			ClassID:          classID,
+			SemesterID:       semesterID,
+			AttendanceDate:   req.AttendanceDate,
+			Status:           req.Status,
+			Notes:            req.Notes,
+			CheckInLatitude:  req.CheckInLatitude,
+			CheckInLongitude: req.CheckInLongitude,
+		}
+		attendances = append(attendances, attendance)
+	}
+
+	if err := h.useCase.BulkCreate(c.Request.Context(), attendances); err != nil {
+		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Internal Server Error", err.Error())
+		return
+	}
+
+	httputil.Success(c.Writer, attendances)
+}
+
+func (h *StudentAttendanceHandler) GetSummary(c *gin.Context) {
+	studentIDStr := c.Param("id")
+	studentID, err := uuid.Parse(studentIDStr)
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Student ID", "ID must be a valid UUID")
+		return
+	}
+
+	semesterIDStr := c.Query("semester_id")
+	var semesterID uuid.UUID
+	if semesterIDStr != "" {
+		semesterID, err = uuid.Parse(semesterIDStr)
+		if err != nil {
+			httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Semester ID", "ID must be a valid UUID")
+			return
+		}
+	}
+
+	summary, err := h.useCase.GetSummary(c.Request.Context(), studentID, semesterID)
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Internal Server Error", err.Error())
+		return
+	}
+
+	httputil.Success(c.Writer, summary)
 }
 
 func (h *StudentAttendanceHandler) GetByID(c *gin.Context) {

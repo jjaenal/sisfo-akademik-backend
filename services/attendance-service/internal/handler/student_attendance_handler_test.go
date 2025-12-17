@@ -151,3 +151,95 @@ func TestStudentAttendanceHandler_GetByID(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
+
+func TestStudentAttendanceHandler_BulkCreate(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUseCase := mocks.NewMockStudentAttendanceUseCase(ctrl)
+	h := handler.NewStudentAttendanceHandler(mockUseCase)
+
+	studentID1 := uuid.New()
+	studentID2 := uuid.New()
+	classID := uuid.New()
+	semesterID := uuid.New()
+	now := time.Now()
+
+	t.Run("success", func(t *testing.T) {
+		reqBody := []map[string]interface{}{
+			{
+				"student_id":      studentID1.String(),
+				"class_id":        classID.String(),
+				"semester_id":     semesterID.String(),
+				"attendance_date": now,
+				"status":          "present",
+			},
+			{
+				"student_id":      studentID2.String(),
+				"class_id":        classID.String(),
+				"semester_id":     semesterID.String(),
+				"attendance_date": now,
+				"status":          "absent",
+			},
+		}
+		body, _ := json.Marshal(reqBody)
+
+		mockUseCase.EXPECT().BulkCreate(gomock.Any(), gomock.Any()).DoAndReturn(func(_ interface{}, atts []*entity.StudentAttendance) error {
+			assert.Len(t, atts, 2)
+			return nil
+		})
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodPost, "/attendance/bulk", bytes.NewBuffer(body))
+		c.Request.Header.Set("Content-Type", "application/json")
+
+		h.BulkCreate(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("bad request", func(t *testing.T) {
+		reqBody := []map[string]interface{}{
+			{
+				"student_id": "invalid",
+			},
+		}
+		body, _ := json.Marshal(reqBody)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodPost, "/attendance/bulk", bytes.NewBuffer(body))
+		c.Request.Header.Set("Content-Type", "application/json")
+
+		h.BulkCreate(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("usecase error", func(t *testing.T) {
+		reqBody := []map[string]interface{}{
+			{
+				"student_id":      studentID1.String(),
+				"class_id":        classID.String(),
+				"semester_id":     semesterID.String(),
+				"attendance_date": now,
+				"status":          "present",
+			},
+		}
+		body, _ := json.Marshal(reqBody)
+
+		mockUseCase.EXPECT().BulkCreate(gomock.Any(), gomock.Any()).Return(errors.New("db error"))
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodPost, "/attendance/bulk", bytes.NewBuffer(body))
+		c.Request.Header.Set("Content-Type", "application/json")
+
+		h.BulkCreate(c)
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+	})
+}

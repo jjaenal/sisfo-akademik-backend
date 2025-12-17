@@ -21,12 +21,15 @@ func NewTeacherAttendanceHandler(useCase usecase.TeacherAttendanceUseCase) *Teac
 
 func (h *TeacherAttendanceHandler) CheckIn(c *gin.Context) {
 	var req struct {
+		TenantID       string                       `json:"tenant_id" binding:"required"`
 		TeacherID      string                       `json:"teacher_id" binding:"required"`
 		SemesterID     string                       `json:"semester_id" binding:"required"`
 		AttendanceDate time.Time                    `json:"attendance_date" binding:"required"`
 		CheckInTime    time.Time                    `json:"check_in_time" binding:"required"`
 		Status         entity.TeacherAttendanceStatus `json:"status" binding:"required"`
 		Notes          string                       `json:"notes"`
+		LocationLatitude  *float64                  `json:"location_latitude"`
+		LocationLongitude *float64                  `json:"location_longitude"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -47,12 +50,15 @@ func (h *TeacherAttendanceHandler) CheckIn(c *gin.Context) {
 	}
 
 	attendance := &entity.TeacherAttendance{
-		TeacherID:      teacherID,
-		SemesterID:     semesterID,
-		AttendanceDate: req.AttendanceDate,
-		CheckInTime:    &req.CheckInTime,
-		Status:         req.Status,
-		Notes:          req.Notes,
+		TenantID:          req.TenantID,
+		TeacherID:         teacherID,
+		SemesterID:        semesterID,
+		AttendanceDate:    req.AttendanceDate,
+		CheckInTime:       &req.CheckInTime,
+		Status:            req.Status,
+		Notes:             req.Notes,
+		LocationLatitude:  req.LocationLatitude,
+		LocationLongitude: req.LocationLongitude,
 	}
 
 	if err := h.useCase.CheckIn(c.Request.Context(), attendance); err != nil {

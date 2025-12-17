@@ -24,13 +24,14 @@ func NewTeacherAttendanceRepository(db *pgxpool.Pool) repository.TeacherAttendan
 func (r *teacherAttendanceRepository) Create(ctx context.Context, attendance *entity.TeacherAttendance) error {
 	query := `
 		INSERT INTO teacher_attendance (
-			id, teacher_id, semester_id, attendance_date, 
+			id, tenant_id, teacher_id, semester_id, attendance_date, 
 			check_in_time, check_out_time, status, notes, 
+			location_latitude, location_longitude,
 			created_at, updated_at
 		) VALUES (
 			$1, $2, $3, $4, 
 			$5, $6, $7, $8, 
-			$9, $10
+			$9, $10, $11, $12, $13
 		)
 	`
 	if attendance.ID == uuid.Nil {
@@ -45,8 +46,9 @@ func (r *teacherAttendanceRepository) Create(ctx context.Context, attendance *en
 	}
 
 	_, err := r.db.Exec(ctx, query,
-		attendance.ID, attendance.TeacherID, attendance.SemesterID, attendance.AttendanceDate,
+		attendance.ID, attendance.TenantID, attendance.TeacherID, attendance.SemesterID, attendance.AttendanceDate,
 		attendance.CheckInTime, attendance.CheckOutTime, attendance.Status, attendance.Notes,
+		attendance.LocationLatitude, attendance.LocationLongitude,
 		attendance.CreatedAt, attendance.UpdatedAt,
 	)
 	return err
@@ -73,16 +75,18 @@ func (r *teacherAttendanceRepository) Update(ctx context.Context, attendance *en
 func (r *teacherAttendanceRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.TeacherAttendance, error) {
 	query := `
 		SELECT 
-			id, teacher_id, semester_id, attendance_date, 
+			id, tenant_id, teacher_id, semester_id, attendance_date, 
 			check_in_time, check_out_time, status, notes, 
+			location_latitude, location_longitude,
 			created_at, updated_at
 		FROM teacher_attendance 
 		WHERE id = $1
 	`
 	var attendance entity.TeacherAttendance
 	err := r.db.QueryRow(ctx, query, id).Scan(
-		&attendance.ID, &attendance.TeacherID, &attendance.SemesterID, &attendance.AttendanceDate,
+		&attendance.ID, &attendance.TenantID, &attendance.TeacherID, &attendance.SemesterID, &attendance.AttendanceDate,
 		&attendance.CheckInTime, &attendance.CheckOutTime, &attendance.Status, &attendance.Notes,
+		&attendance.LocationLatitude, &attendance.LocationLongitude,
 		&attendance.CreatedAt, &attendance.UpdatedAt,
 	)
 	if err != nil {
@@ -97,16 +101,18 @@ func (r *teacherAttendanceRepository) GetByID(ctx context.Context, id uuid.UUID)
 func (r *teacherAttendanceRepository) GetByTeacherAndDate(ctx context.Context, teacherID uuid.UUID, date time.Time) (*entity.TeacherAttendance, error) {
 	query := `
 		SELECT 
-			id, teacher_id, semester_id, attendance_date, 
+			id, tenant_id, teacher_id, semester_id, attendance_date, 
 			check_in_time, check_out_time, status, notes, 
+			location_latitude, location_longitude,
 			created_at, updated_at
 		FROM teacher_attendance 
 		WHERE teacher_id = $1 AND attendance_date = $2
 	`
 	var attendance entity.TeacherAttendance
 	err := r.db.QueryRow(ctx, query, teacherID, date).Scan(
-		&attendance.ID, &attendance.TeacherID, &attendance.SemesterID, &attendance.AttendanceDate,
+		&attendance.ID, &attendance.TenantID, &attendance.TeacherID, &attendance.SemesterID, &attendance.AttendanceDate,
 		&attendance.CheckInTime, &attendance.CheckOutTime, &attendance.Status, &attendance.Notes,
+		&attendance.LocationLatitude, &attendance.LocationLongitude,
 		&attendance.CreatedAt, &attendance.UpdatedAt,
 	)
 	if err != nil {

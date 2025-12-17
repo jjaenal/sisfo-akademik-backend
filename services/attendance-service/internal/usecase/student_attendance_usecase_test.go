@@ -170,3 +170,58 @@ func TestStudentAttendanceUseCase_Update(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
+
+func TestStudentAttendanceUseCase_BulkCreate(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockStudentAttendanceRepository(ctrl)
+	timeout := 2 * time.Second
+	u := usecase.NewStudentAttendanceUseCase(mockRepo, timeout)
+
+	studentID1 := uuid.New()
+	studentID2 := uuid.New()
+	classID := uuid.New()
+	semesterID := uuid.New()
+	now := time.Now()
+
+	t.Run("success", func(t *testing.T) {
+		attendances := []*entity.StudentAttendance{
+			{
+				StudentID:      studentID1,
+				ClassID:        classID,
+				SemesterID:     semesterID,
+				AttendanceDate: now,
+				Status:         entity.AttendanceStatusPresent,
+			},
+			{
+				StudentID:      studentID2,
+				ClassID:        classID,
+				SemesterID:     semesterID,
+				AttendanceDate: now,
+				Status:         entity.AttendanceStatusAbsent,
+			},
+		}
+
+		mockRepo.EXPECT().BulkCreate(gomock.Any(), attendances).Return(nil)
+
+		err := u.BulkCreate(context.Background(), attendances)
+		assert.NoError(t, err)
+	})
+
+	t.Run("empty list", func(t *testing.T) {
+		err := u.BulkCreate(context.Background(), []*entity.StudentAttendance{})
+		assert.NoError(t, err)
+	})
+
+	t.Run("validation error", func(t *testing.T) {
+		attendances := []*entity.StudentAttendance{
+			{
+				StudentID: uuid.Nil, // Invalid
+			},
+		}
+
+		err := u.BulkCreate(context.Background(), attendances)
+		assert.Error(t, err)
+	})
+}

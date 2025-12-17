@@ -18,6 +18,7 @@ const (
 
 type TeacherAttendance struct {
 	ID             uuid.UUID               `json:"id"`
+	TenantID       string                  `json:"tenant_id"`
 	TeacherID      uuid.UUID               `json:"teacher_id"`
 	SemesterID     uuid.UUID               `json:"semester_id"`
 	AttendanceDate time.Time               `json:"attendance_date"`
@@ -25,6 +26,8 @@ type TeacherAttendance struct {
 	CheckOutTime   *time.Time              `json:"check_out_time"`
 	Status         TeacherAttendanceStatus `json:"status"`
 	Notes          string                  `json:"notes"`
+	LocationLatitude  *float64             `json:"location_latitude"`
+	LocationLongitude *float64             `json:"location_longitude"`
 	CreatedAt      time.Time               `json:"created_at"`
 	UpdatedAt      time.Time               `json:"updated_at"`
 }

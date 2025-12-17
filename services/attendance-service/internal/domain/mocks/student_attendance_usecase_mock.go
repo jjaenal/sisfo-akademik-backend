@@ -43,6 +43,20 @@ func (m *MockStudentAttendanceUseCase) EXPECT() *MockStudentAttendanceUseCaseMoc
 	return m.recorder
 }
 
+// BulkCreate mocks base method.
+func (m *MockStudentAttendanceUseCase) BulkCreate(ctx context.Context, attendances []*entity.StudentAttendance) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BulkCreate", ctx, attendances)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BulkCreate indicates an expected call of BulkCreate.
+func (mr *MockStudentAttendanceUseCaseMockRecorder) BulkCreate(ctx, attendances any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BulkCreate", reflect.TypeOf((*MockStudentAttendanceUseCase)(nil).BulkCreate), ctx, attendances)
+}
+
 // Create mocks base method.
 func (m *MockStudentAttendanceUseCase) Create(ctx context.Context, attendance *entity.StudentAttendance) error {
 	m.ctrl.T.Helper()
@@ -85,6 +99,21 @@ func (m *MockStudentAttendanceUseCase) GetByID(ctx context.Context, id uuid.UUID
 func (mr *MockStudentAttendanceUseCaseMockRecorder) GetByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockStudentAttendanceUseCase)(nil).GetByID), ctx, id)
+}
+
+// GetSummary mocks base method.
+func (m *MockStudentAttendanceUseCase) GetSummary(ctx context.Context, studentID, semesterID uuid.UUID) (map[string]int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSummary", ctx, studentID, semesterID)
+	ret0, _ := ret[0].(map[string]int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSummary indicates an expected call of GetSummary.
+func (mr *MockStudentAttendanceUseCaseMockRecorder) GetSummary(ctx, studentID, semesterID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSummary", reflect.TypeOf((*MockStudentAttendanceUseCase)(nil).GetSummary), ctx, studentID, semesterID)
 }
 
 // Update mocks base method.

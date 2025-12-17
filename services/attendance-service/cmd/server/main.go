@@ -69,8 +69,10 @@ func main() {
 	attendance := v1.Group("/attendance")
 	{
 		attendance.POST("/students", h.Create)
+		attendance.POST("/students/bulk", h.BulkCreate)
 		attendance.GET("/students", h.GetByClassAndDate)
 		attendance.GET("/students/:id", h.GetByID)
+		attendance.GET("/students/:id/summary", h.GetSummary)
 		attendance.PUT("/students/:id", h.Update)
 
 		attendance.POST("/teachers/checkin", teacherHandler.CheckIn)
