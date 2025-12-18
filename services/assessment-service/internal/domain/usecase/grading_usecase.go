@@ -12,4 +12,5 @@ type GradingUseCase interface {
 	InputGrade(ctx context.Context, grade *entity.Grade) error
 	GetStudentGrades(ctx context.Context, studentID, classID, semesterID uuid.UUID) ([]*entity.Grade, error)
 	CalculateFinalScore(ctx context.Context, studentID, classID, subjectID, semesterID uuid.UUID) (float64, error)
+	ApproveGrade(ctx context.Context, gradeID uuid.UUID, approvedBy uuid.UUID) error
 }

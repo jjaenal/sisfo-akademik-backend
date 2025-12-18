@@ -145,3 +145,34 @@ func (h *GradeHandler) CalculateFinalScore(c *gin.Context) {
 
 	httputil.Success(c.Writer, gin.H{"final_score": score})
 }
+
+func (h *GradeHandler) ApproveGrade(c *gin.Context) {
+	gradeIDStr := c.Param("id")
+	gradeID, err := uuid.Parse(gradeIDStr)
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "Invalid Grade ID")
+		return
+	}
+
+	var req struct {
+		ApprovedBy string `json:"approved_by" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", err.Error())
+		return
+	}
+
+	approvedBy, err := uuid.Parse(req.ApprovedBy)
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "Invalid Approver ID")
+		return
+	}
+
+	if err := h.useCase.ApproveGrade(c.Request.Context(), gradeID, approvedBy); err != nil {
+		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Internal Server Error", err.Error())
+		return
+	}
+
+	httputil.Success(c.Writer, gin.H{"message": "Grade approved successfully"})
+}

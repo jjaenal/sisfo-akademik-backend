@@ -1,0 +1,2 @@
+ALTER TABLE grades DROP COLUMN IF EXISTS approved_by;
+ALTER TABLE grades DROP COLUMN IF EXISTS approved_at;

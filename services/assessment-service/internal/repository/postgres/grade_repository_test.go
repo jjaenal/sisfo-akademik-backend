@@ -77,4 +77,23 @@ func TestGradeRepository_CRUD(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotEmpty(t, fetchedList)
 	assert.Equal(t, grade.ID, fetchedList[0].ID)
+
+	// Test Update (Approval)
+	approvedBy := uuid.New()
+	now := time.Now().Truncate(time.Second) // Truncate to match DB precision if needed, usually microsecond in Go vs microsecond in Postgres
+	grade.ApprovedBy = &approvedBy
+	grade.ApprovedAt = &now
+	grade.Status = entity.GradeStatusFinal
+	grade.UpdatedAt = now
+
+	err = repo.Update(ctx, grade)
+	assert.NoError(t, err)
+
+	// Test GetByID
+	fetchedByID, err := repo.GetByID(ctx, grade.ID)
+	assert.NoError(t, err)
+	assert.NotNil(t, fetchedByID)
+	assert.Equal(t, grade.ID, fetchedByID.ID)
+	assert.NotNil(t, fetchedByID.ApprovedBy)
+	assert.Equal(t, *grade.ApprovedBy, *fetchedByID.ApprovedBy)
 }

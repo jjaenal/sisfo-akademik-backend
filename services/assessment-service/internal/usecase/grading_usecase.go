@@ -143,3 +143,24 @@ func (u *gradingUseCase) CalculateFinalScore(ctx context.Context, studentID, cla
 
 	return totalScore / totalWeight, nil
 }
+
+func (u *gradingUseCase) ApproveGrade(ctx context.Context, gradeID uuid.UUID, approvedBy uuid.UUID) error {
+	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
+	defer cancel()
+
+	grade, err := u.gradeRepo.GetByID(ctx, gradeID)
+	if err != nil {
+		return err
+	}
+	if grade == nil {
+		return errors.New("grade not found")
+	}
+
+	grade.Status = entity.GradeStatusFinal
+	grade.ApprovedBy = &approvedBy
+	now := time.Now()
+	grade.ApprovedAt = &now
+	grade.UpdatedAt = now
+
+	return u.gradeRepo.Update(ctx, grade)
+}

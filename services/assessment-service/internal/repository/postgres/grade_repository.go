@@ -19,8 +19,11 @@ func NewGradeRepository(db DBPool) repository.GradeRepository {
 
 func (r *GradeRepository) Create(ctx context.Context, grade *entity.Grade) error {
 	query := `
-		INSERT INTO grades (id, tenant_id, assessment_id, student_id, score, feedback, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO grades (
+			id, tenant_id, assessment_id, student_id, score, feedback, 
+			graded_by, status, approved_by, approved_at, created_at, updated_at
+		)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 	`
 	_, err := r.db.Exec(ctx, query,
 		grade.ID,
@@ -29,6 +32,10 @@ func (r *GradeRepository) Create(ctx context.Context, grade *entity.Grade) error
 		grade.StudentID,
 		grade.Score,
 		grade.Feedback,
+		grade.GradedBy,
+		grade.Status,
+		grade.ApprovedBy,
+		grade.ApprovedAt,
 		grade.CreatedAt,
 		grade.UpdatedAt,
 	)
@@ -46,10 +53,18 @@ func (r *GradeRepository) CreateBulk(ctx context.Context, grades []*entity.Grade
 
 	batch := &pgx.Batch{}
 	query := `
-		INSERT INTO grades (id, tenant_id, assessment_id, student_id, score, feedback, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO grades (
+			id, tenant_id, assessment_id, student_id, score, feedback, 
+			graded_by, status, approved_by, approved_at, created_at, updated_at
+		)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 		ON CONFLICT (assessment_id, student_id) 
-		DO UPDATE SET score = EXCLUDED.score, feedback = EXCLUDED.feedback, updated_at = EXCLUDED.updated_at
+		DO UPDATE SET 
+			score = EXCLUDED.score, 
+			feedback = EXCLUDED.feedback, 
+			graded_by = EXCLUDED.graded_by,
+			status = EXCLUDED.status,
+			updated_at = EXCLUDED.updated_at
 	`
 
 	for _, grade := range grades {
@@ -60,6 +75,10 @@ func (r *GradeRepository) CreateBulk(ctx context.Context, grades []*entity.Grade
 			grade.StudentID,
 			grade.Score,
 			grade.Feedback,
+			grade.GradedBy,
+			grade.Status,
+			grade.ApprovedBy,
+			grade.ApprovedAt,
 			grade.CreatedAt,
 			grade.UpdatedAt,
 		)
@@ -73,9 +92,44 @@ func (r *GradeRepository) CreateBulk(ctx context.Context, grades []*entity.Grade
 	return tx.Commit(ctx)
 }
 
+func (r *GradeRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.Grade, error) {
+	query := `
+		SELECT 
+			id, tenant_id, assessment_id, student_id, score, feedback, 
+			graded_by, status, approved_by, approved_at, created_at, updated_at, deleted_at
+		FROM grades
+		WHERE id = $1 AND deleted_at IS NULL
+	`
+	var g entity.Grade
+	err := r.db.QueryRow(ctx, query, id).Scan(
+		&g.ID,
+		&g.TenantID,
+		&g.AssessmentID,
+		&g.StudentID,
+		&g.Score,
+		&g.Feedback,
+		&g.GradedBy,
+		&g.Status,
+		&g.ApprovedBy,
+		&g.ApprovedAt,
+		&g.CreatedAt,
+		&g.UpdatedAt,
+		&g.DeletedAt,
+	)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &g, nil
+}
+
 func (r *GradeRepository) GetByAssessmentID(ctx context.Context, assessmentID uuid.UUID) ([]*entity.Grade, error) {
 	query := `
-		SELECT id, tenant_id, assessment_id, student_id, score, feedback, created_at, updated_at, deleted_at
+		SELECT 
+			id, tenant_id, assessment_id, student_id, score, feedback, 
+			graded_by, status, approved_by, approved_at, created_at, updated_at, deleted_at
 		FROM grades
 		WHERE assessment_id = $1 AND deleted_at IS NULL
 	`
@@ -95,6 +149,10 @@ func (r *GradeRepository) GetByAssessmentID(ctx context.Context, assessmentID uu
 			&g.StudentID,
 			&g.Score,
 			&g.Feedback,
+			&g.GradedBy,
+			&g.Status,
+			&g.ApprovedBy,
+			&g.ApprovedAt,
 			&g.CreatedAt,
 			&g.UpdatedAt,
 			&g.DeletedAt,
@@ -108,7 +166,9 @@ func (r *GradeRepository) GetByAssessmentID(ctx context.Context, assessmentID uu
 
 func (r *GradeRepository) GetByStudentID(ctx context.Context, studentID uuid.UUID) ([]*entity.Grade, error) {
 	query := `
-		SELECT id, tenant_id, assessment_id, student_id, score, feedback, created_at, updated_at, deleted_at
+		SELECT 
+			id, tenant_id, assessment_id, student_id, score, feedback, 
+			graded_by, status, approved_by, approved_at, created_at, updated_at, deleted_at
 		FROM grades
 		WHERE student_id = $1 AND deleted_at IS NULL
 	`
@@ -128,6 +188,10 @@ func (r *GradeRepository) GetByStudentID(ctx context.Context, studentID uuid.UUI
 			&g.StudentID,
 			&g.Score,
 			&g.Feedback,
+			&g.GradedBy,
+			&g.Status,
+			&g.ApprovedBy,
+			&g.ApprovedAt,
 			&g.CreatedAt,
 			&g.UpdatedAt,
 			&g.DeletedAt,
@@ -141,7 +205,9 @@ func (r *GradeRepository) GetByStudentID(ctx context.Context, studentID uuid.UUI
 
 func (r *GradeRepository) GetByStudentAndAssessment(ctx context.Context, studentID, assessmentID uuid.UUID) (*entity.Grade, error) {
 	query := `
-		SELECT id, tenant_id, assessment_id, student_id, score, feedback, created_at, updated_at, deleted_at
+		SELECT 
+			id, tenant_id, assessment_id, student_id, score, feedback, 
+			graded_by, status, approved_by, approved_at, created_at, updated_at, deleted_at
 		FROM grades
 		WHERE student_id = $1 AND assessment_id = $2 AND deleted_at IS NULL
 	`
@@ -153,6 +219,10 @@ func (r *GradeRepository) GetByStudentAndAssessment(ctx context.Context, student
 		&g.StudentID,
 		&g.Score,
 		&g.Feedback,
+		&g.GradedBy,
+		&g.Status,
+		&g.ApprovedBy,
+		&g.ApprovedAt,
 		&g.CreatedAt,
 		&g.UpdatedAt,
 		&g.DeletedAt,
@@ -169,12 +239,23 @@ func (r *GradeRepository) GetByStudentAndAssessment(ctx context.Context, student
 func (r *GradeRepository) Update(ctx context.Context, grade *entity.Grade) error {
 	query := `
 		UPDATE grades
-		SET score = $1, feedback = $2, updated_at = $3
-		WHERE id = $4 AND deleted_at IS NULL
+		SET 
+			score = $1, 
+			feedback = $2, 
+			graded_by = $3,
+			status = $4,
+			approved_by = $5,
+			approved_at = $6,
+			updated_at = $7
+		WHERE id = $8 AND deleted_at IS NULL
 	`
 	_, err := r.db.Exec(ctx, query,
 		grade.Score,
 		grade.Feedback,
+		grade.GradedBy,
+		grade.Status,
+		grade.ApprovedBy,
+		grade.ApprovedAt,
 		grade.UpdatedAt,
 		grade.ID,
 	)

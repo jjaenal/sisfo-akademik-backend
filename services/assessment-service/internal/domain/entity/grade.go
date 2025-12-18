@@ -24,6 +24,8 @@ type Grade struct {
 	Notes        string      `json:"notes"`
 	Status       GradeStatus `json:"status"`
 	GradedBy     uuid.UUID   `json:"graded_by"`
+	ApprovedBy   *uuid.UUID  `json:"approved_by,omitempty"`
+	ApprovedAt   *time.Time  `json:"approved_at,omitempty"`
 	CreatedAt    time.Time   `json:"created_at"`
 	UpdatedAt    time.Time  `json:"updated_at"`
 	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
