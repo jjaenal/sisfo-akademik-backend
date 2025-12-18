@@ -16,6 +16,8 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/middleware"
 	redisutil "github.com/jjaenal/sisfo-akademik-backend/shared/pkg/redis"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var perPrefixLimits = map[string]int{
@@ -59,6 +61,7 @@ func main() {
 }
 
 func registerRoutes(mux *http.ServeMux, cfg config.Config) {
+	mux.Handle("/metrics", promhttp.Handler())
 	mux.Handle("/api/v1/gateway/health", gatewayHealthHandler(cfg))
 	registerLBEnv(mux, "/api/v1/health", "APP_UPSTREAM_AUTH", cfg, false)
 	registerLBEnv(mux, "/api/v1/auth/", "APP_UPSTREAM_AUTH", cfg, false)
