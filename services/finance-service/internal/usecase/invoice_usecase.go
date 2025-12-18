@@ -2,8 +2,9 @@ package usecase
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"time"
 
 	"github.com/google/uuid"
@@ -52,7 +53,8 @@ func (u *invoiceUseCase) Generate(ctx context.Context, tenantID, studentID, bill
 
 	// 2. Create Invoice
 	now := time.Now()
-	invoiceNumber := fmt.Sprintf("INV-%s-%d", now.Format("20060102"), rand.Intn(10000))
+	n, _ := rand.Int(rand.Reader, big.NewInt(10000))
+	invoiceNumber := fmt.Sprintf("INV-%s-%d", now.Format("20060102"), n.Int64())
 	
 	// Default due date 7 days from now
 	dueDate := now.AddDate(0, 0, 7)

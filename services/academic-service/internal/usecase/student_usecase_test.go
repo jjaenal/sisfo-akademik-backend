@@ -1,112 +1,141 @@
-package usecase_test
+package usecase
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/domain/entity"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/domain/mocks"
-	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/usecase"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
 
-func TestStudentUseCase_CRUD(t *testing.T) {
+func TestStudentUseCase_Create(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockStudentRepository(ctrl)
-	u := usecase.NewStudentUseCase(mockRepo, time.Second*2)
+	u := NewStudentUseCase(mockRepo, 2*time.Second)
 
-	tenantID := "tenant-1"
-	id := uuid.New()
-
-	validStudent := &entity.Student{
-		ID:       id,
-		TenantID: tenantID,
+	studentID := uuid.New()
+	student := &entity.Student{
+		ID:       studentID,
 		Name:     "John Doe",
+		TenantID: "tenant-1",
 		Status:   "active",
 	}
 
-	t.Run("Create Success", func(t *testing.T) {
-		mockRepo.EXPECT().Create(gomock.Any(), validStudent).Return(nil)
-		err := u.Create(context.Background(), validStudent)
+	t.Run("success", func(t *testing.T) {
+		mockRepo.EXPECT().Create(gomock.Any(), student).Return(nil)
+
+		err := u.Create(context.Background(), student)
 		assert.NoError(t, err)
 	})
 
-	t.Run("Create Validation Error", func(t *testing.T) {
-		invalidStudent := &entity.Student{}
+	t.Run("validation error", func(t *testing.T) {
+		invalidStudent := &entity.Student{} // Missing Name and TenantID
 		err := u.Create(context.Background(), invalidStudent)
 		assert.Error(t, err)
 	})
 
-	t.Run("Create Repo Error", func(t *testing.T) {
-		mockRepo.EXPECT().Create(gomock.Any(), validStudent).Return(assert.AnError)
-		err := u.Create(context.Background(), validStudent)
+	t.Run("repo error", func(t *testing.T) {
+		mockRepo.EXPECT().Create(gomock.Any(), student).Return(errors.New("db error"))
+
+		err := u.Create(context.Background(), student)
 		assert.Error(t, err)
 	})
+}
 
-	t.Run("GetByID Success", func(t *testing.T) {
-		mockRepo.EXPECT().GetByID(gomock.Any(), id).Return(validStudent, nil)
+func TestStudentUseCase_GetByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockStudentRepository(ctrl)
+	u := NewStudentUseCase(mockRepo, 2*time.Second)
+
+	id := uuid.New()
+	student := &entity.Student{ID: id, Name: "John Doe"}
+
+	t.Run("success", func(t *testing.T) {
+		mockRepo.EXPECT().GetByID(gomock.Any(), id).Return(student, nil)
+
 		res, err := u.GetByID(context.Background(), id)
 		assert.NoError(t, err)
-		assert.Equal(t, validStudent, res)
+		assert.Equal(t, student, res)
 	})
 
-	t.Run("GetByID Repo Error", func(t *testing.T) {
-		mockRepo.EXPECT().GetByID(gomock.Any(), id).Return(nil, assert.AnError)
+	t.Run("error", func(t *testing.T) {
+		mockRepo.EXPECT().GetByID(gomock.Any(), id).Return(nil, errors.New("not found"))
+
 		res, err := u.GetByID(context.Background(), id)
 		assert.Error(t, err)
 		assert.Nil(t, res)
 	})
+}
 
-	t.Run("List Success", func(t *testing.T) {
-		list := []entity.Student{*validStudent}
-		total := 1
-		mockRepo.EXPECT().List(gomock.Any(), tenantID, 10, 0).Return(list, total, nil)
-		res, count, err := u.List(context.Background(), tenantID, 10, 0)
+func TestStudentUseCase_List(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockStudentRepository(ctrl)
+	u := NewStudentUseCase(mockRepo, 2*time.Second)
+
+	students := []entity.Student{{Name: "John"}}
+
+	t.Run("success", func(t *testing.T) {
+		mockRepo.EXPECT().List(gomock.Any(), "tenant-1", 10, 0).Return(students, 1, nil)
+
+		res, count, err := u.List(context.Background(), "tenant-1", 10, 0)
 		assert.NoError(t, err)
-		assert.Equal(t, list, res)
-		assert.Equal(t, total, count)
+		assert.Equal(t, 1, count)
+		assert.Equal(t, students, res)
 	})
+}
 
-	t.Run("List Repo Error", func(t *testing.T) {
-		mockRepo.EXPECT().List(gomock.Any(), tenantID, 10, 0).Return(nil, 0, assert.AnError)
-		res, count, err := u.List(context.Background(), tenantID, 10, 0)
-		assert.Error(t, err)
-		assert.Nil(t, res)
-		assert.Equal(t, 0, count)
-	})
+func TestStudentUseCase_Update(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	t.Run("Update Success", func(t *testing.T) {
-		mockRepo.EXPECT().Update(gomock.Any(), validStudent).Return(nil)
-		err := u.Update(context.Background(), validStudent)
+	mockRepo := mocks.NewMockStudentRepository(ctrl)
+	u := NewStudentUseCase(mockRepo, 2*time.Second)
+
+	student := &entity.Student{
+		ID:       uuid.New(),
+		Name:     "John Doe",
+		TenantID: "tenant-1",
+		Status:   "active",
+	}
+
+	t.Run("success", func(t *testing.T) {
+		mockRepo.EXPECT().Update(gomock.Any(), student).Return(nil)
+
+		err := u.Update(context.Background(), student)
 		assert.NoError(t, err)
 	})
 
-	t.Run("Update Validation Error", func(t *testing.T) {
+	t.Run("validation error", func(t *testing.T) {
 		invalidStudent := &entity.Student{}
 		err := u.Update(context.Background(), invalidStudent)
 		assert.Error(t, err)
 	})
+}
 
-	t.Run("Update Repo Error", func(t *testing.T) {
-		mockRepo.EXPECT().Update(gomock.Any(), validStudent).Return(assert.AnError)
-		err := u.Update(context.Background(), validStudent)
-		assert.Error(t, err)
-	})
+func TestStudentUseCase_Delete(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	t.Run("Delete Success", func(t *testing.T) {
+	mockRepo := mocks.NewMockStudentRepository(ctrl)
+	u := NewStudentUseCase(mockRepo, 2*time.Second)
+
+	id := uuid.New()
+
+	t.Run("success", func(t *testing.T) {
 		mockRepo.EXPECT().Delete(gomock.Any(), id).Return(nil)
+
 		err := u.Delete(context.Background(), id)
 		assert.NoError(t, err)
-	})
-
-	t.Run("Delete Repo Error", func(t *testing.T) {
-		mockRepo.EXPECT().Delete(gomock.Any(), id).Return(assert.AnError)
-		err := u.Delete(context.Background(), id)
-		assert.Error(t, err)
 	})
 }

@@ -30,7 +30,10 @@ func NewApplicationDocumentUseCase(
 		uploadDir = "./uploads"
 	}
 	// Ensure directory exists
-	os.MkdirAll(uploadDir, 0755)
+	if err := os.MkdirAll(uploadDir, 0750); err != nil {
+		// Panic on startup if cannot create directory
+		panic(err)
+	}
 	
 	return &applicationDocumentUseCase{
 		repo:            repo,
@@ -65,7 +68,7 @@ func (u *applicationDocumentUseCase) Upload(ctx context.Context, applicationID u
 	}
 	defer src.Close()
 
-	out, err := os.Create(dst)
+	out, err := os.Create(dst) // #nosec G304 -- dst is constructed from trusted config and safe UUID
 	if err != nil {
 		return nil, err
 	}

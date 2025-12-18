@@ -2,9 +2,10 @@ package usecase
 
 import (
 	"context"
+	"crypto/rand"
 	"errors"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"time"
 
 	"github.com/google/uuid"
@@ -39,8 +40,8 @@ func (u *applicationUseCase) SubmitApplication(ctx context.Context, application 
 	// Generate Registration Number
 	// Format: REG-YYYYMMDD-XXXX
 	now := time.Now()
-	randNum := rand.Intn(10000)
-	application.RegistrationNumber = fmt.Sprintf("REG-%s-%04d", now.Format("20060102"), randNum)
+	n, _ := rand.Int(rand.Reader, big.NewInt(10000))
+	application.RegistrationNumber = fmt.Sprintf("REG-%s-%04d", now.Format("20060102"), n.Int64())
 	application.Status = entity.ApplicationStatusSubmitted
 	application.SubmissionDate = &now
 

@@ -46,7 +46,7 @@ func TestReportCardIntegration(t *testing.T) {
 	}
 
 	t.Run("Generate Report Card Success", func(t *testing.T) {
-		tenantID := "tenant-123"
+		tenantID := uuid.New().String()
 		studentID := uuid.New()
 		classID := uuid.New()
 		semesterID := uuid.New()

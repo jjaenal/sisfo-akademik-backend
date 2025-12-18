@@ -1,0 +1,298 @@
+{
+	"Golang errors": {},
+	"Issues": [
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "338",
+				"url": "https://cwe.mitre.org/data/definitions/338.html"
+			},
+			"rule_id": "G404",
+			"details": "Use of weak random number generator (math/rand or math/rand/v2 instead of crypto/rand)",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/services/finance-service/internal/usecase/invoice_usecase.go",
+			"code": "54: \tnow := time.Now()\n55: \tinvoiceNumber := fmt.Sprintf(\"INV-%s-%d\", now.Format(\"20060102\"), rand.Intn(10000))\n56: \t\n",
+			"line": "55",
+			"column": "68",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "MEDIUM",
+			"cwe": {
+				"id": "338",
+				"url": "https://cwe.mitre.org/data/definitions/338.html"
+			},
+			"rule_id": "G404",
+			"details": "Use of weak random number generator (math/rand or math/rand/v2 instead of crypto/rand)",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/services/admission-service/internal/usecase/application_usecase.go",
+			"code": "41: \tnow := time.Now()\n42: \trandNum := rand.Intn(10000)\n43: \tapplication.RegistrationNumber = fmt.Sprintf(\"REG-%s-%04d\", now.Format(\"20060102\"), randNum)\n",
+			"line": "42",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "HIGH",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "295",
+				"url": "https://cwe.mitre.org/data/definitions/295.html"
+			},
+			"rule_id": "G402",
+			"details": "TLS InsecureSkipVerify set true.",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/services/notification-service/internal/infrastructure/email/smtp_email_service.go",
+			"code": "19: \tif cfg.Env == \"development\" {\n20: \t\tdialer.TLSConfig = \u0026tls.Config{InsecureSkipVerify: true}\n21: \t}\n",
+			"line": "20",
+			"column": "54",
+			"nosec": false,
+			"suppressions": null
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "311: \t\tp := filepath.Join(root, \"shared\", \"pkg\", \"database\", \"database.go\")\n312: \t\tb, err := os.ReadFile(p)\n313: \t\tif err != nil {\n",
+			"line": "312",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "264: \t\tp := filepath.Join(root, \".github\", \"workflows\", \"ci.yml\")\n265: \t\tb, err := os.ReadFile(p)\n266: \t\tif err != nil {\n",
+			"line": "265",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "246: \t\tp := filepath.Join(root, \".github\", \"workflows\", \"ci.yml\")\n247: \t\tb, err := os.ReadFile(p)\n248: \t\tif err != nil {\n",
+			"line": "247",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "216: \t\tp := filepath.Join(root, \"services/auth-service/internal/middleware/security.go\")\n217: \t\tb, err := os.ReadFile(p)\n218: \t\tif err != nil {\n",
+			"line": "217",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "202: \t\ttp := filepath.Join(root, \"services/auth-service/internal/handler/roles_handler_test.go\")\n203: \t\ttb, terr := os.ReadFile(tp)\n204: \t\tif terr == nil {\n",
+			"line": "203",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "195: \t\thp := filepath.Join(root, \"services/auth-service/internal/handler/roles.go\")\n196: \t\thb, herr := os.ReadFile(hp)\n197: \t\tok := herr == nil\n",
+			"line": "196",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "181: \t\ttp := filepath.Join(root, \"services/auth-service/internal/handler/auth_handler_test.go\")\n182: \t\ttb, terr := os.ReadFile(tp)\n183: \t\tif terr == nil {\n",
+			"line": "182",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "174: \t\thp := filepath.Join(root, \"services/auth-service/internal/handler/auth.go\")\n175: \t\thb, herr := os.ReadFile(hp)\n176: \t\tok := herr == nil\n",
+			"line": "175",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "160: \t\ttp := filepath.Join(root, \"services/auth-service/internal/handler/auth_handler_test.go\")\n161: \t\ttb, terr := os.ReadFile(tp)\n162: \t\tif terr == nil {\n",
+			"line": "161",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "153: \t\thp := filepath.Join(root, \"services/auth-service/internal/handler/auth.go\")\n154: \t\thb, herr := os.ReadFile(hp)\n155: \t\tok := herr == nil\n",
+			"line": "154",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "139: \t\ttp := filepath.Join(root, \"services/auth-service/internal/handler/auth_handler_test.go\")\n140: \t\ttb, terr := os.ReadFile(tp)\n141: \t\tif terr == nil {\n",
+			"line": "140",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "132: \t\thp := filepath.Join(root, \"services/auth-service/internal/handler/auth.go\")\n133: \t\thb, herr := os.ReadFile(hp)\n134: \t\tok := herr == nil\n",
+			"line": "133",
+			"column": "15",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "114: \t\tp := filepath.Join(root, \"services/auth-service/internal/handler/auth.go\")\n115: \t\tb, err := os.ReadFile(p)\n116: \t\tif err != nil {\n",
+			"line": "115",
+			"column": "13",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		},
+		{
+			"severity": "MEDIUM",
+			"confidence": "HIGH",
+			"cwe": {
+				"id": "22",
+				"url": "https://cwe.mitre.org/data/definitions/22.html"
+			},
+			"rule_id": "G304",
+			"details": "Potential file inclusion via variable",
+			"file": "/Users/a123/Desktop/proj/sisfo-akademik-backend/shared/pkg/todoexec/todo.go",
+			"code": "22: func Parse(path string) ([]Task, []string, error) {\n23: \tb, err := os.ReadFile(path)\n24: \tif err != nil {\n",
+			"line": "23",
+			"column": "12",
+			"nosec": false,
+			"suppressions": null,
+			"autofix": "Consider using os.Root to scope file access under a fixed root (Go \u003e=1.24). Prefer root.Open/root.Stat over os.Open/os.Stat to prevent directory traversal."
+		}
+	],
+	"Stats": {
+		"files": 290,
+		"lines": 32349,
+		"nosec": 4,
+		"found": 17
+	},
+	"GosecVersion": "dev"
+}

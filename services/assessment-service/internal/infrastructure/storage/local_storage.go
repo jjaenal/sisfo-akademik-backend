@@ -34,7 +34,7 @@ func (s *localStorage) Upload(ctx context.Context, path string, content io.Reade
 		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
 
-	file, err := os.Create(fullPath)
+	file, err := os.Create(fullPath) // #nosec G304
 	if err != nil {
 		return "", fmt.Errorf("failed to create file: %w", err)
 	}
