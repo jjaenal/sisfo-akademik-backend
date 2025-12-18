@@ -34,6 +34,7 @@ type Config struct {
 	SMTPFromName        string
 	WhatsAppAPIURL      string
 	WhatsAppAPIKey      string
+	AcademicServiceURL  string
 }
 
 func Load() (Config, error) {
@@ -61,6 +62,7 @@ func Load() (Config, error) {
 	v.SetDefault("FAIL_WINDOW_TTL", "15m")
 	v.SetDefault("AUDIT_RETENTION_DAYS", 90)
 	v.SetDefault("SMTP_PORT", 587)
+	v.SetDefault("ACADEMIC_SERVICE_URL", "http://localhost:9092")
 
 	cfg := Config{
 		Env:                v.GetString("ENV"),
@@ -89,6 +91,7 @@ func Load() (Config, error) {
 		SMTPFromName:       v.GetString("SMTP_FROM_NAME"),
 		WhatsAppAPIURL:     v.GetString("WHATSAPP_API_URL"),
 		WhatsAppAPIKey:     v.GetString("WHATSAPP_API_KEY"),
+		AcademicServiceURL: v.GetString("ACADEMIC_SERVICE_URL"),
 	}
 	if err := cfg.Validate(); err != nil {
 		return Config{}, err

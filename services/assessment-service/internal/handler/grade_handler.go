@@ -18,6 +18,17 @@ func NewGradeHandler(useCase usecase.GradingUseCase) *GradeHandler {
 	return &GradeHandler{useCase: useCase}
 }
 
+// InputGrade godoc
+// @Summary      Input a grade
+// @Description  Input a grade for a student in an assessment
+// @Tags         grades
+// @Accept       json
+// @Produce      json
+// @Param        request body object true "Grade Input"
+// @Success      200  {object}  entity.Grade
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /grades [post]
 func (h *GradeHandler) InputGrade(c *gin.Context) {
 	var req struct {
 		TenantID     string  `json:"tenant_id" binding:"required"`
@@ -75,6 +86,19 @@ func (h *GradeHandler) InputGrade(c *gin.Context) {
 	httputil.Success(c.Writer, grade)
 }
 
+// GetStudentGrades godoc
+// @Summary      Get student grades
+// @Description  Get grades for a student by class and semester
+// @Tags         grades
+// @Accept       json
+// @Produce      json
+// @Param        student_id   path      string  true  "Student ID"
+// @Param        class_id     query     string  true  "Class ID"
+// @Param        semester_id  query     string  true  "Semester ID"
+// @Success      200  {array}   entity.Grade
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /grades/student/{student_id} [get]
 func (h *GradeHandler) GetStudentGrades(c *gin.Context) {
 	studentIDStr := c.Param("student_id")
 	classIDStr := c.Query("class_id")
@@ -107,6 +131,20 @@ func (h *GradeHandler) GetStudentGrades(c *gin.Context) {
 	httputil.Success(c.Writer, grades)
 }
 
+// CalculateFinalScore godoc
+// @Summary      Calculate final score
+// @Description  Calculate final score for a student in a subject
+// @Tags         grades
+// @Accept       json
+// @Produce      json
+// @Param        student_id   path      string  true  "Student ID"
+// @Param        subject_id   query     string  true  "Subject ID"
+// @Param        semester_id  query     string  true  "Semester ID"
+// @Param        class_id     query     string  true  "Class ID"
+// @Success      200  {object}  map[string]float64
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /grades/calculate/{student_id} [get]
 func (h *GradeHandler) CalculateFinalScore(c *gin.Context) {
 	studentIDStr := c.Param("student_id")
 	subjectIDStr := c.Query("subject_id")
@@ -146,6 +184,18 @@ func (h *GradeHandler) CalculateFinalScore(c *gin.Context) {
 	httputil.Success(c.Writer, gin.H{"final_score": score})
 }
 
+// ApproveGrade godoc
+// @Summary      Approve a grade
+// @Description  Approve a grade
+// @Tags         grades
+// @Accept       json
+// @Produce      json
+// @Param        id           path      string  true  "Grade ID"
+// @Param        request      body      object  true  "Approve Request"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /grades/{id}/approve [put]
 func (h *GradeHandler) ApproveGrade(c *gin.Context) {
 	gradeIDStr := c.Param("id")
 	gradeID, err := uuid.Parse(gradeIDStr)

@@ -101,6 +101,51 @@ func (mr *MockStudentAttendanceUseCaseMockRecorder) GetByID(ctx, id any) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockStudentAttendanceUseCase)(nil).GetByID), ctx, id)
 }
 
+// GetClassReport mocks base method.
+func (m *MockStudentAttendanceUseCase) GetClassReport(ctx context.Context, tenantID, classID uuid.UUID, startDate, endDate time.Time) ([]*entity.StudentAttendance, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetClassReport", ctx, tenantID, classID, startDate, endDate)
+	ret0, _ := ret[0].([]*entity.StudentAttendance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetClassReport indicates an expected call of GetClassReport.
+func (mr *MockStudentAttendanceUseCaseMockRecorder) GetClassReport(ctx, tenantID, classID, startDate, endDate any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetClassReport", reflect.TypeOf((*MockStudentAttendanceUseCase)(nil).GetClassReport), ctx, tenantID, classID, startDate, endDate)
+}
+
+// GetDailyReport mocks base method.
+func (m *MockStudentAttendanceUseCase) GetDailyReport(ctx context.Context, tenantID uuid.UUID, date time.Time) ([]*entity.StudentAttendance, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDailyReport", ctx, tenantID, date)
+	ret0, _ := ret[0].([]*entity.StudentAttendance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDailyReport indicates an expected call of GetDailyReport.
+func (mr *MockStudentAttendanceUseCaseMockRecorder) GetDailyReport(ctx, tenantID, date any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDailyReport", reflect.TypeOf((*MockStudentAttendanceUseCase)(nil).GetDailyReport), ctx, tenantID, date)
+}
+
+// GetMonthlyReport mocks base method.
+func (m *MockStudentAttendanceUseCase) GetMonthlyReport(ctx context.Context, tenantID uuid.UUID, month, year int) ([]*entity.StudentAttendance, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMonthlyReport", ctx, tenantID, month, year)
+	ret0, _ := ret[0].([]*entity.StudentAttendance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMonthlyReport indicates an expected call of GetMonthlyReport.
+func (mr *MockStudentAttendanceUseCaseMockRecorder) GetMonthlyReport(ctx, tenantID, month, year any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMonthlyReport", reflect.TypeOf((*MockStudentAttendanceUseCase)(nil).GetMonthlyReport), ctx, tenantID, month, year)
+}
+
 // GetSummary mocks base method.
 func (m *MockStudentAttendanceUseCase) GetSummary(ctx context.Context, studentID, semesterID uuid.UUID) (map[string]int, error) {
 	m.ctrl.T.Helper()

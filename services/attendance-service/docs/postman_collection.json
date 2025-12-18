@@ -1,0 +1,410 @@
+{
+	"info": {
+		"_postman_id": "attendance-service-v1",
+		"name": "Attendance Service API",
+		"description": "API collection for Attendance Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Student Attendance",
+			"item": [
+				{
+					"name": "Create Student Attendance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tenant_id\": \"{{tenant_id}}\",\n    \"student_id\": \"{{student_id}}\",\n    \"class_id\": \"{{class_id}}\",\n    \"semester_id\": \"{{semester_id}}\",\n    \"attendance_date\": \"2025-12-18T08:00:00Z\",\n    \"status\": \"PRESENT\",\n    \"notes\": \"Hadir tepat waktu\",\n    \"check_in_latitude\": -6.2088,\n    \"check_in_longitude\": 106.8456\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/attendance/students",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"students"
+							]
+						}
+					}
+				},
+				{
+					"name": "Bulk Create Student Attendance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"tenant_id\": \"{{tenant_id}}\",\n        \"student_id\": \"{{student_id}}\",\n        \"class_id\": \"{{class_id}}\",\n        \"semester_id\": \"{{semester_id}}\",\n        \"attendance_date\": \"2025-12-18T08:00:00Z\",\n        \"status\": \"PRESENT\",\n        \"notes\": \"Hadir\",\n        \"check_in_latitude\": -6.2088,\n        \"check_in_longitude\": 106.8456\n    }\n]"
+						},
+						"url": {
+							"raw": "{{base_url}}/attendance/students/bulk",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"students",
+								"bulk"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Student Attendance By Class & Date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/attendance/students?class_id={{class_id}}&date=2025-12-18",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"students"
+							],
+							"query": [
+								{
+									"key": "class_id",
+									"value": "{{class_id}}"
+								},
+								{
+									"key": "date",
+									"value": "2025-12-18"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Student Attendance By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/attendance/students/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"students",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{attendance_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Student Attendance Summary",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/attendance/students/:id/summary?semester_id={{semester_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"students",
+								":id",
+								"summary"
+							],
+							"query": [
+								{
+									"key": "semester_id",
+									"value": "{{semester_id}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{student_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Student Attendance",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"SICK\",\n    \"notes\": \"Sakit Demam\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/attendance/students/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"students",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{attendance_id}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Teacher Attendance",
+			"item": [
+				{
+					"name": "Teacher Check-In",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tenant_id\": \"{{tenant_id}}\",\n    \"teacher_id\": \"{{teacher_id}}\",\n    \"semester_id\": \"{{semester_id}}\",\n    \"attendance_date\": \"2025-12-18T08:00:00Z\",\n    \"check_in_time\": \"2025-12-18T07:30:00Z\",\n    \"status\": \"PRESENT\",\n    \"notes\": \"Hadir\",\n    \"location_latitude\": -6.2088,\n    \"location_longitude\": 106.8456\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/attendance/teachers/checkin",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"teachers",
+								"checkin"
+							]
+						}
+					}
+				},
+				{
+					"name": "Teacher Check-Out",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"teacher_id\": \"{{teacher_id}}\",\n    \"date\": \"2025-12-18T00:00:00Z\",\n    \"check_out_time\": \"2025-12-18T16:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/attendance/teachers/checkout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"teachers",
+								"checkout"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Teacher Attendance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/attendance/teachers?teacher_id={{teacher_id}}&date=2025-12-18",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"teachers"
+							],
+							"query": [
+								{
+									"key": "teacher_id",
+									"value": "{{teacher_id}}"
+								},
+								{
+									"key": "date",
+									"value": "2025-12-18"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "Get Daily Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/attendance/reports/daily?date=2025-12-18&tenant_id={{tenant_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"reports",
+								"daily"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2025-12-18"
+								},
+								{
+									"key": "tenant_id",
+									"value": "{{tenant_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Monthly Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/attendance/reports/monthly?month=12&year=2025&tenant_id={{tenant_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"reports",
+								"monthly"
+							],
+							"query": [
+								{
+									"key": "month",
+									"value": "12"
+								},
+								{
+									"key": "year",
+									"value": "2025"
+								},
+								{
+									"key": "tenant_id",
+									"value": "{{tenant_id}}"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Class Report",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/attendance/reports/class/:class_id?start_date=2025-12-01&end_date=2025-12-31&tenant_id={{tenant_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"attendance",
+								"reports",
+								"class",
+								":class_id"
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2025-12-01"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-12-31"
+								},
+								{
+									"key": "tenant_id",
+									"value": "{{tenant_id}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "class_id",
+									"value": "{{class_id}}"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:9093/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "tenant_id",
+			"value": "uuid",
+			"type": "string"
+		},
+		{
+			"key": "student_id",
+			"value": "uuid",
+			"type": "string"
+		},
+		{
+			"key": "class_id",
+			"value": "uuid",
+			"type": "string"
+		},
+		{
+			"key": "semester_id",
+			"value": "uuid",
+			"type": "string"
+		},
+		{
+			"key": "teacher_id",
+			"value": "uuid",
+			"type": "string"
+		},
+		{
+			"key": "attendance_id",
+			"value": "uuid",
+			"type": "string"
+		}
+	]
+}

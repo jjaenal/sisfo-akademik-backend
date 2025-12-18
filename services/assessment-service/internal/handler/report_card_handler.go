@@ -17,6 +17,17 @@ func NewReportCardHandler(useCase usecase.ReportCardUseCase) *ReportCardHandler 
 	return &ReportCardHandler{useCase: useCase}
 }
 
+// Generate godoc
+// @Summary      Generate a report card
+// @Description  Generate a report card for a student
+// @Tags         report-cards
+// @Accept       json
+// @Produce      json
+// @Param        request body object true "Generate Request"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /report-cards/generate [post]
 func (h *ReportCardHandler) Generate(c *gin.Context) {
 	var req struct {
 		TenantID   string `json:"tenant_id" binding:"required"`
@@ -56,6 +67,16 @@ func (h *ReportCardHandler) Generate(c *gin.Context) {
 	httputil.Success(c.Writer, rc)
 }
 
+// GetPDF godoc
+// @Summary      Download report card PDF
+// @Description  Download the generated report card PDF
+// @Tags         report-cards
+// @Produce      application/pdf
+// @Param        id   path      string  true  "Report Card ID"
+// @Success      200  {file}    file
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /report-cards/{id}/download [get]
 func (h *ReportCardHandler) GetPDF(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -74,9 +95,22 @@ func (h *ReportCardHandler) GetPDF(c *gin.Context) {
 	c.Data(http.StatusOK, "application/pdf", pdfBytes)
 }
 
+// GetByStudent godoc
+// @Summary      Get report card by student
+// @Description  Get report card for a student in a semester
+// @Tags         report-cards
+// @Accept       json
+// @Produce      json
+// @Param        student_id   path      string  true  "Student ID"
+// @Param        semester_id  query     string  true  "Semester ID"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      404  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /report-cards/student/{student_id} [get]
 func (h *ReportCardHandler) GetByStudent(c *gin.Context) {
-	studentIDStr := c.Param("studentID")
-	semesterIDStr := c.Param("semesterID")
+	studentIDStr := c.Param("student_id")
+	semesterIDStr := c.Query("semester_id")
 
 	studentID, err := uuid.Parse(studentIDStr)
 	if err != nil {

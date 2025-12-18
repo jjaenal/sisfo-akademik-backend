@@ -16,7 +16,27 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/docs"
 )
+
+// @title           Assessment Service API
+// @version         1.0
+// @description     Assessment Service for Sisfo Akademik
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name    API Support
+// @contact.url     http://www.swagger.io/support
+// @contact.email   support@swagger.io
+
+// @license.name    Apache 2.0
+// @license.url     http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host            localhost:8084
+// @BasePath        /api/v1
+// @schemes         http
 
 func main() {
 	cfg, err := config.Load()
@@ -75,6 +95,8 @@ func main() {
 	// Static file serving for local storage
 	r.Static("/files", storagePath)
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	r.GET("/api/v1/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"success": true,
@@ -104,7 +126,7 @@ func main() {
 			grades.POST("", gradeHandler.InputGrade)
 			grades.GET("/student/:student_id", gradeHandler.GetStudentGrades)
 			grades.GET("/final/:student_id", gradeHandler.CalculateFinalScore)
-			grades.POST("/:id/approve", gradeHandler.ApproveGrade)
+			grades.PUT("/:id/approve", gradeHandler.ApproveGrade)
 		}
 
 		// Grade Category Routes

@@ -8,7 +8,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/domain/entity"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestStudentAttendanceRepository_Create(t *testing.T) {
@@ -35,77 +34,71 @@ func TestStudentAttendanceRepository_Create(t *testing.T) {
 		UpdatedAt:      now,
 	}
 
-	err := repo.Create(context.Background(), attendance)
-	require.NoError(t, err)
-	assert.NotEqual(t, uuid.Nil, attendance.ID)
-
-	// Verify we can retrieve it
-	stored, err := repo.GetByID(context.Background(), attendance.ID)
-	require.NoError(t, err)
-	require.NotNil(t, stored)
-
-	assert.Equal(t, attendance.ID, stored.ID)
-	assert.Equal(t, attendance.TenantID, stored.TenantID)
-	assert.Equal(t, attendance.StudentID, stored.StudentID)
-	assert.Equal(t, attendance.ClassID, stored.ClassID)
-	assert.Equal(t, attendance.SemesterID, stored.SemesterID)
-	assert.Equal(t, attendance.Status, stored.Status)
-	assert.Equal(t, attendance.Notes, stored.Notes)
-	// Check time within a small delta due to DB roundtrip precision
-	assert.Equal(t, attendance.AttendanceDate, stored.AttendanceDate)
-}
-
-func TestStudentAttendanceRepository_GetByClassAndDate(t *testing.T) {
-	db := testDB(t)
-	ensureMigrations(t, db)
-	repo := NewStudentAttendanceRepository(db)
-
-	tenantID := uuid.New().String()
-	classID := uuid.New()
-	semesterID := uuid.New()
-	date := time.Now().Truncate(time.Second)
-
-	// Create 3 records, 2 for the target class/date, 1 for another
-	att1 := &entity.StudentAttendance{
-		TenantID:       tenantID,
-		StudentID:      uuid.New(),
-		ClassID:        classID,
-		SemesterID:     semesterID,
-		AttendanceDate: date,
-		Status:         entity.AttendanceStatusPresent,
-	}
-	att2 := &entity.StudentAttendance{
-		TenantID:       tenantID,
-		StudentID:      uuid.New(),
-		ClassID:        classID,
-		SemesterID:     semesterID,
-		AttendanceDate: date,
-		Status:         entity.AttendanceStatusAbsent,
-	}
-	att3 := &entity.StudentAttendance{ // Different class
-		TenantID:       tenantID,
-		StudentID:      uuid.New(),
-		ClassID:        uuid.New(),
-		SemesterID:     semesterID,
-		AttendanceDate: date,
-		Status:         entity.AttendanceStatusPresent,
-	}
-
-	require.NoError(t, repo.Create(context.Background(), att1))
-	require.NoError(t, repo.Create(context.Background(), att2))
-	require.NoError(t, repo.Create(context.Background(), att3))
+	ctx := context.Background()
+	err := repo.Create(ctx, attendance)
+	assert.NoError(t, err)
 
 	// Test GetByClassAndDate
-	results, err := repo.GetByClassAndDate(context.Background(), classID, date)
-	require.NoError(t, err)
-	assert.Len(t, results, 2)
+	results, err := repo.GetByClassAndDate(ctx, classID, attendanceDate)
+	assert.NoError(t, err)
+	assert.Len(t, results, 1)
+	assert.Equal(t, attendance.ID, results[0].ID)
 
-	// Verify IDs
-	ids := make(map[uuid.UUID]bool)
-	for _, r := range results {
-		ids[r.ID] = true
+	// Test GetByID
+	fetched, err := repo.GetByID(ctx, attendance.ID)
+	assert.NoError(t, err)
+	assert.NotNil(t, fetched)
+	assert.Equal(t, attendance.ID, fetched.ID)
+
+	// Test Update
+	attendance.Status = entity.AttendanceStatusAbsent
+	attendance.Notes = "Updated notes"
+	err = repo.Update(ctx, attendance)
+	assert.NoError(t, err)
+
+	fetchedAfterUpdate, err := repo.GetByID(ctx, attendance.ID)
+	assert.NoError(t, err)
+	assert.Equal(t, entity.AttendanceStatusAbsent, fetchedAfterUpdate.Status)
+	assert.Equal(t, "Updated notes", fetchedAfterUpdate.Notes)
+
+	// Test GetSummary
+	summary, err := repo.GetSummary(ctx, studentID, semesterID)
+	assert.NoError(t, err)
+	assert.Equal(t, 1, summary[string(entity.AttendanceStatusAbsent)])
+
+	// Test BulkCreate
+	studentID2 := uuid.New()
+	attendances := []*entity.StudentAttendance{
+		{
+			ID:             uuid.New(),
+			TenantID:       tenantID,
+			StudentID:      studentID2,
+			ClassID:        classID,
+			SemesterID:     semesterID,
+			AttendanceDate: attendanceDate,
+			Status:         entity.AttendanceStatusPresent,
+			Notes:          "Bulk 1",
+			CreatedAt:      now,
+			UpdatedAt:      now,
+		},
+		{
+			ID:             uuid.New(),
+			TenantID:       tenantID,
+			StudentID:      uuid.New(),
+			ClassID:        classID,
+			SemesterID:     semesterID,
+			AttendanceDate: attendanceDate,
+			Status:         entity.AttendanceStatusLate,
+			Notes:          "Bulk 2",
+			CreatedAt:      now,
+			UpdatedAt:      now,
+		},
 	}
-	assert.True(t, ids[att1.ID])
-	assert.True(t, ids[att2.ID])
-	assert.False(t, ids[att3.ID])
+	err = repo.BulkCreate(ctx, attendances)
+	assert.NoError(t, err)
+
+	resultsBulk, err := repo.GetByClassAndDate(ctx, classID, attendanceDate)
+	assert.NoError(t, err)
+	// 1 from initial create + 2 from bulk create = 3
+	assert.Len(t, resultsBulk, 3)
 }

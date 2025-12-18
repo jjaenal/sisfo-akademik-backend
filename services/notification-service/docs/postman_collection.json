@@ -1,0 +1,226 @@
+{
+	"info": {
+		"_postman_id": "notification-service-v1",
+		"name": "Notification Service API",
+		"description": "API for Notification Service (Email, WhatsApp)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Templates",
+			"item": [
+				{
+					"name": "Create Template",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"welcome_email\",\n    \"channel\": \"email\",\n    \"subject_template\": \"Welcome {{name}}\",\n    \"body_template\": \"Hi {{name}}, welcome to our platform!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/notifications/templates",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Templates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/notifications/templates",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"templates"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Template",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"subject_template\": \"Welcome {{name}}!\",\n    \"body_template\": \"Hi {{name}}, welcome to Sisfo Akademik!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/notifications/templates/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"templates",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "TEMPLATE_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sending",
+			"item": [
+				{
+					"name": "Send Notification (Direct)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"channel\": \"email\",\n    \"recipient\": \"user@example.com\",\n    \"subject\": \"Test Notification\",\n    \"body\": \"This is a test notification.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/notifications/send",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"send"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Notification (Template)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"template_name\": \"welcome_email\",\n    \"recipient\": \"user@example.com\",\n    \"data\": {\n        \"name\": \"John Doe\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/notifications/send",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"send"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "History",
+			"item": [
+				{
+					"name": "Get Notification Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/notifications/:id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "NOTIFICATION_ID_HERE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List User Notifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/notifications/recipient?email=user@example.com",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"recipient"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "user@example.com"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:9097"
+		}
+	]
+}

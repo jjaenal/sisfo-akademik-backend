@@ -9,20 +9,23 @@ import (
 	"github.com/google/uuid"
 	"github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/domain/entity"
 	"github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/domain/repository"
+	"github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/domain/service"
 	domainUseCase "github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/domain/usecase"
 )
 
 type studentAttendanceUseCase struct {
 	repo           repository.StudentAttendanceRepository
+	schoolService  service.SchoolService
 	contextTimeout time.Duration
 }
 
 // Ensure interface implementation
 var _ domainUseCase.StudentAttendanceUseCase = (*studentAttendanceUseCase)(nil)
 
-func NewStudentAttendanceUseCase(repo repository.StudentAttendanceRepository, timeout time.Duration) domainUseCase.StudentAttendanceUseCase {
+func NewStudentAttendanceUseCase(repo repository.StudentAttendanceRepository, schoolService service.SchoolService, timeout time.Duration) domainUseCase.StudentAttendanceUseCase {
 	return &studentAttendanceUseCase{
 		repo:           repo,
+		schoolService:  schoolService,
 		contextTimeout: timeout,
 	}
 }
@@ -38,7 +41,7 @@ func (u *studentAttendanceUseCase) Create(ctx context.Context, attendance *entit
 	}
 
 	if attendance.CheckInLatitude != nil && attendance.CheckInLongitude != nil {
-		if err := u.validateDistance(ctx, *attendance.CheckInLatitude, *attendance.CheckInLongitude, attendance.ClassID); err != nil {
+		if err := u.validateDistance(ctx, *attendance.CheckInLatitude, *attendance.CheckInLongitude, attendance.TenantID); err != nil {
 			return err
 		}
 	}
@@ -87,7 +90,7 @@ func (u *studentAttendanceUseCase) BulkCreate(ctx context.Context, attendances [
 			}
 		}
 		if att.CheckInLatitude != nil && att.CheckInLongitude != nil {
-			if err := u.validateDistance(ctx, *att.CheckInLatitude, *att.CheckInLongitude, att.ClassID); err != nil {
+			if err := u.validateDistance(ctx, *att.CheckInLatitude, *att.CheckInLongitude, att.TenantID); err != nil {
 				return err
 			}
 		}
@@ -103,16 +106,54 @@ func (u *studentAttendanceUseCase) GetSummary(ctx context.Context, studentID uui
 	return u.repo.GetSummary(ctx, studentID, semesterID)
 }
 
-func (u *studentAttendanceUseCase) validateDistance(ctx context.Context, lat, lon float64, classID uuid.UUID) error {
-	// TODO: Get school location for this class from Academic Service
-	// For now, we assume a fixed location (e.g., school center) or skip if not available.
-	// This is a placeholder.
-	schoolLat := -6.2088 // Example Latitude
-	schoolLon := 106.8456 // Example Longitude
-	maxDist := 100.0 // meters
+func (u *studentAttendanceUseCase) GetDailyReport(ctx context.Context, tenantID uuid.UUID, date time.Time) ([]*entity.StudentAttendance, error) {
+	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
+	defer cancel()
+	return u.repo.GetByTenantAndDate(ctx, tenantID, date)
+}
 
-	dist := haversine(lat, lon, schoolLat, schoolLon)
-	if dist > maxDist {
+func (u *studentAttendanceUseCase) GetMonthlyReport(ctx context.Context, tenantID uuid.UUID, month int, year int) ([]*entity.StudentAttendance, error) {
+	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
+	defer cancel()
+
+	// Calculate start and end date of the month
+	startDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+	// Add one month to start date, then subtract one day to get the last day of the month
+	endDate := startDate.AddDate(0, 1, 0).Add(-1 * time.Nanosecond)
+
+	return u.repo.GetByDateRange(ctx, tenantID, startDate, endDate, nil)
+}
+
+func (u *studentAttendanceUseCase) GetClassReport(ctx context.Context, tenantID uuid.UUID, classID uuid.UUID, startDate, endDate time.Time) ([]*entity.StudentAttendance, error) {
+	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
+	defer cancel()
+	return u.repo.GetByDateRange(ctx, tenantID, startDate, endDate, &classID)
+}
+
+func (u *studentAttendanceUseCase) validateDistance(ctx context.Context, lat, lon float64, tenantID string) error {
+	if u.schoolService == nil {
+		return nil
+	}
+
+	location, err := u.schoolService.GetLocation(ctx, tenantID)
+	if err != nil {
+		// If location service fails or not found, we currently skip validation
+		// In strict mode, we might want to return error
+		return nil
+	}
+
+	if location == nil {
+		return nil
+	}
+
+	dist := haversine(lat, lon, location.Latitude, location.Longitude)
+	// Use location radius if available, otherwise default to 100m
+	radius := location.Radius
+	if radius <= 0 {
+		radius = 100.0
+	}
+
+	if dist > radius {
 		return errors.New("location too far from school")
 	}
 	return nil

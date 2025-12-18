@@ -18,6 +18,17 @@ func NewGradeCategoryHandler(useCase usecase.GradeCategoryUseCase) *GradeCategor
 	return &GradeCategoryHandler{useCase: useCase}
 }
 
+// Create godoc
+// @Summary      Create a grade category
+// @Description  Create a new grade category
+// @Tags         grade-categories
+// @Accept       json
+// @Produce      json
+// @Param        request body object true "Grade Category Request"
+// @Success      200  {object}  entity.GradeCategory
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /grade-categories [post]
 func (h *GradeCategoryHandler) Create(c *gin.Context) {
 	var req struct {
 		TenantID    string `json:"tenant_id" binding:"required"`
@@ -46,6 +57,18 @@ func (h *GradeCategoryHandler) Create(c *gin.Context) {
 	httputil.Success(c.Writer, category)
 }
 
+// GetByID godoc
+// @Summary      Get a grade category
+// @Description  Get a grade category by ID
+// @Tags         grade-categories
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Grade Category ID"
+// @Success      200  {object}  entity.GradeCategory
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      404  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /grade-categories/{id} [get]
 func (h *GradeCategoryHandler) GetByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -67,6 +90,17 @@ func (h *GradeCategoryHandler) GetByID(c *gin.Context) {
 	httputil.Success(c.Writer, category)
 }
 
+// List godoc
+// @Summary      List grade categories
+// @Description  List grade categories by tenant ID
+// @Tags         grade-categories
+// @Accept       json
+// @Produce      json
+// @Param        tenant_id query     string  true  "Tenant ID"
+// @Success      200  {array}   entity.GradeCategory
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /grade-categories [get]
 func (h *GradeCategoryHandler) List(c *gin.Context) {
 	tenantID := c.Query("tenant_id")
 	if tenantID == "" {
@@ -83,6 +117,19 @@ func (h *GradeCategoryHandler) List(c *gin.Context) {
 	httputil.Success(c.Writer, categories)
 }
 
+// Update godoc
+// @Summary      Update a grade category
+// @Description  Update a grade category
+// @Tags         grade-categories
+// @Accept       json
+// @Produce      json
+// @Param        id           path      string  true  "Grade Category ID"
+// @Param        request      body      object  true  "Update Request"
+// @Success      200  {object}  entity.GradeCategory
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      404  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /grade-categories/{id} [put]
 func (h *GradeCategoryHandler) Update(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -123,6 +170,17 @@ func (h *GradeCategoryHandler) Update(c *gin.Context) {
 	httputil.Success(c.Writer, category)
 }
 
+// Delete godoc
+// @Summary      Delete a grade category
+// @Description  Delete a grade category
+// @Tags         grade-categories
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Grade Category ID"
+// @Success      200  {object}  map[string]string
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /grade-categories/{id} [delete]
 func (h *GradeCategoryHandler) Delete(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)

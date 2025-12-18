@@ -203,3 +203,72 @@ func (r *studentAttendanceRepository) GetSummary(ctx context.Context, studentID 
 	
 	return summary, nil
 }
+
+// GetByTenantAndDate retrieves student attendance records for a specific tenant and date
+func (r *studentAttendanceRepository) GetByTenantAndDate(ctx context.Context, tenantID uuid.UUID, date time.Time) ([]*entity.StudentAttendance, error) {
+	query := `
+		SELECT 
+			id, tenant_id, student_id, class_id, semester_id, attendance_date, 
+			status, notes, check_in_latitude, check_in_longitude, created_at, updated_at
+		FROM student_attendance 
+		WHERE tenant_id = $1 AND attendance_date = $2
+	`
+	rows, err := r.db.Query(ctx, query, tenantID, date)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var attendances []*entity.StudentAttendance
+	for rows.Next() {
+		var attendance entity.StudentAttendance
+		err := rows.Scan(
+			&attendance.ID, &attendance.TenantID, &attendance.StudentID, &attendance.ClassID, &attendance.SemesterID, &attendance.AttendanceDate,
+			&attendance.Status, &attendance.Notes, &attendance.CheckInLatitude, &attendance.CheckInLongitude, &attendance.CreatedAt, &attendance.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		attendances = append(attendances, &attendance)
+	}
+	return attendances, nil
+}
+
+// GetByDateRange retrieves student attendance records for a date range, optionally filtered by class
+func (r *studentAttendanceRepository) GetByDateRange(ctx context.Context, tenantID uuid.UUID, startDate, endDate time.Time, classID *uuid.UUID) ([]*entity.StudentAttendance, error) {
+	query := `
+		SELECT 
+			id, tenant_id, student_id, class_id, semester_id, attendance_date, 
+			status, notes, check_in_latitude, check_in_longitude, created_at, updated_at
+		FROM student_attendance 
+		WHERE tenant_id = $1 AND attendance_date BETWEEN $2 AND $3
+	`
+	args := []interface{}{tenantID, startDate, endDate}
+	
+	if classID != nil {
+		query += " AND class_id = $4"
+		args = append(args, *classID)
+	}
+	
+	query += " ORDER BY attendance_date, student_id"
+
+	rows, err := r.db.Query(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var attendances []*entity.StudentAttendance
+	for rows.Next() {
+		var attendance entity.StudentAttendance
+		err := rows.Scan(
+			&attendance.ID, &attendance.TenantID, &attendance.StudentID, &attendance.ClassID, &attendance.SemesterID, &attendance.AttendanceDate,
+			&attendance.Status, &attendance.Notes, &attendance.CheckInLatitude, &attendance.CheckInLongitude, &attendance.CreatedAt, &attendance.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		attendances = append(attendances, &attendance)
+	}
+	return attendances, nil
+}

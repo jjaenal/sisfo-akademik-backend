@@ -10,12 +10,32 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/handler"
+	"github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/infrastructure/client"
 	"github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/repository/postgres"
 	"github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/usecase"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
 )
+
+// @title           Attendance Service API
+// @version         1.0
+// @description     Service for managing student and teacher attendance
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:9093
+// @BasePath  /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 
 func main() {
 	cfg, err := config.Load()
@@ -39,7 +59,8 @@ func main() {
 
 	// Init Layers
 	repo := postgres.NewStudentAttendanceRepository(dbPool)
-	uc := usecase.NewStudentAttendanceUseCase(repo, 5*time.Second)
+	schoolService := client.NewSchoolService(cfg.AcademicServiceURL, 5*time.Second)
+	uc := usecase.NewStudentAttendanceUseCase(repo, schoolService, 5*time.Second)
 	h := handler.NewStudentAttendanceHandler(uc)
 
 	teacherRepo := postgres.NewTeacherAttendanceRepository(dbPool)
@@ -74,6 +95,10 @@ func main() {
 		attendance.GET("/students/:id", h.GetByID)
 		attendance.GET("/students/:id/summary", h.GetSummary)
 		attendance.PUT("/students/:id", h.Update)
+
+		attendance.GET("/reports/daily", h.GetDailyReport)
+		attendance.GET("/reports/monthly", h.GetMonthlyReport)
+		attendance.GET("/reports/class/:class_id", h.GetClassReport)
 
 		attendance.POST("/teachers/checkin", teacherHandler.CheckIn)
 		attendance.PUT("/teachers/checkout", teacherHandler.CheckOut)

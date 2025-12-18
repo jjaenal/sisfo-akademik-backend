@@ -86,6 +86,21 @@ func (mr *MockStudentAttendanceRepositoryMockRecorder) GetByClassAndDate(ctx, cl
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByClassAndDate", reflect.TypeOf((*MockStudentAttendanceRepository)(nil).GetByClassAndDate), ctx, classID, date)
 }
 
+// GetByDateRange mocks base method.
+func (m *MockStudentAttendanceRepository) GetByDateRange(ctx context.Context, tenantID uuid.UUID, startDate, endDate time.Time, classID *uuid.UUID) ([]*entity.StudentAttendance, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByDateRange", ctx, tenantID, startDate, endDate, classID)
+	ret0, _ := ret[0].([]*entity.StudentAttendance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByDateRange indicates an expected call of GetByDateRange.
+func (mr *MockStudentAttendanceRepositoryMockRecorder) GetByDateRange(ctx, tenantID, startDate, endDate, classID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByDateRange", reflect.TypeOf((*MockStudentAttendanceRepository)(nil).GetByDateRange), ctx, tenantID, startDate, endDate, classID)
+}
+
 // GetByID mocks base method.
 func (m *MockStudentAttendanceRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.StudentAttendance, error) {
 	m.ctrl.T.Helper()
@@ -99,6 +114,21 @@ func (m *MockStudentAttendanceRepository) GetByID(ctx context.Context, id uuid.U
 func (mr *MockStudentAttendanceRepositoryMockRecorder) GetByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockStudentAttendanceRepository)(nil).GetByID), ctx, id)
+}
+
+// GetByTenantAndDate mocks base method.
+func (m *MockStudentAttendanceRepository) GetByTenantAndDate(ctx context.Context, tenantID uuid.UUID, date time.Time) ([]*entity.StudentAttendance, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByTenantAndDate", ctx, tenantID, date)
+	ret0, _ := ret[0].([]*entity.StudentAttendance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByTenantAndDate indicates an expected call of GetByTenantAndDate.
+func (mr *MockStudentAttendanceRepositoryMockRecorder) GetByTenantAndDate(ctx, tenantID, date any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByTenantAndDate", reflect.TypeOf((*MockStudentAttendanceRepository)(nil).GetByTenantAndDate), ctx, tenantID, date)
 }
 
 // GetSummary mocks base method.

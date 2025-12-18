@@ -1,0 +1,592 @@
+basePath: /api/v1
+definitions:
+  entity.AttendanceStatus:
+    enum:
+    - present
+    - absent
+    - late
+    - excused
+    - sick
+    type: string
+    x-enum-varnames:
+    - AttendanceStatusPresent
+    - AttendanceStatusAbsent
+    - AttendanceStatusLate
+    - AttendanceStatusExcused
+    - AttendanceStatusSick
+  entity.StudentAttendance:
+    properties:
+      attendance_date:
+        type: string
+      check_in_latitude:
+        type: number
+      check_in_longitude:
+        type: number
+      class_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      semester_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.AttendanceStatus'
+      student_id:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  entity.TeacherAttendance:
+    properties:
+      attendance_date:
+        type: string
+      check_in_time:
+        type: string
+      check_out_time:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      location_latitude:
+        type: number
+      location_longitude:
+        type: number
+      notes:
+        type: string
+      semester_id:
+        type: string
+      status:
+        $ref: '#/definitions/entity.TeacherAttendanceStatus'
+      teacher_id:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  entity.TeacherAttendanceStatus:
+    enum:
+    - present
+    - absent
+    - late
+    - excused
+    - sick
+    type: string
+    x-enum-varnames:
+    - TeacherAttendanceStatusPresent
+    - TeacherAttendanceStatusAbsent
+    - TeacherAttendanceStatusLate
+    - TeacherAttendanceStatusExcused
+    - TeacherAttendanceStatusSick
+host: localhost:9093
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Service for managing student and teacher attendance
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Attendance Service API
+  version: "1.0"
+paths:
+  /attendance/reports/class/{class_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get attendance report for a specific class and date range
+      parameters:
+      - description: Class ID
+        in: path
+        name: class_id
+        required: true
+        type: string
+      - description: Start Date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: End Date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        required: true
+        type: string
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.StudentAttendance'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get class attendance report
+      tags:
+      - student-attendance
+  /attendance/reports/daily:
+    get:
+      consumes:
+      - application/json
+      description: Get attendance report for a specific date
+      parameters:
+      - description: Date (YYYY-MM-DD)
+        in: query
+        name: date
+        required: true
+        type: string
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.StudentAttendance'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get daily attendance report
+      tags:
+      - student-attendance
+  /attendance/reports/monthly:
+    get:
+      consumes:
+      - application/json
+      description: Get attendance report for a specific month
+      parameters:
+      - description: Month (1-12)
+        in: query
+        name: month
+        required: true
+        type: integer
+      - description: Year (YYYY)
+        in: query
+        name: year
+        required: true
+        type: integer
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.StudentAttendance'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get monthly attendance report
+      tags:
+      - student-attendance
+  /attendance/students:
+    get:
+      consumes:
+      - application/json
+      description: Get list of attendance records for a class on a specific date
+      parameters:
+      - description: Class ID
+        in: query
+        name: class_id
+        required: true
+        type: string
+      - description: Date (YYYY-MM-DD)
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.StudentAttendance'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get student attendance by class and date
+      tags:
+      - student-attendance
+    post:
+      consumes:
+      - application/json
+      description: Record attendance for a student
+      parameters:
+      - description: Attendance Request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.StudentAttendance'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create student attendance
+      tags:
+      - student-attendance
+  /attendance/students/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed attendance record by ID
+      parameters:
+      - description: Attendance ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.StudentAttendance'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get student attendance by ID
+      tags:
+      - student-attendance
+    put:
+      consumes:
+      - application/json
+      description: Update attendance status and notes
+      parameters:
+      - description: Attendance ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.StudentAttendance'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update student attendance
+      tags:
+      - student-attendance
+  /attendance/students/{id}/summary:
+    get:
+      consumes:
+      - application/json
+      description: Get attendance summary for a student in a semester
+      parameters:
+      - description: Student ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Semester ID
+        in: query
+        name: semester_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get student attendance summary
+      tags:
+      - student-attendance
+  /attendance/students/bulk:
+    post:
+      consumes:
+      - application/json
+      description: Record attendance for multiple students
+      parameters:
+      - description: Bulk Attendance Request
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Bulk create student attendance
+      tags:
+      - student-attendance
+  /attendance/teachers:
+    get:
+      consumes:
+      - application/json
+      description: Get teacher attendance by teacher ID and date
+      parameters:
+      - description: Teacher ID
+        in: query
+        name: teacher_id
+        required: true
+        type: string
+      - description: Date (YYYY-MM-DD)
+        in: query
+        name: date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TeacherAttendance'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get teacher attendance
+      tags:
+      - teacher-attendance
+  /attendance/teachers/checkin:
+    post:
+      consumes:
+      - application/json
+      description: Record teacher check-in
+      parameters:
+      - description: Check-in Request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TeacherAttendance'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Teacher check-in
+      tags:
+      - teacher-attendance
+  /attendance/teachers/checkout:
+    put:
+      consumes:
+      - application/json
+      description: Record teacher check-out
+      parameters:
+      - description: Check-out Request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Teacher check-out
+      tags:
+      - teacher-attendance
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

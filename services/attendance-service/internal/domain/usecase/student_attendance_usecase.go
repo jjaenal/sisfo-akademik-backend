@@ -15,4 +15,7 @@ type StudentAttendanceUseCase interface {
 	Update(ctx context.Context, attendance *entity.StudentAttendance) error
 	BulkCreate(ctx context.Context, attendances []*entity.StudentAttendance) error
 	GetSummary(ctx context.Context, studentID uuid.UUID, semesterID uuid.UUID) (map[string]int, error)
+	GetDailyReport(ctx context.Context, tenantID uuid.UUID, date time.Time) ([]*entity.StudentAttendance, error)
+	GetMonthlyReport(ctx context.Context, tenantID uuid.UUID, month int, year int) ([]*entity.StudentAttendance, error)
+	GetClassReport(ctx context.Context, tenantID uuid.UUID, classID uuid.UUID, startDate, endDate time.Time) ([]*entity.StudentAttendance, error)
 }

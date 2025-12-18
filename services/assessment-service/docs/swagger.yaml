@@ -1,0 +1,775 @@
+basePath: /api/v1
+definitions:
+  github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.Assessment:
+    properties:
+      class_id:
+        type: string
+      created_at:
+        type: string
+      date:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      grade_category:
+        allOf:
+        - $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.GradeCategory'
+        description: Relationships
+      grade_category_id:
+        type: string
+      id:
+        type: string
+      max_score:
+        type: number
+      name:
+        type: string
+      semester_id:
+        type: string
+      subject_id:
+        type: string
+      teacher_id:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.Grade:
+    properties:
+      approved_at:
+        type: string
+      approved_by:
+        type: string
+      assessment:
+        allOf:
+        - $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.Assessment'
+        description: Relationships
+      assessment_id:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      feedback:
+        type: string
+      graded_by:
+        type: string
+      id:
+        type: string
+      notes:
+        type: string
+      score:
+        type: number
+      status:
+        $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.GradeStatus'
+      student_id:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.GradeCategory:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+      weight:
+        description: Percentage
+        type: number
+    type: object
+  github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.GradeStatus:
+    enum:
+    - DRAFT
+    - SUBMITTED
+    - FINAL
+    type: string
+    x-enum-varnames:
+    - GradeStatusDraft
+    - GradeStatusSubmitted
+    - GradeStatusFinal
+  github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.ReportCardTemplate:
+    properties:
+      config:
+        $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.TemplateConfig'
+      created_at:
+        type: string
+      id:
+        type: string
+      is_default:
+        type: boolean
+      name:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.TemplateConfig:
+    properties:
+      footer_text:
+        type: string
+      header_text:
+        type: string
+      logo_url:
+        type: string
+      primary_color:
+        description: Hex code
+        type: string
+      secondary_color:
+        description: Hex code
+        type: string
+    type: object
+  httputil.ErrorDetail:
+    properties:
+      code:
+        type: string
+      details: {}
+      message:
+        type: string
+    type: object
+  httputil.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/httputil.ErrorDetail'
+      meta:
+        $ref: '#/definitions/httputil.Meta'
+      success:
+        example: false
+        type: boolean
+    type: object
+  httputil.Meta:
+    properties:
+      request_id:
+        type: string
+      timestamp:
+        type: string
+    type: object
+host: localhost:8084
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Assessment Service for Sisfo Akademik
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Assessment Service API
+  version: "1.0"
+paths:
+  /assessments:
+    post:
+      consumes:
+      - application/json
+      description: Create a new assessment
+      parameters:
+      - description: Assessment Request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.Assessment'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Create an assessment
+      tags:
+      - assessments
+  /grade-categories:
+    get:
+      consumes:
+      - application/json
+      description: List grade categories by tenant ID
+      parameters:
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.GradeCategory'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: List grade categories
+      tags:
+      - grade-categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new grade category
+      parameters:
+      - description: Grade Category Request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.GradeCategory'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Create a grade category
+      tags:
+      - grade-categories
+  /grade-categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a grade category
+      parameters:
+      - description: Grade Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Delete a grade category
+      tags:
+      - grade-categories
+    get:
+      consumes:
+      - application/json
+      description: Get a grade category by ID
+      parameters:
+      - description: Grade Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.GradeCategory'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Get a grade category
+      tags:
+      - grade-categories
+    put:
+      consumes:
+      - application/json
+      description: Update a grade category
+      parameters:
+      - description: Grade Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.GradeCategory'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Update a grade category
+      tags:
+      - grade-categories
+  /grades:
+    post:
+      consumes:
+      - application/json
+      description: Input a grade for a student in an assessment
+      parameters:
+      - description: Grade Input
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.Grade'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Input a grade
+      tags:
+      - grades
+  /grades/{id}/approve:
+    put:
+      consumes:
+      - application/json
+      description: Approve a grade
+      parameters:
+      - description: Grade ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Approve Request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Approve a grade
+      tags:
+      - grades
+  /grades/calculate/{student_id}:
+    get:
+      consumes:
+      - application/json
+      description: Calculate final score for a student in a subject
+      parameters:
+      - description: Student ID
+        in: path
+        name: student_id
+        required: true
+        type: string
+      - description: Subject ID
+        in: query
+        name: subject_id
+        required: true
+        type: string
+      - description: Semester ID
+        in: query
+        name: semester_id
+        required: true
+        type: string
+      - description: Class ID
+        in: query
+        name: class_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: float64
+              type: number
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Calculate final score
+      tags:
+      - grades
+  /grades/student/{student_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get grades for a student by class and semester
+      parameters:
+      - description: Student ID
+        in: path
+        name: student_id
+        required: true
+        type: string
+      - description: Class ID
+        in: query
+        name: class_id
+        required: true
+        type: string
+      - description: Semester ID
+        in: query
+        name: semester_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.Grade'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Get student grades
+      tags:
+      - grades
+  /report-cards/{id}/download:
+    get:
+      description: Download the generated report card PDF
+      parameters:
+      - description: Report Card ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Download report card PDF
+      tags:
+      - report-cards
+  /report-cards/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generate a report card for a student
+      parameters:
+      - description: Generate Request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Generate a report card
+      tags:
+      - report-cards
+  /report-cards/student/{student_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get report card for a student in a semester
+      parameters:
+      - description: Student ID
+        in: path
+        name: student_id
+        required: true
+        type: string
+      - description: Semester ID
+        in: query
+        name: semester_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Get report card by student
+      tags:
+      - report-cards
+  /templates:
+    get:
+      consumes:
+      - application/json
+      description: List report card templates by tenant ID
+      parameters:
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.ReportCardTemplate'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: List templates
+      tags:
+      - templates
+    post:
+      consumes:
+      - application/json
+      description: Create a new report card template
+      parameters:
+      - description: Template Request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.ReportCardTemplate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Create a template
+      tags:
+      - templates
+  /templates/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a report card template
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Delete a template
+      tags:
+      - templates
+    get:
+      consumes:
+      - application/json
+      description: Get a report card template by ID
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.ReportCardTemplate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Get a template
+      tags:
+      - templates
+    put:
+      consumes:
+      - application/json
+      description: Update a report card template
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_assessment-service_internal_domain_entity.ReportCardTemplate'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputil.ErrorResponse'
+      summary: Update a template
+      tags:
+      - templates
+schemes:
+- http
+swagger: "2.0"

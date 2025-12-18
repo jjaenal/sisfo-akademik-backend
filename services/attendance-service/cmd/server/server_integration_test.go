@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -73,7 +74,7 @@ func setupServer(t *testing.T) (*gin.Engine, *pgxpool.Pool) {
 	ensureMigrations(t, db)
 
 	repo := postgres.NewStudentAttendanceRepository(db)
-	uc := usecase.NewStudentAttendanceUseCase(repo, 5*time.Second)
+	uc := usecase.NewStudentAttendanceUseCase(repo, nil, 5*time.Second)
 	h := handler.NewStudentAttendanceHandler(uc)
 
 	teacherRepo := postgres.NewTeacherAttendanceRepository(db)
@@ -93,6 +94,10 @@ func setupServer(t *testing.T) (*gin.Engine, *pgxpool.Pool) {
 		attendance.GET("/students/:id/summary", h.GetSummary)
 		attendance.PUT("/students/:id", h.Update)
 
+		attendance.GET("/reports/daily", h.GetDailyReport)
+		attendance.GET("/reports/monthly", h.GetMonthlyReport)
+		attendance.GET("/reports/class/:class_id", h.GetClassReport)
+
 		attendance.POST("/teachers/checkin", teacherHandler.CheckIn)
 		attendance.PUT("/teachers/checkout", teacherHandler.CheckOut)
 		attendance.GET("/teachers", teacherHandler.GetByTeacherAndDate)
@@ -107,7 +112,7 @@ func TestIntegration_StudentAttendance(t *testing.T) {
 
 	studentID := uuid.New()
 	classID := uuid.New()
-	tenantID := "t-" + uuid.NewString()
+	tenantID := uuid.NewString()
 
 	t.Run("Create Attendance", func(t *testing.T) {
 		body := map[string]interface{}{
@@ -126,7 +131,7 @@ func TestIntegration_StudentAttendance(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		r.ServeHTTP(w, req)
 
-		if w.Code != http.StatusCreated {
+		if w.Code != http.StatusOK {
 			t.Logf("Response Body: %s", w.Body.String())
 		}
 		assert.Equal(t, http.StatusOK, w.Code)
@@ -148,12 +153,92 @@ func TestIntegration_StudentAttendance(t *testing.T) {
 	})
 }
 
+func TestIntegration_Reports(t *testing.T) {
+	r, db := setupServer(t)
+	defer db.Close()
+
+	studentID := uuid.New()
+	classID := uuid.New()
+	tenantID := uuid.NewString()
+	semesterID := uuid.New()
+	date := time.Now()
+
+	// Seed data
+	t.Run("Seed Data", func(t *testing.T) {
+		body := map[string]interface{}{
+			"tenant_id":       tenantID,
+			"student_id":      studentID.String(),
+			"class_id":        classID.String(),
+			"semester_id":     semesterID.String(),
+			"attendance_date": date.Format(time.RFC3339),
+			"status":          "present",
+		}
+		b, _ := json.Marshal(body)
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodPost, "/api/v1/attendance/students", bytes.NewBuffer(b))
+		req.Header.Set("Content-Type", "application/json")
+		r.ServeHTTP(w, req)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("Get Daily Report", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/attendance/reports/daily", nil)
+		q := req.URL.Query()
+		q.Add("tenant_id", tenantID)
+		q.Add("date", date.Format("2006-01-02"))
+		req.URL.RawQuery = q.Encode()
+
+		r.ServeHTTP(w, req)
+		
+		if w.Code != http.StatusOK {
+			t.Logf("Response Body: %s", w.Body.String())
+		}
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("Get Monthly Report", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/attendance/reports/monthly", nil)
+		q := req.URL.Query()
+		q.Add("tenant_id", tenantID)
+		q.Add("month", strconv.Itoa(int(date.Month())))
+		q.Add("year", strconv.Itoa(date.Year()))
+		req.URL.RawQuery = q.Encode()
+
+		r.ServeHTTP(w, req)
+		
+		if w.Code != http.StatusOK {
+			t.Logf("Response Body: %s", w.Body.String())
+		}
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("Get Class Report", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/attendance/reports/class/"+classID.String(), nil)
+		q := req.URL.Query()
+		q.Add("tenant_id", tenantID)
+		q.Add("start_date", date.Add(-24*time.Hour).Format("2006-01-02"))
+		q.Add("end_date", date.Add(24*time.Hour).Format("2006-01-02"))
+		req.URL.RawQuery = q.Encode()
+
+		r.ServeHTTP(w, req)
+		
+		if w.Code != http.StatusOK {
+			t.Logf("Response Body: %s", w.Body.String())
+		}
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+}
+
 func TestIntegration_BulkCheckIn(t *testing.T) {
 	r, db := setupServer(t)
 	defer db.Close()
 
 	classID := uuid.New()
-	tenantID := "t-" + uuid.NewString()
+	tenantID := uuid.NewString()
 	students := []string{uuid.NewString(), uuid.NewString()}
 
 	t.Run("Bulk Create", func(t *testing.T) {
@@ -184,7 +269,7 @@ func TestIntegration_BulkCheckIn(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		r.ServeHTTP(w, req)
 
-		if w.Code != http.StatusCreated {
+		if w.Code != http.StatusOK {
 			t.Logf("Response Body: %s", w.Body.String())
 		}
 		assert.Equal(t, http.StatusOK, w.Code)
@@ -196,7 +281,7 @@ func TestIntegration_TeacherAttendance(t *testing.T) {
 	defer db.Close()
 
 	teacherID := uuid.New()
-	tenantID := "t-" + uuid.NewString()
+	tenantID := uuid.NewString()
 	semesterID := uuid.New()
 
 	t.Run("Check In", func(t *testing.T) {
@@ -217,7 +302,7 @@ func TestIntegration_TeacherAttendance(t *testing.T) {
 		req.Header.Set("Content-Type", "application/json")
 		r.ServeHTTP(w, req)
 
-		if w.Code != http.StatusCreated {
+		if w.Code != http.StatusOK {
 			t.Logf("Response Body: %s", w.Body.String())
 		}
 		assert.Equal(t, http.StatusOK, w.Code)

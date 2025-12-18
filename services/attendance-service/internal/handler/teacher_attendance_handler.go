@@ -19,6 +19,17 @@ func NewTeacherAttendanceHandler(useCase usecase.TeacherAttendanceUseCase) *Teac
 	return &TeacherAttendanceHandler{useCase: useCase}
 }
 
+// CheckIn godoc
+// @Summary Teacher check-in
+// @Description Record teacher check-in
+// @Tags teacher-attendance
+// @Accept json
+// @Produce json
+// @Param request body map[string]any true "Check-in Request"
+// @Success 200 {object} entity.TeacherAttendance
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /attendance/teachers/checkin [post]
 func (h *TeacherAttendanceHandler) CheckIn(c *gin.Context) {
 	var req struct {
 		TenantID       string                       `json:"tenant_id" binding:"required"`
@@ -69,6 +80,17 @@ func (h *TeacherAttendanceHandler) CheckIn(c *gin.Context) {
 	httputil.Success(c.Writer, attendance)
 }
 
+// CheckOut godoc
+// @Summary Teacher check-out
+// @Description Record teacher check-out
+// @Tags teacher-attendance
+// @Accept json
+// @Produce json
+// @Param request body map[string]any true "Check-out Request"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /attendance/teachers/checkout [put]
 func (h *TeacherAttendanceHandler) CheckOut(c *gin.Context) {
 	var req struct {
 		TeacherID    string    `json:"teacher_id" binding:"required"`
@@ -95,6 +117,19 @@ func (h *TeacherAttendanceHandler) CheckOut(c *gin.Context) {
 	httputil.Success(c.Writer, gin.H{"message": "Check-out successful"})
 }
 
+// GetByTeacherAndDate godoc
+// @Summary Get teacher attendance
+// @Description Get teacher attendance by teacher ID and date
+// @Tags teacher-attendance
+// @Accept json
+// @Produce json
+// @Param teacher_id query string true "Teacher ID"
+// @Param date query string true "Date (YYYY-MM-DD)"
+// @Success 200 {object} entity.TeacherAttendance
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /attendance/teachers [get]
 func (h *TeacherAttendanceHandler) GetByTeacherAndDate(c *gin.Context) {
 	teacherIDStr := c.Query("teacher_id")
 	dateStr := c.Query("date")

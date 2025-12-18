@@ -1076,7 +1076,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - GET /api/v1/grades/student/:student_id/semester/:semester_id
   - **AC**: All endpoints working
 
-- [ ] 📝 Implement grade approval workflow (5h) 🟡
+- [x] 📝 Implement grade approval workflow (5h) ✅
 
   - Draft → Submitted → Approved
   - Audit trail
@@ -1084,9 +1084,9 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 - [x] ✅ 📝 Unit tests for Grading (10h) 🔴
   - [x] GradeCategory Repository & Handler tests
-  - Calculation tests
-  - Repository tests
-  - Handler tests
+  - [x] Calculation tests
+  - [x] Repository tests
+  - [x] Handler tests
   - Coverage >70%
   - **AC**: Tests passing
 
@@ -1135,9 +1135,9 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - **AC**: Templates customizable
 
 - [x] ✅ 📝 Unit tests for ReportCard (10h) 🔴
-  - Generation tests
-  - PDF tests
-  - Handler tests
+  - [x] Generation tests
+  - [x] PDF tests
+  - [x] Handler tests
   - Coverage >70%
   - **AC**: Tests passing
 
@@ -1150,8 +1150,8 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Documentation
 
-- [ ] 📝 Write Assessment service README (3h) 🟡
-- [ ] 📝 Generate Swagger docs (4h) 🟡
+- [x] ✅ 📝 Write Assessment service README (3h) ✅
+- [x] ✅ 📝 Generate Swagger docs (4h) 🟡
 - [ ] 📝 Create Postman collection (3h) 🟡
 
 ---

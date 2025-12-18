@@ -18,6 +18,17 @@ func NewTemplateHandler(useCase usecase.TemplateUseCase) *TemplateHandler {
 	return &TemplateHandler{useCase: useCase}
 }
 
+// Create godoc
+// @Summary      Create a template
+// @Description  Create a new report card template
+// @Tags         templates
+// @Accept       json
+// @Produce      json
+// @Param        request body object true "Template Request"
+// @Success      200  {object}  entity.ReportCardTemplate
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /templates [post]
 func (h *TemplateHandler) Create(c *gin.Context) {
 	var template entity.ReportCardTemplate
 	if err := c.ShouldBindJSON(&template); err != nil {
@@ -40,6 +51,18 @@ func (h *TemplateHandler) Create(c *gin.Context) {
 	httputil.Success(c.Writer, template)
 }
 
+// GetByID godoc
+// @Summary      Get a template
+// @Description  Get a report card template by ID
+// @Tags         templates
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Template ID"
+// @Success      200  {object}  entity.ReportCardTemplate
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      404  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /templates/{id} [get]
 func (h *TemplateHandler) GetByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -61,6 +84,17 @@ func (h *TemplateHandler) GetByID(c *gin.Context) {
 	httputil.Success(c.Writer, template)
 }
 
+// List godoc
+// @Summary      List templates
+// @Description  List report card templates by tenant ID
+// @Tags         templates
+// @Accept       json
+// @Produce      json
+// @Param        tenant_id query     string  true  "Tenant ID"
+// @Success      200  {array}   entity.ReportCardTemplate
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /templates [get]
 func (h *TemplateHandler) List(c *gin.Context) {
 	tenantIDStr := c.Query("tenant_id")
 	if tenantIDStr == "" {
@@ -77,6 +111,18 @@ func (h *TemplateHandler) List(c *gin.Context) {
 	httputil.Success(c.Writer, templates)
 }
 
+// Update godoc
+// @Summary      Update a template
+// @Description  Update a report card template
+// @Tags         templates
+// @Accept       json
+// @Produce      json
+// @Param        id           path      string  true  "Template ID"
+// @Param        request      body      object  true  "Update Request"
+// @Success      200  {object}  entity.ReportCardTemplate
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /templates/{id} [put]
 func (h *TemplateHandler) Update(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -100,6 +146,17 @@ func (h *TemplateHandler) Update(c *gin.Context) {
 	httputil.Success(c.Writer, template)
 }
 
+// Delete godoc
+// @Summary      Delete a template
+// @Description  Delete a report card template
+// @Tags         templates
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Template ID"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /templates/{id} [delete]
 func (h *TemplateHandler) Delete(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)

@@ -19,6 +19,17 @@ func NewAssessmentHandler(useCase usecase.GradingUseCase) *AssessmentHandler {
 	return &AssessmentHandler{useCase: useCase}
 }
 
+// Create godoc
+// @Summary      Create an assessment
+// @Description  Create a new assessment
+// @Tags         assessments
+// @Accept       json
+// @Produce      json
+// @Param        request body object true "Assessment Request"
+// @Success      200  {object}  entity.Assessment
+// @Failure      400  {object}  httputil.ErrorResponse
+// @Failure      500  {object}  httputil.ErrorResponse
+// @Router       /assessments [post]
 func (h *AssessmentHandler) Create(c *gin.Context) {
 	var req struct {
 		TenantID        string    `json:"tenant_id" binding:"required"`
