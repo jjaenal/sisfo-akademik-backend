@@ -1790,10 +1790,11 @@ Status: Round-robin multi-upstream aktif (env `*_URLS`), dengan circuit breaker 
 
 ### Pre-Production Checklist
 
-- [ ] 📝 Complete security audit (16h) 🔴
+- [ ] � Complete security audit (16h) 🔴
 
-  - Security review
-  - Fix vulnerabilities
+  - [x] Security review (Gosec scan)
+  - [x] Fix vulnerabilities (Permissions, Unhandled errors)
+  - [ ] Manual review of file inclusion warnings
   - **AC**: Audit passed
 
 - [ ] 📝 Performance testing (16h) 🟡

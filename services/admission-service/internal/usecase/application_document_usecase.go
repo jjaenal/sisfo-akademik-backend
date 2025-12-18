@@ -88,7 +88,7 @@ func (u *applicationDocumentUseCase) Upload(ctx context.Context, applicationID u
 
 	if err := u.repo.Create(ctx, doc); err != nil {
 		// Cleanup file if DB fail
-		os.Remove(dst)
+		_ = os.Remove(dst)
 		return nil, err
 	}
 
@@ -119,7 +119,7 @@ func (u *applicationDocumentUseCase) Delete(ctx context.Context, id uuid.UUID) e
 	if len(doc.FileURL) > 9 {
 		filename := doc.FileURL[9:]
 		filepath := filepath.Join(u.uploadDir, filename)
-		os.Remove(filepath)
+		_ = os.Remove(filepath)
 	}
 
 	return nil

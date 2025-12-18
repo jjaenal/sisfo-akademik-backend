@@ -51,7 +51,9 @@ func main() {
 	r := gin.New()
 	r.Use(otelgin.Middleware("auth-service"))
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
-	r.SetTrustedProxies(nil)
+	if err := r.SetTrustedProxies(nil); err != nil {
+		log.Fatal("failed to set trusted proxies", zap.Error(err))
+	}
 	r.Use(gin.Logger(), gin.Recovery())
 	r.Use(middleware.CORS(cfg.CORSAllowedOrigins))
 	limiter := redisutil.NewLimiterFromCounter(redis.Raw())

@@ -17,7 +17,7 @@ type localStorage struct {
 
 func NewLocalStorage(basePath, baseURL string) service.FileStorage {
 	// Ensure base path exists
-	if err := os.MkdirAll(basePath, 0755); err != nil {
+	if err := os.MkdirAll(basePath, 0750); err != nil {
 		panic(fmt.Sprintf("failed to create storage directory: %v", err))
 	}
 	return &localStorage{
@@ -30,7 +30,7 @@ func (s *localStorage) Upload(ctx context.Context, path string, content io.Reade
 	fullPath := filepath.Join(s.basePath, path)
 	dir := filepath.Dir(fullPath)
 
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
 

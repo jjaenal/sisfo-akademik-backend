@@ -33,7 +33,7 @@ func main() {
 		fmt.Println("error:", err.Error())
 		os.Exit(1)
 	}
-	if err := os.WriteFile(path, b, 0644); err != nil {
+	if err := os.WriteFile(path, b, 0600); err != nil {
 		fmt.Println("error:", err.Error())
 		os.Exit(1)
 	}

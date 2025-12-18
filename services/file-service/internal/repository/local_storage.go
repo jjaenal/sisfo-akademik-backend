@@ -16,7 +16,7 @@ type LocalStorageProvider struct {
 }
 
 func NewLocalStorageProvider(baseDir, baseURL string) (*LocalStorageProvider, error) {
-	if err := os.MkdirAll(baseDir, 0755); err != nil {
+	if err := os.MkdirAll(baseDir, 0750); err != nil {
 		return nil, err
 	}
 	return &LocalStorageProvider{
@@ -28,7 +28,7 @@ func NewLocalStorageProvider(baseDir, baseURL string) (*LocalStorageProvider, er
 func (s *LocalStorageProvider) Upload(ctx context.Context, file multipart.File, header *multipart.FileHeader, path string) (string, error) {
 	fullPath := filepath.Join(s.BaseDir, path)
 	dir := filepath.Dir(fullPath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0750); err != nil {
 		return "", err
 	}
 

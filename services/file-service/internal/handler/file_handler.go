@@ -55,7 +55,7 @@ func (h *FileHandler) download(c *gin.Context) {
 	c.Header("Content-Type", fileMeta.MimeType)
 	c.Header("Content-Length", fmt.Sprintf("%d", fileMeta.Size))
 
-	io.Copy(c.Writer, fileContent)
+	_, _ = io.Copy(c.Writer, fileContent)
 }
 
 func (h *FileHandler) upload(c *gin.Context) {
