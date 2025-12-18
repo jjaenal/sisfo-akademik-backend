@@ -7,42 +7,35 @@ import (
 )
 
 type Assessment struct {
-	ID              uuid.UUID `json:"id"`
-	TeacherID       uuid.UUID `json:"teacher_id"`
-	SubjectID       uuid.UUID `json:"subject_id"`
-	ClassID         uuid.UUID `json:"class_id"`
-	GradeCategoryID uuid.UUID `json:"grade_category_id"`
-	Name            string    `json:"name"`
-	Date            time.Time `json:"date"`
-	MaxScore        int       `json:"max_score"`
-	Description     string    `json:"description"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID              uuid.UUID  `json:"id"`
+	TenantID        string     `json:"tenant_id"`
+	GradeCategoryID uuid.UUID  `json:"grade_category_id"`
+	TeacherID       uuid.UUID  `json:"teacher_id"`
+	SubjectID       uuid.UUID  `json:"subject_id"`
+	ClassID         uuid.UUID  `json:"class_id"`
+	SemesterID      uuid.UUID  `json:"semester_id"`
+	Name            string     `json:"name"`
+	Description     string     `json:"description"`
+	MaxScore        float64    `json:"max_score"`
+	Date            time.Time  `json:"date"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
+	DeletedAt       *time.Time `json:"deleted_at,omitempty"`
+
+	// Relationships
+	GradeCategory *GradeCategory `json:"grade_category,omitempty"`
 }
 
-func (Assessment) TableName() string {
-	return "assessments"
-}
-
-func (a *Assessment) Validate() map[string]string {
-	errors := make(map[string]string)
-	if a.TeacherID == uuid.Nil {
-		errors["teacher_id"] = "Teacher ID is required"
+func (e *Assessment) Validate() map[string]string {
+	errs := make(map[string]string)
+	if e.Name == "" {
+		errs["name"] = "name is required"
 	}
-	if a.SubjectID == uuid.Nil {
-		errors["subject_id"] = "Subject ID is required"
+	if e.MaxScore <= 0 {
+		errs["max_score"] = "max_score must be greater than 0"
 	}
-	if a.ClassID == uuid.Nil {
-		errors["class_id"] = "Class ID is required"
+	if e.Date.IsZero() {
+		errs["date"] = "date is required"
 	}
-	if a.GradeCategoryID == uuid.Nil {
-		errors["grade_category_id"] = "Grade Category ID is required"
-	}
-	if a.Name == "" {
-		errors["name"] = "Name is required"
-	}
-	if a.MaxScore <= 0 {
-		errors["max_score"] = "Max score must be greater than 0"
-	}
-	return errors
+	return errs
 }

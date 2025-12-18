@@ -30,11 +30,7 @@ func (h *ReportCardHandler) Generate(c *gin.Context) {
 		return
 	}
 
-	tenantID, err := uuid.Parse(req.TenantID)
-	if err != nil {
-		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "Invalid Tenant ID")
-		return
-	}
+	tenantID := req.TenantID
 	studentID, err := uuid.Parse(req.StudentID)
 	if err != nil {
 		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "Invalid Student ID")

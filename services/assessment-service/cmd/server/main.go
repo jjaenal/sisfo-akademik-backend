@@ -9,10 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/handler"
-	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/infrastructure/storage"
-	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/repository/postgres"
-	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/usecase"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
@@ -38,41 +34,8 @@ func main() {
 	defer dbPool.Close()
 	log.Info("database connected")
 
-	// Init Layers
-	repo := postgres.NewGradeCategoryRepository(dbPool)
-	uc := usecase.NewGradeCategoryUseCase(repo, 5*time.Second)
-	h := handler.NewGradeCategoryHandler(uc)
-
-	assessmentRepo := postgres.NewAssessmentRepository(dbPool)
-	gradeRepo := postgres.NewGradeRepository(dbPool)
-	gradingUC := usecase.NewGradingUseCase(assessmentRepo, gradeRepo, 5*time.Second)
-
-	assessmentHandler := handler.NewAssessmentHandler(gradingUC)
-	gradeHandler := handler.NewGradeHandler(gradingUC)
-
-	port := os.Getenv("APP_HTTP_PORT")
-	if port == "" {
-		port = "9094"
-	}
-
-	baseURL := os.Getenv("APP_BASE_URL")
-	if baseURL == "" {
-		baseURL = fmt.Sprintf("http://localhost:%s", port)
-	}
-	fileStorage := storage.NewLocalStorage("./storage", fmt.Sprintf("%s/storage", baseURL))
-
-	reportCardRepo := postgres.NewReportCardRepository(dbPool)
-	reportCardUC := usecase.NewReportCardUseCase(reportCardRepo, gradeRepo, assessmentRepo, repo, fileStorage)
-	reportCardHandler := handler.NewReportCardHandler(reportCardUC)
-
-	templateRepo := postgres.NewTemplateRepository(dbPool)
-	templateUC := usecase.NewTemplateUseCase(templateRepo)
-	templateHandler := handler.NewTemplateHandler(templateUC)
-
 	// Init Gin
 	r := gin.Default()
-
-	r.Static("/storage", "./storage")
 
 	r.GET("/api/v1/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -89,45 +52,9 @@ func main() {
 		})
 	})
 
-	// Routes
-	v1 := r.Group("/api/v1")
-	categories := v1.Group("/grade-categories")
-	{
-		categories.POST("", h.Create)
-		categories.GET("", h.List)
-		categories.GET("/:id", h.GetByID)
-		categories.PUT("/:id", h.Update)
-		categories.DELETE("/:id", h.Delete)
-	}
-
-	assessments := v1.Group("/assessments")
-	{
-		assessments.POST("", assessmentHandler.Create)
-	}
-
-	grades := v1.Group("/grades")
-	{
-		grades.POST("", gradeHandler.InputGrade)
-		grades.GET("/students/:student_id", gradeHandler.GetStudentGrades)
-		grades.GET("/students/:student_id/final-score", gradeHandler.CalculateFinalScore)
-	}
-
-	reportCards := v1.Group("/report-cards")
-	{
-		reportCards.POST("/generate", reportCardHandler.Generate)
-		reportCards.GET("/student/:studentID/semester/:semesterID", reportCardHandler.GetByStudent)
-		reportCards.GET("/:id", reportCardHandler.GetByID)
-		reportCards.GET("/:id/pdf", reportCardHandler.GetPDF)
-		reportCards.POST("/:id/publish", reportCardHandler.Publish)
-	}
-
-	templates := v1.Group("/templates")
-	{
-		templates.POST("", templateHandler.Create)
-		templates.GET("", templateHandler.List)
-		templates.GET("/:id", templateHandler.GetByID)
-		templates.PUT("/:id", templateHandler.Update)
-		templates.DELETE("/:id", templateHandler.Delete)
+	port := os.Getenv("APP_HTTP_PORT")
+	if port == "" {
+		port = "9094" // Default port for assessment-service
 	}
 
 	log.Info(fmt.Sprintf("starting server on port %s", port))

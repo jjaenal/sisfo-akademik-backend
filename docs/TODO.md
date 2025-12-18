@@ -962,7 +962,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Validation
   - **AC**: Bulk check-in working
 
-- [ ] 📝 Implement GPS validation (4h) 🟡
+- [x] ✅ 📝 Implement GPS validation (4h) 🟡
 
   - Validate location against school location
   - Distance calculation
@@ -1006,10 +1006,10 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Reports
 
-- [ ] 📝 Implement attendance reports (8h) 🟡
-  - GET /api/v1/attendance/reports/daily
-  - GET /api/v1/attendance/reports/monthly
-  - GET /api/v1/attendance/reports/class/:class_id
+- [x] 📝 Implement attendance reports (8h) ✅
+  - [x] `GET /api/v1/attendance/reports/daily`
+  - [x] `GET /api/v1/attendance/reports/monthly`
+  - [x] `GET /api/v1/attendance/reports/class/:class_id`
   - **AC**: Reports working
 
 ### Integration Tests
@@ -1022,9 +1022,9 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Documentation
 
-- [ ] 📝 Write Attendance service README (2h) 🟡
-- [ ] 📝 Generate Swagger docs (3h) 🟡
-- [ ] 📝 Create Postman collection (2h) 🟡
+- [x] 📝 Write Attendance service README (2h) ✅
+- [x] 📝 Generate Swagger docs (3h) ✅
+- [x] 📝 Create Postman collection (2h) ✅
 
 ---
 
@@ -1034,7 +1034,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 - [x] 📝 Create assessment-service structure (3h) ✅
 - [x] 📝 Setup database connection (2h) ✅
-- [x] ✅ 📝 Create database migrations (6h) 🔴
+- [x] ✅ 📝 Create database migrations (6h) ✅
   - Grade_categories table
   - Assessments table
   - Grades table
@@ -1043,15 +1043,16 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 ### Grading System
 
-- [x] ✅ 📝 Implement GradeCategory entity (2h) 🔴
-- [x] ✅ 📝 Implement Assessment entity (3h) 🔴
-- [x] ✅ 📝 Implement Grade entity (3h) 🔴
+- [x] ✅ 📝 Implement GradeCategory entity (2h) ✅
+- [x] ✅ 📝 Implement Assessment entity (3h) ✅
+- [x] ✅ 📝 Implement Grade entity (3h) ✅
+- [x] ✅ 📝 Implement ReportCard entity (3h) ✅
 
-- [x] ✅ 📝 Implement grade repositories (8h) 🔴
+- [x] ✅ 📝 Implement grade repositories (8h) ✅
 
   - GradeCategory CRUD
   - Assessment CRUD
-  - Grade CRUD
+  - Grade CRUD (bulk update)
 
 - [x] ✅ 📝 Implement grade calculation engine (8h) 🔴
 
@@ -1143,8 +1144,8 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 ### Integration Tests
 
 - [x] ✅ 📝 Assessment service integration tests (12h) ✅
-  - Grading flow
-  - Report card generation flow
+  - [x] Grading flow
+  - [x] Report card generation flow
   - **AC**: Integration tests passing
 
 ### Documentation

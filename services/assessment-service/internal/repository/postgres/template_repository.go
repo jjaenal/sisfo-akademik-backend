@@ -76,7 +76,7 @@ func (r *templateRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity
 	return &template, nil
 }
 
-func (r *templateRepository) GetByTenantID(ctx context.Context, tenantID uuid.UUID) ([]*entity.ReportCardTemplate, error) {
+func (r *templateRepository) GetByTenantID(ctx context.Context, tenantID string) ([]*entity.ReportCardTemplate, error) {
 	query := `
 		SELECT id, tenant_id, name, config, is_default, created_at, updated_at
 		FROM report_card_templates
@@ -117,7 +117,7 @@ func (r *templateRepository) GetByTenantID(ctx context.Context, tenantID uuid.UU
 	return templates, nil
 }
 
-func (r *templateRepository) GetDefault(ctx context.Context, tenantID uuid.UUID) (*entity.ReportCardTemplate, error) {
+func (r *templateRepository) GetDefault(ctx context.Context, tenantID string) (*entity.ReportCardTemplate, error) {
 	query := `
 		SELECT id, tenant_id, name, config, is_default, created_at, updated_at
 		FROM report_card_templates
@@ -166,7 +166,9 @@ func (r *templateRepository) Update(ctx context.Context, template *entity.Report
 	// If setting as default, unset others first (simple transaction could be better here)
 	if template.IsDefault {
 		unsetQuery := `UPDATE report_card_templates SET is_default = false WHERE tenant_id = $1 AND id != $2`
-		r.db.Exec(ctx, unsetQuery, template.TenantID, template.ID)
+		if _, err := r.db.Exec(ctx, unsetQuery, template.TenantID, template.ID); err != nil {
+			return err
+		}
 	}
 
 	template.UpdatedAt = time.Now()

@@ -28,6 +28,7 @@ func TestGradeCategoryHandler_Create(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		reqBody := map[string]interface{}{
+			"tenant_id":   "tenant-123",
 			"name":        "Quiz",
 			"description": "Daily Quiz",
 			"weight":      10,
@@ -35,9 +36,10 @@ func TestGradeCategoryHandler_Create(t *testing.T) {
 		body, _ := json.Marshal(reqBody)
 
 		mockUseCase.EXPECT().Create(gomock.Any(), gomock.Any()).DoAndReturn(func(_ interface{}, cat *entity.GradeCategory) error {
+			assert.Equal(t, "tenant-123", cat.TenantID)
 			assert.Equal(t, "Quiz", cat.Name)
 			assert.Equal(t, "Daily Quiz", cat.Description)
-			assert.Equal(t, 10, cat.Weight)
+			assert.Equal(t, 10.0, cat.Weight)
 			return nil
 		})
 
@@ -69,6 +71,7 @@ func TestGradeCategoryHandler_Create(t *testing.T) {
 
 	t.Run("usecase error", func(t *testing.T) {
 		reqBody := map[string]interface{}{
+			"tenant_id":   "tenant-123",
 			"name":        "Quiz",
 			"description": "Daily Quiz",
 			"weight":      10,
@@ -141,11 +144,12 @@ func TestGradeCategoryHandler_List(t *testing.T) {
 			{ID: uuid.New(), Name: "Quiz"},
 			{ID: uuid.New(), Name: "Exam"},
 		}
-		mockUseCase.EXPECT().List(gomock.Any()).Return(expected, nil)
+		tenantID := "tenant-1"
+		mockUseCase.EXPECT().GetByTenantID(gomock.Any(), tenantID).Return(expected, nil)
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Request, _ = http.NewRequest(http.MethodGet, "/grade-categories", nil)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/grade-categories?tenant_id="+tenantID, nil)
 
 		h.List(c)
 
@@ -153,11 +157,12 @@ func TestGradeCategoryHandler_List(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		mockUseCase.EXPECT().List(gomock.Any()).Return(nil, errors.New("db error"))
+		tenantID := "tenant-1"
+		mockUseCase.EXPECT().GetByTenantID(gomock.Any(), tenantID).Return(nil, errors.New("db error"))
 
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Request, _ = http.NewRequest(http.MethodGet, "/grade-categories", nil)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/grade-categories?tenant_id="+tenantID, nil)
 
 		h.List(c)
 

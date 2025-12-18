@@ -27,13 +27,13 @@ func TestReportCardHandler_Generate(t *testing.T) {
 	h := handler.NewReportCardHandler(mockUseCase)
 
 	t.Run("success", func(t *testing.T) {
-		tenantID := uuid.New()
+		tenantID := "tenant-123"
 		studentID := uuid.New()
 		classID := uuid.New()
 		semesterID := uuid.New()
 
 		reqBody := map[string]string{
-			"tenant_id":   tenantID.String(),
+			"tenant_id":   tenantID,
 			"student_id":  studentID.String(),
 			"class_id":    classID.String(),
 			"semester_id": semesterID.String(),
@@ -64,13 +64,13 @@ func TestReportCardHandler_Generate(t *testing.T) {
 	})
 
 	t.Run("usecase_error", func(t *testing.T) {
-		tenantID := uuid.New()
+		tenantID := "tenant-123"
 		studentID := uuid.New()
 		classID := uuid.New()
 		semesterID := uuid.New()
 
 		reqBody := map[string]string{
-			"tenant_id":   tenantID.String(),
+			"tenant_id":   tenantID,
 			"student_id":  studentID.String(),
 			"class_id":    classID.String(),
 			"semester_id": semesterID.String(),

@@ -75,6 +75,21 @@ func (mr *MockGradeRepositoryMockRecorder) GetByID(ctx, id interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockGradeRepository)(nil).GetByID), ctx, id)
 }
 
+// GetByStudentID mocks base method.
+func (m *MockGradeRepository) GetByStudentID(ctx context.Context, studentID uuid.UUID) ([]*entity.Grade, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByStudentID", ctx, studentID)
+	ret0, _ := ret[0].([]*entity.Grade)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByStudentID indicates an expected call of GetByStudentID.
+func (mr *MockGradeRepositoryMockRecorder) GetByStudentID(ctx, studentID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByStudentID", reflect.TypeOf((*MockGradeRepository)(nil).GetByStudentID), ctx, studentID)
+}
+
 // GetByStudentAndAssessment mocks base method.
 func (m *MockGradeRepository) GetByStudentAndAssessment(ctx context.Context, studentID, assessmentID uuid.UUID) (*entity.Grade, error) {
 	m.ctrl.T.Helper()
@@ -105,7 +120,36 @@ func (mr *MockGradeRepositoryMockRecorder) List(ctx, filter interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockGradeRepository)(nil).List), ctx, filter)
 }
 
-// Update mocks base method.
+// CreateBulk mocks base method.
+func (m *MockGradeRepository) CreateBulk(ctx context.Context, grades []*entity.Grade) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateBulk", ctx, grades)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateBulk indicates an expected call of CreateBulk.
+func (mr *MockGradeRepositoryMockRecorder) CreateBulk(ctx, grades interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateBulk", reflect.TypeOf((*MockGradeRepository)(nil).CreateBulk), ctx, grades)
+}
+
+// GetByAssessmentID mocks base method.
+func (m *MockGradeRepository) GetByAssessmentID(ctx context.Context, assessmentID uuid.UUID) ([]*entity.Grade, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByAssessmentID", ctx, assessmentID)
+	ret0, _ := ret[0].([]*entity.Grade)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByAssessmentID indicates an expected call of GetByAssessmentID.
+func (mr *MockGradeRepositoryMockRecorder) GetByAssessmentID(ctx, assessmentID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByAssessmentID", reflect.TypeOf((*MockGradeRepository)(nil).GetByAssessmentID), ctx, assessmentID)
+}
+
+// Delete mocks base method.
 func (m *MockGradeRepository) Update(ctx context.Context, grade *entity.Grade) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", ctx, grade)

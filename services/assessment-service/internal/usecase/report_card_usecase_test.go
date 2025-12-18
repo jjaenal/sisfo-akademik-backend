@@ -28,7 +28,7 @@ func TestReportCardUseCase_Generate(t *testing.T) {
 	u := usecase.NewReportCardUseCase(mockReportRepo, mockGradeRepo, mockAssessmentRepo, mockCategoryRepo, mockFileStorage)
 
 	ctx := context.Background()
-	tenantID := uuid.New()
+	tenantID := "tenant-1"
 	studentID := uuid.New()
 	classID := uuid.New()
 	semesterID := uuid.New()
@@ -49,7 +49,7 @@ func TestReportCardUseCase_Generate(t *testing.T) {
 				Score:        85.0,
 			},
 		}
-		mockGradeRepo.EXPECT().List(ctx, map[string]interface{}{"student_id": studentID}).Return(grades, nil)
+		mockGradeRepo.EXPECT().GetByStudentID(ctx, studentID).Return(grades, nil)
 
 		// 3. Fetch Assessment
 		assessment := &entity.Assessment{

@@ -103,3 +103,18 @@ func (mr *MockAssessmentRepositoryMockRecorder) Update(ctx, assessment interface
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockAssessmentRepository)(nil).Update), ctx, assessment)
 }
+
+// GetByClassAndSubject mocks base method.
+func (m *MockAssessmentRepository) GetByClassAndSubject(ctx context.Context, classID, subjectID uuid.UUID) ([]*entity.Assessment, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByClassAndSubject", ctx, classID, subjectID)
+	ret0, _ := ret[0].([]*entity.Assessment)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByClassAndSubject indicates an expected call of GetByClassAndSubject.
+func (mr *MockAssessmentRepositoryMockRecorder) GetByClassAndSubject(ctx, classID, subjectID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByClassAndSubject", reflect.TypeOf((*MockAssessmentRepository)(nil).GetByClassAndSubject), ctx, classID, subjectID)
+}

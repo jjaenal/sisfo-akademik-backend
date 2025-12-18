@@ -38,7 +38,7 @@ func NewReportCardUseCase(
 	}
 }
 
-func (u *reportCardUseCase) Generate(ctx context.Context, tenantID, studentID, classID, semesterID uuid.UUID) (*entity.ReportCard, error) {
+func (u *reportCardUseCase) Generate(ctx context.Context, tenantID string, studentID, classID, semesterID uuid.UUID) (*entity.ReportCard, error) {
 	// 1. Check existing
 	existing, err := u.reportCardRepo.GetByStudentAndSemester(ctx, studentID, semesterID)
 	if err != nil {
@@ -49,7 +49,7 @@ func (u *reportCardUseCase) Generate(ctx context.Context, tenantID, studentID, c
 	}
 
 	// 2. Fetch Grades
-	grades, err := u.gradeRepo.List(ctx, map[string]interface{}{"student_id": studentID})
+	grades, err := u.gradeRepo.GetByStudentID(ctx, studentID)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (u *reportCardUseCase) Generate(ctx context.Context, tenantID, studentID, c
 	// 3. Aggregate Scores by Subject
 	type subjectStats struct {
 		TotalWeightedScore float64
-		TotalWeight        int
+		TotalWeight        float64
 		SubjectName        string // Mocked for now
 	}
 	subjectMap := make(map[uuid.UUID]*subjectStats)
@@ -88,7 +88,7 @@ func (u *reportCardUseCase) Generate(ctx context.Context, tenantID, studentID, c
 
 		// Normalize score to 100
 		normalizedScore := (g.Score / float64(assessment.MaxScore)) * 100
-		stats.TotalWeightedScore += normalizedScore * float64(category.Weight)
+		stats.TotalWeightedScore += normalizedScore * category.Weight
 		stats.TotalWeight += category.Weight
 	}
 
@@ -100,7 +100,7 @@ func (u *reportCardUseCase) Generate(ctx context.Context, tenantID, studentID, c
 	for subjectID, stats := range subjectMap {
 		finalScore := 0.0
 		if stats.TotalWeight > 0 {
-			finalScore = stats.TotalWeightedScore / float64(stats.TotalWeight)
+			finalScore = stats.TotalWeightedScore / stats.TotalWeight
 		}
 
 		// Grading Rule (Simple)
@@ -125,12 +125,16 @@ func (u *reportCardUseCase) Generate(ctx context.Context, tenantID, studentID, c
 		
 		details = append(details, entity.ReportCardDetail{
 			ID:          uuid.New(),
+			TenantID:    tenantID,
+			ReportCardID: uuid.Nil, // Will be set on save
 			SubjectID:   subjectID,
 			SubjectName: stats.SubjectName,
 			Credit:      credit,
 			FinalScore:  finalScore,
 			GradeLetter: gradeLetter,
 			Comments:    "Generated",
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
 		})
 
 		totalPoints += points * float64(credit)
@@ -145,17 +149,20 @@ func (u *reportCardUseCase) Generate(ctx context.Context, tenantID, studentID, c
 
 	// 6. Create or Update
 	rc := &entity.ReportCard{
-		ID:           uuid.New(),
-		TenantID:     tenantID,
-		StudentID:    studentID,
-		ClassID:      classID,
-		SemesterID:   semesterID,
-		Status:       entity.ReportCardStatusGenerated,
-		GPA:          gpa,
-		TotalCredits: totalCredits,
-		Attendance:   "{}", // Placeholder
-		Details:      details,
-		GeneratedAt:  func() *time.Time { t := time.Now(); return &t }(),
+		ID:                uuid.New(),
+		TenantID:          tenantID,
+		StudentID:         studentID,
+		ClassID:           classID,
+		SemesterID:        semesterID,
+		Status:            entity.ReportCardStatusGenerated,
+		GPA:               gpa,
+		TotalCredits:      totalCredits,
+		Attendance:        0, // Placeholder
+		AttendanceSummary: map[string]int{"present": 0, "absent": 0},
+		Details:           details,
+		GeneratedAt:       func() *time.Time { t := time.Now(); return &t }(),
+		CreatedAt:         time.Now(),
+		UpdatedAt:         time.Now(),
 	}
 
 	// 7. Generate PDF

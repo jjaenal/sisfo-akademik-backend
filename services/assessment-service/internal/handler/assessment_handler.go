@@ -21,12 +21,13 @@ func NewAssessmentHandler(useCase usecase.GradingUseCase) *AssessmentHandler {
 
 func (h *AssessmentHandler) Create(c *gin.Context) {
 	var req struct {
+		TenantID        string    `json:"tenant_id" binding:"required"`
 		SubjectID       string    `json:"subject_id" binding:"required"`
 		TeacherID       string    `json:"teacher_id" binding:"required"`
 		ClassID         string    `json:"class_id" binding:"required"`
 		GradeCategoryID string    `json:"grade_category_id" binding:"required"`
 		Name            string    `json:"name" binding:"required"`
-		MaxScore        int       `json:"max_score" binding:"required,min=0"`
+		MaxScore        float64   `json:"max_score" binding:"required,min=0"`
 		Description     string    `json:"description"`
 		Date            time.Time `json:"date" binding:"required"`
 	}
@@ -61,6 +62,7 @@ func (h *AssessmentHandler) Create(c *gin.Context) {
 	}
 
 	assessment := &entity.Assessment{
+		TenantID:        req.TenantID,
 		SubjectID:       subjectID,
 		TeacherID:       teacherID,
 		ClassID:         classID,

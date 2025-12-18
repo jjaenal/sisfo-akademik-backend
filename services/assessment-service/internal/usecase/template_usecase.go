@@ -44,7 +44,7 @@ func (u *templateUseCase) GetByID(ctx context.Context, id uuid.UUID) (*entity.Re
 	return u.repo.GetByID(ctx, id)
 }
 
-func (u *templateUseCase) GetByTenantID(ctx context.Context, tenantID uuid.UUID) ([]*entity.ReportCardTemplate, error) {
+func (u *templateUseCase) GetByTenantID(ctx context.Context, tenantID string) ([]*entity.ReportCardTemplate, error) {
 	return u.repo.GetByTenantID(ctx, tenantID)
 }
 

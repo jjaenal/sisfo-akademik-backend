@@ -85,19 +85,19 @@ func (mr *MockGradeCategoryUseCaseMockRecorder) GetByID(ctx, id any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockGradeCategoryUseCase)(nil).GetByID), ctx, id)
 }
 
-// List mocks base method.
-func (m *MockGradeCategoryUseCase) List(ctx context.Context) ([]*entity.GradeCategory, error) {
+// GetByTenantID mocks base method.
+func (m *MockGradeCategoryUseCase) GetByTenantID(ctx context.Context, tenantID string) ([]*entity.GradeCategory, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "List", ctx)
+	ret := m.ctrl.Call(m, "GetByTenantID", ctx, tenantID)
 	ret0, _ := ret[0].([]*entity.GradeCategory)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// List indicates an expected call of List.
-func (mr *MockGradeCategoryUseCaseMockRecorder) List(ctx any) *gomock.Call {
+// GetByTenantID indicates an expected call of GetByTenantID.
+func (mr *MockGradeCategoryUseCaseMockRecorder) GetByTenantID(ctx, tenantID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockGradeCategoryUseCase)(nil).List), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByTenantID", reflect.TypeOf((*MockGradeCategoryUseCase)(nil).GetByTenantID), ctx, tenantID)
 }
 
 // Update mocks base method.

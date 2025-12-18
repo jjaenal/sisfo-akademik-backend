@@ -2,142 +2,84 @@ package postgres
 
 import (
 	"context"
-	"fmt"
-	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/domain/entity"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/domain/repository"
 )
 
-type gradeRepository struct {
-	db *pgxpool.Pool
+type GradeRepository struct {
+	db DBPool
 }
 
-func NewGradeRepository(db *pgxpool.Pool) repository.GradeRepository {
-	return &gradeRepository{db: db}
+func NewGradeRepository(db DBPool) repository.GradeRepository {
+	return &GradeRepository{db: db}
 }
 
-func (r *gradeRepository) Create(ctx context.Context, grade *entity.Grade) error {
+func (r *GradeRepository) Create(ctx context.Context, grade *entity.Grade) error {
 	query := `
-		INSERT INTO grades (
-			id, assessment_id, student_id, score, status, notes, graded_by,
-			created_at, updated_at
-		) VALUES (
-			$1, $2, $3, $4, $5, $6, $7,
-			$8, $9
-		)
+		INSERT INTO grades (id, tenant_id, assessment_id, student_id, score, feedback, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
-	if grade.ID == uuid.Nil {
-		grade.ID = uuid.New()
-	}
-	now := time.Now()
-	if grade.CreatedAt.IsZero() {
-		grade.CreatedAt = now
-	}
-	if grade.UpdatedAt.IsZero() {
-		grade.UpdatedAt = now
-	}
-
 	_, err := r.db.Exec(ctx, query,
-		grade.ID, grade.AssessmentID, grade.StudentID, grade.Score, grade.Status, grade.Notes, grade.GradedBy,
-		grade.CreatedAt, grade.UpdatedAt,
-	)
-	return err
-}
-
-func (r *gradeRepository) Update(ctx context.Context, grade *entity.Grade) error {
-	query := `
-		UPDATE grades SET
-			assessment_id = $2, student_id = $3, score = $4, status = $5, notes = $6, graded_by = $7,
-			updated_at = $8
-		WHERE id = $1
-	`
-	grade.UpdatedAt = time.Now()
-
-	_, err := r.db.Exec(ctx, query,
-		grade.ID, grade.AssessmentID, grade.StudentID, grade.Score, grade.Status, grade.Notes, grade.GradedBy,
+		grade.ID,
+		grade.TenantID,
+		grade.AssessmentID,
+		grade.StudentID,
+		grade.Score,
+		grade.Feedback,
+		grade.CreatedAt,
 		grade.UpdatedAt,
 	)
 	return err
 }
 
-func (r *gradeRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.Grade, error) {
-	query := `
-		SELECT 
-			id, assessment_id, student_id, score, status, notes, graded_by,
-			created_at, updated_at
-		FROM grades 
-		WHERE id = $1
-	`
-	var grade entity.Grade
-	err := r.db.QueryRow(ctx, query, id).Scan(
-		&grade.ID, &grade.AssessmentID, &grade.StudentID, &grade.Score, &grade.Status, &grade.Notes, &grade.GradedBy,
-		&grade.CreatedAt, &grade.UpdatedAt,
-	)
+func (r *GradeRepository) CreateBulk(ctx context.Context, grades []*entity.Grade) error {
+	tx, err := r.db.Begin(ctx)
 	if err != nil {
-		if err == pgx.ErrNoRows {
-			return nil, nil
-		}
-		return nil, err
+		return err
 	}
-	return &grade, nil
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
+
+	batch := &pgx.Batch{}
+	query := `
+		INSERT INTO grades (id, tenant_id, assessment_id, student_id, score, feedback, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		ON CONFLICT (assessment_id, student_id) 
+		DO UPDATE SET score = EXCLUDED.score, feedback = EXCLUDED.feedback, updated_at = EXCLUDED.updated_at
+	`
+
+	for _, grade := range grades {
+		batch.Queue(query,
+			grade.ID,
+			grade.TenantID,
+			grade.AssessmentID,
+			grade.StudentID,
+			grade.Score,
+			grade.Feedback,
+			grade.CreatedAt,
+			grade.UpdatedAt,
+		)
+	}
+
+	br := tx.SendBatch(ctx, batch)
+	if err := br.Close(); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
-func (r *gradeRepository) GetByStudentAndAssessment(ctx context.Context, studentID, assessmentID uuid.UUID) (*entity.Grade, error) {
+func (r *GradeRepository) GetByAssessmentID(ctx context.Context, assessmentID uuid.UUID) ([]*entity.Grade, error) {
 	query := `
-		SELECT 
-			id, assessment_id, student_id, score, status, notes, graded_by,
-			created_at, updated_at
-		FROM grades 
-		WHERE student_id = $1 AND assessment_id = $2
-	`
-	var grade entity.Grade
-	err := r.db.QueryRow(ctx, query, studentID, assessmentID).Scan(
-		&grade.ID, &grade.AssessmentID, &grade.StudentID, &grade.Score, &grade.Status, &grade.Notes, &grade.GradedBy,
-		&grade.CreatedAt, &grade.UpdatedAt,
-	)
-	if err != nil {
-		if err == pgx.ErrNoRows {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &grade, nil
-}
-
-func (r *gradeRepository) List(ctx context.Context, filter map[string]interface{}) ([]*entity.Grade, error) {
-	query := `
-		SELECT 
-			id, assessment_id, student_id, score, status, notes, graded_by,
-			created_at, updated_at
+		SELECT id, tenant_id, assessment_id, student_id, score, feedback, created_at, updated_at, deleted_at
 		FROM grades
+		WHERE assessment_id = $1 AND deleted_at IS NULL
 	`
-	
-	var conditions []string
-	var args []interface{}
-	argCount := 1
-
-	if assessmentID, ok := filter["assessment_id"]; ok {
-		conditions = append(conditions, fmt.Sprintf("assessment_id = $%d", argCount))
-		args = append(args, assessmentID)
-		argCount++
-	}
-
-	if studentID, ok := filter["student_id"]; ok {
-		conditions = append(conditions, fmt.Sprintf("student_id = $%d", argCount))
-		args = append(args, studentID)
-		argCount++
-	}
-
-	if len(conditions) > 0 {
-		query += " WHERE " + strings.Join(conditions, " AND ")
-	}
-
-	rows, err := r.db.Query(ctx, query, args...)
+	rows, err := r.db.Query(ctx, query, assessmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -145,21 +87,96 @@ func (r *gradeRepository) List(ctx context.Context, filter map[string]interface{
 
 	var grades []*entity.Grade
 	for rows.Next() {
-		var grade entity.Grade
-		err := rows.Scan(
-			&grade.ID, &grade.AssessmentID, &grade.StudentID, &grade.Score, &grade.Status, &grade.Notes, &grade.GradedBy,
-			&grade.CreatedAt, &grade.UpdatedAt,
-		)
-		if err != nil {
+		var g entity.Grade
+		if err := rows.Scan(
+			&g.ID,
+			&g.TenantID,
+			&g.AssessmentID,
+			&g.StudentID,
+			&g.Score,
+			&g.Feedback,
+			&g.CreatedAt,
+			&g.UpdatedAt,
+			&g.DeletedAt,
+		); err != nil {
 			return nil, err
 		}
-		grades = append(grades, &grade)
+		grades = append(grades, &g)
 	}
 	return grades, nil
 }
 
-func (r *gradeRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	query := `DELETE FROM grades WHERE id = $1`
-	_, err := r.db.Exec(ctx, query, id)
+func (r *GradeRepository) GetByStudentID(ctx context.Context, studentID uuid.UUID) ([]*entity.Grade, error) {
+	query := `
+		SELECT id, tenant_id, assessment_id, student_id, score, feedback, created_at, updated_at, deleted_at
+		FROM grades
+		WHERE student_id = $1 AND deleted_at IS NULL
+	`
+	rows, err := r.db.Query(ctx, query, studentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var grades []*entity.Grade
+	for rows.Next() {
+		var g entity.Grade
+		if err := rows.Scan(
+			&g.ID,
+			&g.TenantID,
+			&g.AssessmentID,
+			&g.StudentID,
+			&g.Score,
+			&g.Feedback,
+			&g.CreatedAt,
+			&g.UpdatedAt,
+			&g.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		grades = append(grades, &g)
+	}
+	return grades, nil
+}
+
+func (r *GradeRepository) GetByStudentAndAssessment(ctx context.Context, studentID, assessmentID uuid.UUID) (*entity.Grade, error) {
+	query := `
+		SELECT id, tenant_id, assessment_id, student_id, score, feedback, created_at, updated_at, deleted_at
+		FROM grades
+		WHERE student_id = $1 AND assessment_id = $2 AND deleted_at IS NULL
+	`
+	var g entity.Grade
+	err := r.db.QueryRow(ctx, query, studentID, assessmentID).Scan(
+		&g.ID,
+		&g.TenantID,
+		&g.AssessmentID,
+		&g.StudentID,
+		&g.Score,
+		&g.Feedback,
+		&g.CreatedAt,
+		&g.UpdatedAt,
+		&g.DeletedAt,
+	)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &g, nil
+}
+
+func (r *GradeRepository) Update(ctx context.Context, grade *entity.Grade) error {
+	query := `
+		UPDATE grades
+		SET score = $1, feedback = $2, updated_at = $3
+		WHERE id = $4 AND deleted_at IS NULL
+	`
+	_, err := r.db.Exec(ctx, query,
+		grade.Score,
+		grade.Feedback,
+		grade.UpdatedAt,
+		grade.ID,
+	)
 	return err
 }

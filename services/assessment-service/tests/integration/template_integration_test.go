@@ -46,9 +46,9 @@ func TestTemplateIntegration(t *testing.T) {
 	}
 
 	t.Run("Create Template Success", func(t *testing.T) {
-		tenantID := uuid.New()
+		tenantID := "tenant-123"
 		reqBody := map[string]interface{}{
-			"tenant_id":  tenantID.String(),
+			"tenant_id":  tenantID,
 			"name":       "Default Template",
 			"is_default": true,
 			"config": map[string]string{
@@ -91,7 +91,7 @@ func TestTemplateIntegration(t *testing.T) {
 	})
 
 	t.Run("List Templates Success", func(t *testing.T) {
-		tenantID := uuid.New()
+		tenantID := "tenant-123"
 		tmplList := []*entity.ReportCardTemplate{
 			{
 				ID:       uuid.New(),
@@ -108,7 +108,7 @@ func TestTemplateIntegration(t *testing.T) {
 		mockRepo.EXPECT().GetByTenantID(gomock.Any(), tenantID).Return(tmplList, nil)
 
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodGet, "/api/v1/templates?tenant_id="+tenantID.String(), nil)
+		req, _ := http.NewRequest(http.MethodGet, "/api/v1/templates?tenant_id="+tenantID, nil)
 		r.ServeHTTP(w, req)
 
 		assert.Equal(t, http.StatusOK, w.Code)

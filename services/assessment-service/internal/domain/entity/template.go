@@ -16,7 +16,7 @@ type TemplateConfig struct {
 
 type ReportCardTemplate struct {
 	ID        uuid.UUID      `json:"id"`
-	TenantID  uuid.UUID      `json:"tenant_id"`
+	TenantID  string         `json:"tenant_id"`
 	Name      string         `json:"name"`
 	Config    TemplateConfig `json:"config"`
 	IsDefault bool           `json:"is_default"`

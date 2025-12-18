@@ -86,7 +86,7 @@ func (mr *MockTemplateRepositoryMockRecorder) GetByID(ctx, id any) *gomock.Call 
 }
 
 // GetByTenantID mocks base method.
-func (m *MockTemplateRepository) GetByTenantID(ctx context.Context, tenantID uuid.UUID) ([]*entity.ReportCardTemplate, error) {
+func (m *MockTemplateRepository) GetByTenantID(ctx context.Context, tenantID string) ([]*entity.ReportCardTemplate, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByTenantID", ctx, tenantID)
 	ret0, _ := ret[0].([]*entity.ReportCardTemplate)
@@ -101,7 +101,7 @@ func (mr *MockTemplateRepositoryMockRecorder) GetByTenantID(ctx, tenantID any) *
 }
 
 // GetDefault mocks base method.
-func (m *MockTemplateRepository) GetDefault(ctx context.Context, tenantID uuid.UUID) (*entity.ReportCardTemplate, error) {
+func (m *MockTemplateRepository) GetDefault(ctx context.Context, tenantID string) (*entity.ReportCardTemplate, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetDefault", ctx, tenantID)
 	ret0, _ := ret[0].(*entity.ReportCardTemplate)

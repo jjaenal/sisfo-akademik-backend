@@ -84,7 +84,7 @@ func TestGradeCategoryUseCase_GetByID(t *testing.T) {
 	})
 }
 
-func TestGradeCategoryUseCase_List(t *testing.T) {
+func TestGradeCategoryUseCase_GetByTenantID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -92,16 +92,18 @@ func TestGradeCategoryUseCase_List(t *testing.T) {
 	timeout := 2 * time.Second
 	u := usecase.NewGradeCategoryUseCase(mockRepo, timeout)
 
+	tenantID := "tenant-1"
+
 	t.Run("success", func(t *testing.T) {
 		expected := []*entity.GradeCategory{
 			{ID: uuid.New()},
 			{ID: uuid.New()},
 		}
-		mockRepo.EXPECT().List(gomock.Any()).Return(expected, nil)
+		mockRepo.EXPECT().GetByTenantID(gomock.Any(), tenantID).Return(expected, nil)
 
-		res, err := u.List(context.Background())
+		res, err := u.GetByTenantID(context.Background(), tenantID)
 		assert.NoError(t, err)
-		assert.Equal(t, len(expected), len(res))
+		assert.Equal(t, expected, res)
 	})
 }
 

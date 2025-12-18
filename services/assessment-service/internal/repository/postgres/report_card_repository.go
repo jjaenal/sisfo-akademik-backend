@@ -24,7 +24,9 @@ func (r *reportCardRepository) Create(ctx context.Context, rc *entity.ReportCard
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback(ctx)
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
 
 	if rc.ID == uuid.Nil {
 		rc.ID = uuid.New()
@@ -40,17 +42,17 @@ func (r *reportCardRepository) Create(ctx context.Context, rc *entity.ReportCard
 	query := `
 		INSERT INTO report_cards (
 			id, tenant_id, student_id, class_id, semester_id, status, 
-			gpa, total_credits, attendance, comments, generated_at, published_at,
+			gpa, total_credits, attendance, comments, pdf_url, generated_at, published_at,
 			created_at, updated_at
 		) VALUES (
 			$1, $2, $3, $4, $5, $6,
-			$7, $8, $9, $10, $11, $12,
-			$13, $14
+			$7, $8, $9, $10, $11, $12, $13,
+			$14, $15
 		)
 	`
 	_, err = tx.Exec(ctx, query,
 		rc.ID, rc.TenantID, rc.StudentID, rc.ClassID, rc.SemesterID, rc.Status,
-		rc.GPA, rc.TotalCredits, rc.Attendance, rc.Comments, rc.GeneratedAt, rc.PublishedAt,
+		rc.GPA, rc.TotalCredits, rc.Attendance, rc.Comments, rc.PDFUrl, rc.GeneratedAt, rc.PublishedAt,
 		rc.CreatedAt, rc.UpdatedAt,
 	)
 	if err != nil {
@@ -64,18 +66,18 @@ func (r *reportCardRepository) Create(ctx context.Context, rc *entity.ReportCard
 		d.ReportCardID = rc.ID
 		detailQuery := `
 			INSERT INTO report_card_details (
-				id, report_card_id, subject_id, subject_name, credit, 
-				final_score, grade_letter, comments, 
+				id, tenant_id, report_card_id, subject_id, subject_name, credit, 
+				final_score, grade_letter, teacher_id, comments, 
 				created_at, updated_at
 			) VALUES (
-				$1, $2, $3, $4, $5,
-				$6, $7, $8,
-				$9, $10
+				$1, $2, $3, $4, $5, $6,
+				$7, $8, $9, $10,
+				$11, $12
 			)
 		`
 		_, err = tx.Exec(ctx, detailQuery,
-			d.ID, d.ReportCardID, d.SubjectID, d.SubjectName, d.Credit,
-			d.FinalScore, d.GradeLetter, d.Comments,
+			d.ID, rc.TenantID, d.ReportCardID, d.SubjectID, d.SubjectName, d.Credit,
+			d.FinalScore, d.GradeLetter, d.TeacherID, d.Comments,
 			now, now,
 		)
 		if err != nil {
@@ -90,7 +92,7 @@ func (r *reportCardRepository) GetByID(ctx context.Context, id uuid.UUID) (*enti
 	query := `
 		SELECT 
 			id, tenant_id, student_id, class_id, semester_id, status, 
-			gpa, total_credits, attendance, comments, generated_at, published_at,
+			gpa, total_credits, attendance, comments, pdf_url, generated_at, published_at,
 			created_at, updated_at
 		FROM report_cards
 		WHERE id = $1 AND deleted_at IS NULL
@@ -98,7 +100,7 @@ func (r *reportCardRepository) GetByID(ctx context.Context, id uuid.UUID) (*enti
 	var rc entity.ReportCard
 	err := r.db.QueryRow(ctx, query, id).Scan(
 		&rc.ID, &rc.TenantID, &rc.StudentID, &rc.ClassID, &rc.SemesterID, &rc.Status,
-		&rc.GPA, &rc.TotalCredits, &rc.Attendance, &rc.Comments, &rc.GeneratedAt, &rc.PublishedAt,
+		&rc.GPA, &rc.TotalCredits, &rc.Attendance, &rc.Comments, &rc.PDFUrl, &rc.GeneratedAt, &rc.PublishedAt,
 		&rc.CreatedAt, &rc.UpdatedAt,
 	)
 	if err != nil {
@@ -195,8 +197,11 @@ func (r *reportCardRepository) Update(ctx context.Context, rc *entity.ReportCard
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback(ctx)
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
 
+	// If this report card is being published, verify it exists and is generated
 	rc.UpdatedAt = time.Now()
 
 	query := `

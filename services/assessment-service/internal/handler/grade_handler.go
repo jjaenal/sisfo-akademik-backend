@@ -20,6 +20,7 @@ func NewGradeHandler(useCase usecase.GradingUseCase) *GradeHandler {
 
 func (h *GradeHandler) InputGrade(c *gin.Context) {
 	var req struct {
+		TenantID     string  `json:"tenant_id" binding:"required"`
 		AssessmentID string  `json:"assessment_id" binding:"required"`
 		StudentID    string  `json:"student_id" binding:"required"`
 		Score        float64 `json:"score" binding:"required,min=0"`
@@ -57,6 +58,7 @@ func (h *GradeHandler) InputGrade(c *gin.Context) {
 	}
 
 	grade := &entity.Grade{
+		TenantID:     req.TenantID,
 		AssessmentID: assessmentID,
 		StudentID:    studentID,
 		Score:        req.Score,
@@ -109,6 +111,7 @@ func (h *GradeHandler) CalculateFinalScore(c *gin.Context) {
 	studentIDStr := c.Param("student_id")
 	subjectIDStr := c.Query("subject_id")
 	semesterIDStr := c.Query("semester_id")
+	classIDStr := c.Query("class_id")
 
 	studentID, err := uuid.Parse(studentIDStr)
 	if err != nil {
@@ -128,7 +131,13 @@ func (h *GradeHandler) CalculateFinalScore(c *gin.Context) {
 		return
 	}
 
-	score, err := h.useCase.CalculateFinalScore(c.Request.Context(), studentID, subjectID, semesterID)
+	classID, err := uuid.Parse(classIDStr)
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "Invalid Class ID")
+		return
+	}
+
+	score, err := h.useCase.CalculateFinalScore(c.Request.Context(), studentID, classID, subjectID, semesterID)
 	if err != nil {
 		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Internal Server Error", err.Error())
 		return

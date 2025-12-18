@@ -20,9 +20,10 @@ func NewGradeCategoryHandler(useCase usecase.GradeCategoryUseCase) *GradeCategor
 
 func (h *GradeCategoryHandler) Create(c *gin.Context) {
 	var req struct {
+		TenantID    string `json:"tenant_id" binding:"required"`
 		Name        string `json:"name" binding:"required"`
 		Description string `json:"description"`
-		Weight      int    `json:"weight" binding:"required,min=0"`
+		Weight      float64 `json:"weight" binding:"required,min=0"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -31,6 +32,7 @@ func (h *GradeCategoryHandler) Create(c *gin.Context) {
 	}
 
 	category := &entity.GradeCategory{
+		TenantID:    req.TenantID,
 		Name:        req.Name,
 		Description: req.Description,
 		Weight:      req.Weight,
@@ -66,7 +68,13 @@ func (h *GradeCategoryHandler) GetByID(c *gin.Context) {
 }
 
 func (h *GradeCategoryHandler) List(c *gin.Context) {
-	categories, err := h.useCase.List(c.Request.Context())
+	tenantID := c.Query("tenant_id")
+	if tenantID == "" {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "tenant_id is required")
+		return
+	}
+
+	categories, err := h.useCase.GetByTenantID(c.Request.Context(), tenantID)
 	if err != nil {
 		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Internal Server Error", err.Error())
 		return
@@ -84,9 +92,9 @@ func (h *GradeCategoryHandler) Update(c *gin.Context) {
 	}
 
 	var req struct {
-		Name        string `json:"name" binding:"required"`
-		Description string `json:"description"`
-		Weight      int    `json:"weight" binding:"required,min=0"`
+		Name        string  `json:"name" binding:"required"`
+		Description string  `json:"description"`
+		Weight      float64 `json:"weight" binding:"required,min=0"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -107,7 +115,6 @@ func (h *GradeCategoryHandler) Update(c *gin.Context) {
 	category.Name = req.Name
 	category.Description = req.Description
 	category.Weight = req.Weight
-
 	if err := h.useCase.Update(c.Request.Context(), category); err != nil {
 		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Internal Server Error", err.Error())
 		return

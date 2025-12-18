@@ -2,81 +2,66 @@ package postgres
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/domain/entity"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/domain/repository"
 )
 
-type gradeCategoryRepository struct {
-	db *pgxpool.Pool
+type GradeCategoryRepository struct {
+	db DBPool
 }
 
-// NewGradeCategoryRepository creates a new instance of GradeCategoryRepository
-func NewGradeCategoryRepository(db *pgxpool.Pool) repository.GradeCategoryRepository {
-	return &gradeCategoryRepository{db: db}
+func NewGradeCategoryRepository(db DBPool) repository.GradeCategoryRepository {
+	return &GradeCategoryRepository{db: db}
 }
 
-// Create inserts a new grade category into the database
-func (r *gradeCategoryRepository) Create(ctx context.Context, category *entity.GradeCategory) error {
+func (r *GradeCategoryRepository) Create(ctx context.Context, category *entity.GradeCategory) error {
 	query := `
-		INSERT INTO grade_categories (
-			id, name, description, weight, created_at, updated_at
-		) VALUES (
-			$1, $2, $3, $4, $5, $6
-		)
+		INSERT INTO grade_categories (id, tenant_id, name, weight, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6)
 	`
-	if category.ID == uuid.Nil {
-		category.ID = uuid.New()
-	}
-	now := time.Now()
-	if category.CreatedAt.IsZero() {
-		category.CreatedAt = now
-	}
-	if category.UpdatedAt.IsZero() {
-		category.UpdatedAt = now
-	}
-
 	_, err := r.db.Exec(ctx, query,
-		category.ID, category.Name, category.Description, category.Weight,
-		category.CreatedAt, category.UpdatedAt,
+		category.ID,
+		category.TenantID,
+		category.Name,
+		category.Weight,
+		category.CreatedAt,
+		category.UpdatedAt,
 	)
 	return err
 }
 
-// GetByID retrieves a grade category by its ID
-func (r *gradeCategoryRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.GradeCategory, error) {
+func (r *GradeCategoryRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.GradeCategory, error) {
 	query := `
-		SELECT 
-			id, name, description, weight, created_at, updated_at
-		FROM grade_categories 
-		WHERE id = $1
+		SELECT id, tenant_id, name, weight, created_at, updated_at, deleted_at
+		FROM grade_categories
+		WHERE id = $1 AND deleted_at IS NULL
 	`
-	var category entity.GradeCategory
+	var c entity.GradeCategory
 	err := r.db.QueryRow(ctx, query, id).Scan(
-		&category.ID, &category.Name, &category.Description, &category.Weight,
-		&category.CreatedAt, &category.UpdatedAt,
+		&c.ID,
+		&c.TenantID,
+		&c.Name,
+		&c.Weight,
+		&c.CreatedAt,
+		&c.UpdatedAt,
+		&c.DeletedAt,
 	)
 	if err != nil {
-		if err == pgx.ErrNoRows {
-			return nil, nil
-		}
 		return nil, err
 	}
-	return &category, nil
+	return &c, nil
 }
 
-// List retrieves all grade categories
-func (r *gradeCategoryRepository) List(ctx context.Context) ([]*entity.GradeCategory, error) {
+func (r *GradeCategoryRepository) GetByTenantID(ctx context.Context, tenantID string) ([]*entity.GradeCategory, error) {
 	query := `
-		SELECT 
-			id, name, description, weight, created_at, updated_at
+		SELECT id, tenant_id, name, weight, created_at, updated_at, deleted_at
 		FROM grade_categories
+		WHERE tenant_id = $1 AND deleted_at IS NULL
+		ORDER BY created_at ASC
 	`
-	rows, err := r.db.Query(ctx, query)
+	rows, err := r.db.Query(ctx, query, tenantID)
 	if err != nil {
 		return nil, err
 	}
@@ -84,39 +69,44 @@ func (r *gradeCategoryRepository) List(ctx context.Context) ([]*entity.GradeCate
 
 	var categories []*entity.GradeCategory
 	for rows.Next() {
-		var category entity.GradeCategory
-		err := rows.Scan(
-			&category.ID, &category.Name, &category.Description, &category.Weight,
-			&category.CreatedAt, &category.UpdatedAt,
-		)
-		if err != nil {
+		var c entity.GradeCategory
+		if err := rows.Scan(
+			&c.ID,
+			&c.TenantID,
+			&c.Name,
+			&c.Weight,
+			&c.CreatedAt,
+			&c.UpdatedAt,
+			&c.DeletedAt,
+		); err != nil {
 			return nil, err
 		}
-		categories = append(categories, &category)
+		categories = append(categories, &c)
 	}
 	return categories, nil
 }
 
-// Update updates an existing grade category
-func (r *gradeCategoryRepository) Update(ctx context.Context, category *entity.GradeCategory) error {
+func (r *GradeCategoryRepository) Update(ctx context.Context, category *entity.GradeCategory) error {
 	query := `
-		UPDATE grade_categories 
-		SET 
-			name = $2, description = $3, weight = $4, updated_at = $5
-		WHERE id = $1
+		UPDATE grade_categories
+		SET name = $1, weight = $2, updated_at = $3
+		WHERE id = $4 AND deleted_at IS NULL
 	`
-	category.UpdatedAt = time.Now()
-
 	_, err := r.db.Exec(ctx, query,
-		category.ID, category.Name, category.Description, category.Weight,
+		category.Name,
+		category.Weight,
 		category.UpdatedAt,
+		category.ID,
 	)
 	return err
 }
 
-// Delete deletes a grade category by its ID
-func (r *gradeCategoryRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	query := `DELETE FROM grade_categories WHERE id = $1`
+func (r *GradeCategoryRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	query := `
+		UPDATE grade_categories
+		SET deleted_at = NOW()
+		WHERE id = $1 AND deleted_at IS NULL
+	`
 	_, err := r.db.Exec(ctx, query, id)
 	return err
 }

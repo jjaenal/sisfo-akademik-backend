@@ -115,18 +115,19 @@ func TestGradingUseCase_CalculateFinalScore(t *testing.T) {
 	studentID := uuid.New()
 	subjectID := uuid.New()
 	semesterID := uuid.New()
+	classID := uuid.New()
 
 	t.Run("success", func(t *testing.T) {
-		assessment1 := &entity.Assessment{ID: uuid.New(), SubjectID: subjectID}
-		assessment2 := &entity.Assessment{ID: uuid.New(), SubjectID: subjectID}
+		assessment1 := &entity.Assessment{ID: uuid.New(), SubjectID: subjectID, ClassID: classID, SemesterID: semesterID, MaxScore: 100}
+		assessment2 := &entity.Assessment{ID: uuid.New(), SubjectID: subjectID, ClassID: classID, SemesterID: semesterID, MaxScore: 100}
 		assessments := []*entity.Assessment{assessment1, assessment2}
 
-		mockAssessmentRepo.EXPECT().List(gomock.Any(), gomock.Any()).Return(assessments, nil)
+		mockAssessmentRepo.EXPECT().GetByClassAndSubject(gomock.Any(), classID, subjectID).Return(assessments, nil)
 
 		mockGradeRepo.EXPECT().GetByStudentAndAssessment(gomock.Any(), studentID, assessment1.ID).Return(&entity.Grade{Score: 80}, nil)
 		mockGradeRepo.EXPECT().GetByStudentAndAssessment(gomock.Any(), studentID, assessment2.ID).Return(&entity.Grade{Score: 90}, nil)
 
-		score, err := u.CalculateFinalScore(context.Background(), studentID, subjectID, semesterID)
+		score, err := u.CalculateFinalScore(context.Background(), studentID, classID, subjectID, semesterID)
 		assert.NoError(t, err)
 		assert.Equal(t, 85.0, score) // (80 + 90) / 2
 	})

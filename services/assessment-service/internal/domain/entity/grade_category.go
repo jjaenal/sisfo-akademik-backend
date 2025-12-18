@@ -7,25 +7,23 @@ import (
 )
 
 type GradeCategory struct {
-	ID          uuid.UUID `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Weight      int       `json:"weight"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID        uuid.UUID  `json:"id"`
+	TenantID  string     `json:"tenant_id"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Weight      float64    `json:"weight"` // Percentage
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
 
-func (GradeCategory) TableName() string {
-	return "grade_categories"
-}
-
-func (g *GradeCategory) Validate() map[string]string {
-	errors := make(map[string]string)
-	if g.Name == "" {
-		errors["name"] = "Name is required"
+func (e *GradeCategory) Validate() map[string]string {
+	errs := make(map[string]string)
+	if e.Name == "" {
+		errs["name"] = "name is required"
 	}
-	if g.Weight < 0 {
-		errors["weight"] = "Weight cannot be negative"
+	if e.Weight <= 0 {
+		errs["weight"] = "weight must be greater than 0"
 	}
-	return errors
+	return errs
 }

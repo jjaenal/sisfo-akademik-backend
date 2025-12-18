@@ -100,6 +100,21 @@ func (mr *MockGradeCategoryRepositoryMockRecorder) List(ctx any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockGradeCategoryRepository)(nil).List), ctx)
 }
 
+// GetByTenantID mocks base method.
+func (m *MockGradeCategoryRepository) GetByTenantID(ctx context.Context, tenantID string) ([]*entity.GradeCategory, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByTenantID", ctx, tenantID)
+	ret0, _ := ret[0].([]*entity.GradeCategory)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByTenantID indicates an expected call of GetByTenantID.
+func (mr *MockGradeCategoryRepositoryMockRecorder) GetByTenantID(ctx, tenantID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByTenantID", reflect.TypeOf((*MockGradeCategoryRepository)(nil).GetByTenantID), ctx, tenantID)
+}
+
 // Update mocks base method.
 func (m *MockGradeCategoryRepository) Update(ctx context.Context, category *entity.GradeCategory) error {
 	m.ctrl.T.Helper()

@@ -27,7 +27,7 @@ func (h *TemplateHandler) Create(c *gin.Context) {
 
 	// Assume tenant ID comes from middleware/context (mocked for now)
 	// In real implementation: tenantID := c.GetString("tenant_id")
-	if template.TenantID == uuid.Nil {
+	if template.TenantID == "" {
 		httputil.Error(c.Writer, http.StatusBadRequest, "4002", "tenant_id is required", nil)
 		return
 	}
@@ -67,13 +67,8 @@ func (h *TemplateHandler) List(c *gin.Context) {
 		httputil.Error(c.Writer, http.StatusBadRequest, "4002", "tenant_id is required", nil)
 		return
 	}
-	tenantID, err := uuid.Parse(tenantIDStr)
-	if err != nil {
-		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid tenant ID", err.Error())
-		return
-	}
 
-	templates, err := h.useCase.GetByTenantID(c.Request.Context(), tenantID)
+	templates, err := h.useCase.GetByTenantID(c.Request.Context(), tenantIDStr)
 	if err != nil {
 		httputil.Error(c.Writer, http.StatusInternalServerError, "5001", "Failed to fetch templates", err.Error())
 		return

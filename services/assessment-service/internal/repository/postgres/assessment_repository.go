@@ -2,130 +2,80 @@ package postgres
 
 import (
 	"context"
-	"fmt"
-	"strings"
-	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/domain/entity"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/domain/repository"
 )
 
-type assessmentRepository struct {
-	db *pgxpool.Pool
+type AssessmentRepository struct {
+	db DBPool
 }
 
-func NewAssessmentRepository(db *pgxpool.Pool) repository.AssessmentRepository {
-	return &assessmentRepository{db: db}
+func NewAssessmentRepository(db DBPool) repository.AssessmentRepository {
+	return &AssessmentRepository{db: db}
 }
 
-func (r *assessmentRepository) Create(ctx context.Context, assessment *entity.Assessment) error {
+func (r *AssessmentRepository) Create(ctx context.Context, assessment *entity.Assessment) error {
 	query := `
-		INSERT INTO assessments (
-			id, teacher_id, subject_id, class_id, grade_category_id, 
-			name, date, max_score, description, 
-			created_at, updated_at
-		) VALUES (
-			$1, $2, $3, $4, $5, 
-			$6, $7, $8, $9, 
-			$10, $11
-		)
+		INSERT INTO assessments (id, tenant_id, grade_category_id, teacher_id, subject_id, class_id, semester_id, name, description, max_score, date, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 	`
-	if assessment.ID == uuid.Nil {
-		assessment.ID = uuid.New()
-	}
-	now := time.Now()
-	if assessment.CreatedAt.IsZero() {
-		assessment.CreatedAt = now
-	}
-	if assessment.UpdatedAt.IsZero() {
-		assessment.UpdatedAt = now
-	}
-
 	_, err := r.db.Exec(ctx, query,
-		assessment.ID, assessment.TeacherID, assessment.SubjectID, assessment.ClassID, assessment.GradeCategoryID,
-		assessment.Name, assessment.Date, assessment.MaxScore, assessment.Description,
-		assessment.CreatedAt, assessment.UpdatedAt,
-	)
-	return err
-}
-
-func (r *assessmentRepository) Update(ctx context.Context, assessment *entity.Assessment) error {
-	query := `
-		UPDATE assessments SET
-			teacher_id = $2, subject_id = $3, class_id = $4, grade_category_id = $5,
-			name = $6, date = $7, max_score = $8, description = $9,
-			updated_at = $10
-		WHERE id = $1
-	`
-	assessment.UpdatedAt = time.Now()
-
-	_, err := r.db.Exec(ctx, query,
-		assessment.ID, assessment.TeacherID, assessment.SubjectID, assessment.ClassID, assessment.GradeCategoryID,
-		assessment.Name, assessment.Date, assessment.MaxScore, assessment.Description,
+		assessment.ID,
+		assessment.TenantID,
+		assessment.GradeCategoryID,
+		assessment.TeacherID,
+		assessment.SubjectID,
+		assessment.ClassID,
+		assessment.SemesterID,
+		assessment.Name,
+		assessment.Description,
+		assessment.MaxScore,
+		assessment.Date,
+		assessment.CreatedAt,
 		assessment.UpdatedAt,
 	)
 	return err
 }
 
-func (r *assessmentRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.Assessment, error) {
+func (r *AssessmentRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.Assessment, error) {
 	query := `
-		SELECT 
-			id, teacher_id, subject_id, class_id, grade_category_id, 
-			name, date, max_score, description, 
-			created_at, updated_at
-		FROM assessments 
-		WHERE id = $1
+		SELECT id, tenant_id, grade_category_id, teacher_id, subject_id, class_id, semester_id, name, description, max_score, date, created_at, updated_at, deleted_at
+		FROM assessments
+		WHERE id = $1 AND deleted_at IS NULL
 	`
-	var assessment entity.Assessment
+	var a entity.Assessment
 	err := r.db.QueryRow(ctx, query, id).Scan(
-		&assessment.ID, &assessment.TeacherID, &assessment.SubjectID, &assessment.ClassID, &assessment.GradeCategoryID,
-		&assessment.Name, &assessment.Date, &assessment.MaxScore, &assessment.Description,
-		&assessment.CreatedAt, &assessment.UpdatedAt,
+		&a.ID,
+		&a.TenantID,
+		&a.GradeCategoryID,
+		&a.TeacherID,
+		&a.SubjectID,
+		&a.ClassID,
+		&a.SemesterID,
+		&a.Name,
+		&a.Description,
+		&a.MaxScore,
+		&a.Date,
+		&a.CreatedAt,
+		&a.UpdatedAt,
+		&a.DeletedAt,
 	)
 	if err != nil {
-		if err == pgx.ErrNoRows {
-			return nil, nil
-		}
 		return nil, err
 	}
-	return &assessment, nil
+	return &a, nil
 }
 
-func (r *assessmentRepository) List(ctx context.Context, filter map[string]interface{}) ([]*entity.Assessment, error) {
+func (r *AssessmentRepository) GetByClassAndSubject(ctx context.Context, classID, subjectID uuid.UUID) ([]*entity.Assessment, error) {
 	query := `
-		SELECT 
-			id, teacher_id, subject_id, class_id, grade_category_id, 
-			name, date, max_score, description, 
-			created_at, updated_at
+		SELECT id, tenant_id, grade_category_id, teacher_id, subject_id, class_id, semester_id, name, description, max_score, date, created_at, updated_at, deleted_at
 		FROM assessments
+		WHERE class_id = $1 AND subject_id = $2 AND deleted_at IS NULL
+		ORDER BY date DESC
 	`
-	
-	var conditions []string
-	var args []interface{}
-	argCount := 1
-
-	if classID, ok := filter["class_id"]; ok {
-		conditions = append(conditions, fmt.Sprintf("class_id = $%d", argCount))
-		args = append(args, classID)
-		argCount++
-	}
-
-	if subjectID, ok := filter["subject_id"]; ok {
-		conditions = append(conditions, fmt.Sprintf("subject_id = $%d", argCount))
-		args = append(args, subjectID)
-		argCount++
-	}
-
-	if len(conditions) > 0 {
-		query += " WHERE " + strings.Join(conditions, " AND ")
-	}
-	
-	query += " ORDER BY date DESC"
-
-	rows, err := r.db.Query(ctx, query, args...)
+	rows, err := r.db.Query(ctx, query, classID, subjectID)
 	if err != nil {
 		return nil, err
 	}
@@ -133,22 +83,53 @@ func (r *assessmentRepository) List(ctx context.Context, filter map[string]inter
 
 	var assessments []*entity.Assessment
 	for rows.Next() {
-		var assessment entity.Assessment
-		err := rows.Scan(
-			&assessment.ID, &assessment.TeacherID, &assessment.SubjectID, &assessment.ClassID, &assessment.GradeCategoryID,
-			&assessment.Name, &assessment.Date, &assessment.MaxScore, &assessment.Description,
-			&assessment.CreatedAt, &assessment.UpdatedAt,
-		)
-		if err != nil {
+		var a entity.Assessment
+		if err := rows.Scan(
+			&a.ID,
+			&a.TenantID,
+			&a.GradeCategoryID,
+			&a.TeacherID,
+			&a.SubjectID,
+			&a.ClassID,
+			&a.SemesterID,
+			&a.Name,
+			&a.Description,
+			&a.MaxScore,
+			&a.Date,
+			&a.CreatedAt,
+			&a.UpdatedAt,
+			&a.DeletedAt,
+		); err != nil {
 			return nil, err
 		}
-		assessments = append(assessments, &assessment)
+		assessments = append(assessments, &a)
 	}
 	return assessments, nil
 }
 
-func (r *assessmentRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	query := `DELETE FROM assessments WHERE id = $1`
+func (r *AssessmentRepository) Update(ctx context.Context, assessment *entity.Assessment) error {
+	query := `
+		UPDATE assessments
+		SET name = $1, description = $2, max_score = $3, date = $4, updated_at = $5
+		WHERE id = $6 AND deleted_at IS NULL
+	`
+	_, err := r.db.Exec(ctx, query,
+		assessment.Name,
+		assessment.Description,
+		assessment.MaxScore,
+		assessment.Date,
+		assessment.UpdatedAt,
+		assessment.ID,
+	)
+	return err
+}
+
+func (r *AssessmentRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	query := `
+		UPDATE assessments
+		SET deleted_at = NOW()
+		WHERE id = $1 AND deleted_at IS NULL
+	`
 	_, err := r.db.Exec(ctx, query, id)
 	return err
 }

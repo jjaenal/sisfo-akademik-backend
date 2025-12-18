@@ -46,13 +46,13 @@ func TestReportCardIntegration(t *testing.T) {
 	}
 
 	t.Run("Generate Report Card Success", func(t *testing.T) {
-		tenantID := uuid.New()
+		tenantID := "tenant-123"
 		studentID := uuid.New()
 		classID := uuid.New()
 		semesterID := uuid.New()
 
 		reqBody := map[string]interface{}{
-			"tenant_id":   tenantID.String(),
+			"tenant_id":   tenantID,
 			"student_id":  studentID.String(),
 			"class_id":    classID.String(),
 			"semester_id": semesterID.String(),
@@ -74,7 +74,7 @@ func TestReportCardIntegration(t *testing.T) {
 				Score:        85.0,
 			},
 		}
-		mockGradeRepo.EXPECT().List(gomock.Any(), map[string]interface{}{"student_id": studentID}).Return(grades, nil)
+		mockGradeRepo.EXPECT().GetByStudentID(gomock.Any(), studentID).Return(grades, nil)
 
 		// 3. Fetch Assessment
 		assessment := &entity.Assessment{
@@ -119,7 +119,7 @@ func TestReportCardIntegration(t *testing.T) {
 		err := json.Unmarshal(w.Body.Bytes(), &resp)
 		assert.NoError(t, err)
 		assert.True(t, resp.Success)
-		assert.Equal(t, "generated", string(resp.Data.Status))
+		assert.Equal(t, string(entity.ReportCardStatusGenerated), string(resp.Data.Status))
 		assert.Equal(t, "http://example.com/report.pdf", resp.Data.PDFUrl)
 	})
 }

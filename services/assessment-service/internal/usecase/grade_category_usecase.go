@@ -31,6 +31,7 @@ func (u *gradeCategoryUseCase) Create(ctx context.Context, category *entity.Grad
 	defer cancel()
 
 	if errMap := category.Validate(); len(errMap) > 0 {
+		// Just return the first error for now, or join them
 		for _, v := range errMap {
 			return errors.New(v)
 		}
@@ -45,10 +46,10 @@ func (u *gradeCategoryUseCase) GetByID(ctx context.Context, id uuid.UUID) (*enti
 	return u.repo.GetByID(ctx, id)
 }
 
-func (u *gradeCategoryUseCase) List(ctx context.Context) ([]*entity.GradeCategory, error) {
+func (u *gradeCategoryUseCase) GetByTenantID(ctx context.Context, tenantID string) ([]*entity.GradeCategory, error) {
 	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
-	return u.repo.List(ctx)
+	return u.repo.GetByTenantID(ctx, tenantID)
 }
 
 func (u *gradeCategoryUseCase) Update(ctx context.Context, category *entity.GradeCategory) error {

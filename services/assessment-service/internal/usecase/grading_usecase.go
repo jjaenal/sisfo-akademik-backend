@@ -58,27 +58,43 @@ func (u *gradingUseCase) GetStudentGrades(ctx context.Context, studentID, classI
 	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
-	// TODO: Filter by class and semester needs join query or more specific repo methods
-	// For now, returning all grades for the student
-	filter := map[string]interface{}{
-		"student_id": studentID,
+	// Get all grades for student
+	grades, err := u.gradeRepo.GetByStudentID(ctx, studentID)
+	if err != nil {
+		return nil, err
 	}
-	return u.gradeRepo.List(ctx, filter)
+
+	// Filter by class and semester
+	// This requires fetching assessment for each grade, which is N+1.
+	// Ideally we should have a repository method that joins tables.
+	// For now, we will do it in memory but it might be slow.
+	// Optimization: Get all assessments for class and semester first, then filter grades.
+	
+	// However, GetByClassAndSemester is not available on AssessmentRepo yet?
+	// We have GetByClassAndSubject.
+	
+	// Let's implement a simple filter loop.
+	var filteredGrades []*entity.Grade
+	for _, grade := range grades {
+		assessment, err := u.assessmentRepo.GetByID(ctx, grade.AssessmentID)
+		if err != nil {
+			continue 
+		}
+		if assessment.ClassID == classID && assessment.SemesterID == semesterID {
+			grade.Assessment = assessment
+			filteredGrades = append(filteredGrades, grade)
+		}
+	}
+
+	return filteredGrades, nil
 }
 
-func (u *gradingUseCase) CalculateFinalScore(ctx context.Context, studentID, subjectID, semesterID uuid.UUID) (float64, error) {
+func (u *gradingUseCase) CalculateFinalScore(ctx context.Context, studentID, classID, subjectID, semesterID uuid.UUID) (float64, error) {
 	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
-	// 1. Get all assessments for the subject in the semester
-	// This requires a more complex query or multiple calls.
-	// For MVP, we assume we can list assessments and then filter.
-	// Ideally: assessmentRepo.GetBySubjectAndSemester(subjectID, semesterID)
-	
-	filter := map[string]interface{}{
-		"subject_id": subjectID,
-	}
-	assessments, err := u.assessmentRepo.List(ctx, filter)
+	// 1. Get all assessments for the subject in the semester (filtered by class)
+	assessments, err := u.assessmentRepo.GetByClassAndSubject(ctx, classID, subjectID)
 	if err != nil {
 		return 0, err
 	}
@@ -91,15 +107,33 @@ func (u *gradingUseCase) CalculateFinalScore(ctx context.Context, studentID, sub
 	totalWeight := 0.0
 
 	for _, assessment := range assessments {
+		// Filter by semester if needed (GetByClassAndSubject returns all for class/subject, need to filter by semester?)
+		// assessmentRepo.GetByClassAndSubject does NOT filter by semester in query currently.
+		// Let's check repository implementation.
+		// Repository query: SELECT ... FROM assessments WHERE class_id = $1 AND subject_id = $2 AND deleted_at IS NULL
+		// So we should filter by semester here.
+		if assessment.SemesterID != semesterID {
+			continue
+		}
+
 		grade, err := u.gradeRepo.GetByStudentAndAssessment(ctx, studentID, assessment.ID)
 		if err != nil {
 			continue // Skip missing grades or handle as 0
 		}
+		
+		// TODO: Fetch GradeCategory to get weight. 
+		// For now, assuming equal weight or just summing up scores / count (simple average)
+		// Or better, assume max_score is the weight base.
+		
 		if grade != nil {
-			// Simplified calculation: Assuming weight is on GradeCategory (which we need to fetch)
-			// For now, simple average or sum
-			totalScore += grade.Score
-			totalWeight += 1 // Placeholder for weight
+			// Basic calculation: (Score / MaxScore) * 100
+			// If we want weighted average, we need categories.
+			// Let's implement simple average of percentages for now.
+			if assessment.MaxScore > 0 {
+				percentage := (grade.Score / assessment.MaxScore) * 100
+				totalScore += percentage
+				totalWeight += 1
+			}
 		}
 	}
 
