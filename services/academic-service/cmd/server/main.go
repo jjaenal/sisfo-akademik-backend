@@ -12,6 +12,7 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/httputil"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
 	redisutil "github.com/jjaenal/sisfo-akademik-backend/shared/pkg/redis"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
 
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/event"
@@ -19,8 +20,10 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/repository/postgres"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/usecase"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/rabbit"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/tracer"
 
 	_ "github.com/jjaenal/sisfo-akademik-backend/services/academic-service/docs" // Import docs
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -53,11 +56,24 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// Tracer
+	tp, err := tracer.InitTracer("academic-service", "http://jaeger:14268/api/traces")
+	if err != nil {
+		log.Fatal("failed to init tracer", zap.Error(err))
+	}
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Fatal("failed to shutdown tracer", zap.Error(err))
+		}
+	}()
+
 	dbPool, err := database.Connect(context.Background(), cfg.PostgresURL)
 	if err != nil {
 		panic(err)
 	}
 	redis := redisutil.New(cfg.RedisAddr)
+
 
 	// Init dependencies
 	schoolRepo := postgres.NewSchoolRepository(dbPool)
@@ -116,6 +132,7 @@ func main() {
 	}
 
 	r := gin.New()
+	r.Use(otelgin.Middleware("academic-service"))
 	if err := r.SetTrustedProxies(nil); err != nil {
 		log.Fatal("Failed to set trusted proxies", zap.Error(err))
 	}
@@ -263,6 +280,9 @@ func main() {
 		classes.POST("/:id/students/bulk", enrollmentHandler.BulkEnroll)
 		students.GET("/:id/classes", enrollmentHandler.ListByStudent)
 	}
+
+	// Prometheus metrics
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	addr := fmt.Sprintf(":%d", cfg.HTTPPort)
 	log.Info("Starting academic-service", zap.String("addr", addr))

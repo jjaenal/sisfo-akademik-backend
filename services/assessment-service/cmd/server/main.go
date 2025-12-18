@@ -16,8 +16,12 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/tracer"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.uber.org/zap"
 
 	_ "github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/docs"
 )
@@ -49,6 +53,17 @@ func main() {
 		panic(err)
 	}
 	log.Info("config loaded")
+
+	// Tracer
+	tp, err := tracer.InitTracer("assessment-service", "http://jaeger:14268/api/traces")
+	if err != nil {
+		log.Fatal("failed to init tracer", zap.Error(err))
+	}
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Fatal("failed to shutdown tracer", zap.Error(err))
+		}
+	}()
 
 	// Connect to Database
 	dbPool, err := database.Connect(context.Background(), cfg.PostgresURL)
@@ -91,6 +106,7 @@ func main() {
 
 	// Init Gin
 	r := gin.Default()
+	r.Use(otelgin.Middleware("assessment-service"))
 	
 	// Static file serving for local storage
 	r.Static("/files", storagePath)
@@ -156,6 +172,9 @@ func main() {
 			templates.DELETE("/:id", templateHandler.Delete)
 		}
 	}
+
+	// Prometheus metrics
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	port := os.Getenv("APP_HTTP_PORT")
 	if port == "" {

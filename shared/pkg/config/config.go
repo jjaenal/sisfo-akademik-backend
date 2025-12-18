@@ -35,6 +35,7 @@ type Config struct {
 	WhatsAppAPIURL      string
 	WhatsAppAPIKey      string
 	AcademicServiceURL  string
+	JaegerEndpoint      string
 }
 
 func Load() (Config, error) {

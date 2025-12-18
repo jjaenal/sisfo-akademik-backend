@@ -16,8 +16,10 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/middleware"
 	redisutil "github.com/jjaenal/sisfo-akademik-backend/shared/pkg/redis"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/tracer"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 var perPrefixLimits = map[string]int{
@@ -25,6 +27,10 @@ var perPrefixLimits = map[string]int{
 }
 
 func main() {
+	if _, err := tracer.InitTracer("api-gateway", "http://jaeger:14268/api/traces"); err != nil {
+		log.Printf("init tracer failed: %v", err)
+	}
+
 	cfg, err := config.Load()
 	if err != nil {
 		panic(err)
@@ -51,7 +57,7 @@ func main() {
 
 	s := &http.Server{
 		Addr:              ":" + strconv.Itoa(cfg.HTTPPort),
-		Handler:           h,
+		Handler:           otelhttp.NewHandler(h, "api-gateway"),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	if err := s.ListenAndServe(); err != nil {

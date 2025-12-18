@@ -14,6 +14,8 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
 )
 
@@ -64,6 +66,7 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.New()
+	r.Use(otelgin.Middleware("file-service"))
 	r.Use(gin.Recovery())
 	// Adapt shared net/http middleware to gin
 	r.Use(toGinLogging(log))
@@ -86,6 +89,9 @@ func main() {
 	protected.Use(toGinAuthWith(cfg.JWTAccessSecret, cfg.JWTIssuer, cfg.JWTAudience))
 	
 	h.RegisterRoutes(protected)
+
+	// Prometheus metrics
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	if err := r.Run(fmt.Sprintf(":%d", cfg.HTTPPort)); err != nil {
 		log.Fatal("failed to start server", zap.Error(err))

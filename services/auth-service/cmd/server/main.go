@@ -16,6 +16,9 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/rabbit"
 	redisutil "github.com/jjaenal/sisfo-akademik-backend/shared/pkg/redis"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/tracer"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
 )
 
@@ -28,12 +31,26 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// Tracer
+	tp, err := tracer.InitTracer("auth-service", "http://jaeger:14268/api/traces")
+	if err != nil {
+		log.Fatal("failed to init tracer", zap.Error(err))
+	}
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Fatal("failed to shutdown tracer", zap.Error(err))
+		}
+	}()
+
 	db, err := database.Connect(context.Background(), cfg.PostgresURL)
 	if err != nil {
 		panic(err)
 	}
 	redis := redisutil.New(cfg.RedisAddr)
 	r := gin.New()
+	r.Use(otelgin.Middleware("auth-service"))
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	r.SetTrustedProxies(nil)
 	r.Use(gin.Logger(), gin.Recovery())
 	r.Use(middleware.CORS(cfg.CORSAllowedOrigins))
@@ -82,6 +99,10 @@ func main() {
 			time.Sleep(24 * time.Hour)
 		}
 	}()
+	
+	// Prometheus metrics
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
 	addr := fmt.Sprintf(":%d", cfg.HTTPPort)
 	if err := r.Run(addr); err != nil {
 		log.Fatal("server failed", zap.Error(err))

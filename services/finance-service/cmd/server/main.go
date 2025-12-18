@@ -15,6 +15,10 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/tracer"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.uber.org/zap"
 )
 
 // @title           Finance Service API
@@ -43,6 +47,17 @@ func main() {
 		panic(err)
 	}
 	log.Info("config loaded")
+
+	// Tracer
+	tp, err := tracer.InitTracer("finance-service", "http://jaeger:14268/api/traces")
+	if err != nil {
+		log.Fatal("failed to init tracer", zap.Error(err))
+	}
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Fatal("failed to shutdown tracer", zap.Error(err))
+		}
+	}()
 
 	// Connect to Database
 	dbPool, err := database.Connect(context.Background(), cfg.PostgresURL)
@@ -105,6 +120,8 @@ func main() {
 
 	// Init Gin
 	r := gin.Default()
+	r.Use(otelgin.Middleware("finance-service"))
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	r.GET("/api/v1/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -148,6 +165,9 @@ func main() {
 		finance.GET("/reports/outstanding", reportHandler.GetOutstandingInvoices)
 		finance.GET("/reports/student/:student_id/history", reportHandler.GetStudentHistory)
 	}
+
+	// Prometheus metrics
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	port := os.Getenv("APP_HTTP_PORT")
 	if port == "" {

@@ -16,6 +16,11 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
+	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/tracer"
+
+	// "github.com/prometheus/client_golang/prometheus/promhttp"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.uber.org/zap"
 )
 
 // @title           Attendance Service API
@@ -49,6 +54,17 @@ func main() {
 	}
 	log.Info("config loaded")
 
+	// Tracer
+	tp, err := tracer.InitTracer("attendance-service", "http://jaeger:14268/api/traces")
+	if err != nil {
+		log.Fatal("failed to init tracer", zap.Error(err))
+	}
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Fatal("failed to shutdown tracer", zap.Error(err))
+		}
+	}()
+
 	// Connect to Database
 	dbPool, err := database.Connect(context.Background(), cfg.PostgresURL)
 	if err != nil {
@@ -69,6 +85,7 @@ func main() {
 
 	// Init Gin
 	r := gin.Default()
+	r.Use(otelgin.Middleware("attendance-service"))
 
 	r.GET("/api/v1/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
