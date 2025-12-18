@@ -20,10 +20,10 @@ func TestGradeRepository_CRUD(t *testing.T) {
 	ctx := context.Background()
 
 	// 1. Create GradeCategory
-	tenantID := "tenant-1"
+	tenantID := uuid.New()
 	category := &entity.GradeCategory{
 		ID:          uuid.New(),
-		TenantID:    tenantID,
+		TenantID:    tenantID.String(),
 		Name:        "Quiz " + uuid.New().String(),
 		Description: "Quiz category",
 		Weight:      10,
@@ -53,7 +53,7 @@ func TestGradeRepository_CRUD(t *testing.T) {
 	studentID := uuid.New()
 	grade := &entity.Grade{
 		ID:           gradeID,
-		TenantID:     tenantID,
+		TenantID:     tenantID.String(),
 		AssessmentID: assessment.ID,
 		StudentID:    studentID,
 		Score:        85.5,

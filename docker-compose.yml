@@ -66,7 +66,7 @@ services:
       retries: 5
 
   api-gateway:
-    image: golang:1.23-alpine
+    image: golang:1.25-alpine
     container_name: api-gateway
     command:
       ["sh", "-c", "cd /workspace/services/api-gateway && go run ./cmd/server"]
@@ -112,7 +112,7 @@ services:
 
   # --- Service placeholders (sleeping containers for dev orchestration) ---
   auth-service:
-    image: golang:1.23-alpine
+    image: golang:1.25-alpine
     container_name: auth-service
     profiles: ["services"]
     working_dir: /workspace
@@ -148,7 +148,7 @@ services:
       retries: 5
 
   academic-service:
-    image: golang:1.23-alpine
+    image: golang:1.25-alpine
     container_name: academic-service
     profiles: ["services"]
     working_dir: /workspace
@@ -184,7 +184,7 @@ services:
       retries: 5
 
   academic-service-2:
-    image: golang:1.23-alpine
+    image: golang:1.25-alpine
     container_name: academic-service-2
     profiles: ["services"]
     working_dir: /workspace
@@ -293,15 +293,20 @@ services:
         condition: service_healthy
 
   finance-service:
-    image: golang:1.23-alpine
+    image: golang:1.25-alpine
     container_name: finance-service
     profiles: ["services"]
-    working_dir: /app
-    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    working_dir: /workspace
+    command: ["sh", "-c", "cd services/finance-service && go run ./cmd/server"]
     volumes:
-      - ./services/finance-service:/app
+      - ./:/workspace
     environment:
       - APP_HTTP_PORT=9096
+      - APP_POSTGRES_URL=postgres://dev:dev@postgres:5432/devdb?sslmode=disable
+      - APP_REDIS_ADDR=redis:6379
+      - APP_RABBIT_URL=amqp://dev:dev@rabbitmq:5672/
+      - APP_JWT_ACCESS_SECRET=devaccess
+      - APP_JWT_REFRESH_SECRET=devrefresh
       - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
       - APP_JWT_ISSUER=sisfo-akademik
       - APP_JWT_AUDIENCE=api
@@ -316,15 +321,21 @@ services:
         condition: service_healthy
 
   notification-service:
-    image: golang:1.23-alpine
+    image: golang:1.25-alpine
     container_name: notification-service
     profiles: ["services"]
-    working_dir: /app
-    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    working_dir: /workspace
+    command:
+      ["sh", "-c", "cd services/notification-service && go run ./cmd/server"]
     volumes:
-      - ./services/notification-service:/app
+      - ./:/workspace
     environment:
       - APP_HTTP_PORT=9097
+      - APP_POSTGRES_URL=postgres://dev:dev@postgres:5432/devdb?sslmode=disable
+      - APP_REDIS_ADDR=redis:6379
+      - APP_RABBIT_URL=amqp://dev:dev@rabbitmq:5672/
+      - APP_JWT_ACCESS_SECRET=devaccess
+      - APP_JWT_REFRESH_SECRET=devrefresh
       - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
       - APP_JWT_ISSUER=sisfo-akademik
       - APP_JWT_AUDIENCE=api
@@ -339,18 +350,27 @@ services:
         condition: service_healthy
 
   file-service:
-    image: golang:1.23-alpine
+    image: golang:1.25-alpine
     container_name: file-service
     profiles: ["services"]
-    working_dir: /app
-    command: ["sh", "-c", "go mod tidy && go run ./cmd/server"]
+    working_dir: /workspace
+    command: ["sh", "-c", "cd services/file-service && go run ./cmd/server"]
     volumes:
-      - ./services/file-service:/app
+      - ./:/workspace
+      - ./uploads:/workspace/services/file-service/uploads
     environment:
+      - APP_ENV=development
+      - APP_SERVICE_NAME=file-service
       - APP_HTTP_PORT=9098
+      - APP_POSTGRES_URL=postgres://dev:dev@postgres:5432/devdb?sslmode=disable
+      - APP_REDIS_ADDR=redis:6379
+      - APP_RABBIT_URL=amqp://dev:dev@rabbitmq:5672/
+      - APP_JWT_ACCESS_SECRET=devaccess
+      - APP_JWT_REFRESH_SECRET=devrefresh
       - APP_CORS_ALLOWED_ORIGINS=*,http://localhost:3000
       - APP_JWT_ISSUER=sisfo-akademik
       - APP_JWT_AUDIENCE=api
+      - STORAGE_PATH=/workspace/services/file-service/uploads
     ports:
       - "9098:9098"
     depends_on:

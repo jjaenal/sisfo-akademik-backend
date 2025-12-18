@@ -18,6 +18,17 @@ func NewPaymentHandler(useCase usecase.PaymentUseCase) *PaymentHandler {
 	return &PaymentHandler{useCase: useCase}
 }
 
+// Record godoc
+// @Summary      Record payment
+// @Description  Record a new payment for an invoice
+// @Tags         payments
+// @Accept       json
+// @Produce      json
+// @Param        request body map[string]interface{} true "Payment Request"
+// @Success      200  {object}  entity.Payment
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/payments [post]
 func (h *PaymentHandler) Record(c *gin.Context) {
 	var req struct {
 		TenantID        uuid.UUID            `json:"tenant_id" binding:"required"`
@@ -49,6 +60,17 @@ func (h *PaymentHandler) Record(c *gin.Context) {
 	httputil.Success(c.Writer, payment)
 }
 
+// GetByID godoc
+// @Summary      Get payment by ID
+// @Description  Get payment details by ID
+// @Tags         payments
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Payment ID"
+// @Success      200  {object}  entity.Payment
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Router       /finance/payments/{id} [get]
 func (h *PaymentHandler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -65,8 +87,19 @@ func (h *PaymentHandler) GetByID(c *gin.Context) {
 	httputil.Success(c.Writer, payment)
 }
 
+// ListByInvoice godoc
+// @Summary      List payments by invoice
+// @Description  List all payments for a specific invoice
+// @Tags         payments
+// @Accept       json
+// @Produce      json
+// @Param        invoice_id path      string  true  "Invoice ID"
+// @Success      200  {object}  []entity.Payment
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/invoices/{invoice_id}/payments [get]
 func (h *PaymentHandler) ListByInvoice(c *gin.Context) {
-	invoiceID, err := uuid.Parse(c.Param("invoice_id"))
+	invoiceID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid invoice_id format", err.Error())
 		return

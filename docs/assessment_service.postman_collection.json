@@ -1,0 +1,201 @@
+{
+	"info": {
+		"_postman_id": "assessment-service-v1",
+		"name": "Assessment Service API",
+		"description": "API Documentation for Assessment Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Report Cards",
+			"item": [
+				{
+					"name": "Get Report Card",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{assessment_url}}/report-cards/:id",
+							"host": ["{{assessment_url}}"],
+							"path": ["report-cards", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{report_card_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Student Report Cards",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{assessment_url}}/report-cards/student/:student_id",
+							"host": ["{{assessment_url}}"],
+							"path": ["report-cards", "student", ":student_id"],
+							"variable": [
+								{"key": "student_id", "value": "{{student_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Generate Report Card",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{assessment_url}}/report-cards/generate/:student_id/:semester_id",
+							"host": ["{{assessment_url}}"],
+							"path": ["report-cards", "generate", ":student_id", ":semester_id"],
+							"variable": [
+								{"key": "student_id", "value": "{{student_id}}"},
+								{"key": "semester_id", "value": "{{semester_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Publish Report Card",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{assessment_url}}/report-cards/:id/publish",
+							"host": ["{{assessment_url}}"],
+							"path": ["report-cards", ":id", "publish"],
+							"variable": [
+								{"key": "id", "value": "{{report_card_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Download PDF",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{assessment_url}}/report-cards/:id/download",
+							"host": ["{{assessment_url}}"],
+							"path": ["report-cards", ":id", "download"],
+							"variable": [
+								{"key": "id", "value": "{{report_card_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Components",
+			"item": [
+				{
+					"name": "List Components",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{assessment_url}}/assessment/components/class/:class_id/subject/:subject_id",
+							"host": ["{{assessment_url}}"],
+							"path": ["assessment", "components", "class", ":class_id", "subject", ":subject_id"],
+							"variable": [
+								{"key": "class_id", "value": "{{class_id}}"},
+								{"key": "subject_id", "value": "{{subject_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Component",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"class_id\": \"{{class_id}}\",\n    \"subject_id\": \"{{subject_id}}\",\n    \"name\": \"Midterm Exam\",\n    \"weight\": 30,\n    \"max_score\": 100\n}"
+						},
+						"url": {
+							"raw": "{{assessment_url}}/assessment/components",
+							"host": ["{{assessment_url}}"],
+							"path": ["assessment", "components"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Grades",
+			"item": [
+				{
+					"name": "Input Grade",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"student_id\": \"{{student_id}}\",\n    \"component_id\": \"{{component_id}}\",\n    \"score\": 85.5\n}"
+						},
+						"url": {
+							"raw": "{{assessment_url}}/assessment/grades",
+							"host": ["{{assessment_url}}"],
+							"path": ["assessment", "grades"]
+						}
+					}
+				},
+				{
+					"name": "Bulk Input Grades",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"component_id\": \"{{component_id}}\",\n    \"grades\": [\n        {\"student_id\": \"{{student_id_1}}\", \"score\": 90},\n        {\"student_id\": \"{{student_id_2}}\", \"score\": 88}\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{assessment_url}}/assessment/grades/bulk",
+							"host": ["{{assessment_url}}"],
+							"path": ["assessment", "grades", "bulk"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "assessment_url",
+			"value": "http://localhost:9094/api/v1"
+		},
+		{
+			"key": "student_id",
+			"value": ""
+		},
+		{
+			"key": "class_id",
+			"value": ""
+		},
+		{
+			"key": "subject_id",
+			"value": ""
+		},
+		{
+			"key": "semester_id",
+			"value": ""
+		},
+		{
+			"key": "report_card_id",
+			"value": ""
+		},
+		{
+			"key": "component_id",
+			"value": ""
+		}
+	]
+}

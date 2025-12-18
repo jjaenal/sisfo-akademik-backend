@@ -18,6 +18,17 @@ func NewBillingConfigHandler(useCase usecase.BillingConfigUseCase) *BillingConfi
 	return &BillingConfigHandler{useCase: useCase}
 }
 
+// Create godoc
+// @Summary      Create billing config
+// @Description  Create a new billing configuration
+// @Tags         billing-configs
+// @Accept       json
+// @Produce      json
+// @Param        request body map[string]interface{} true "Billing Config Request"
+// @Success      200  {object}  entity.BillingConfig
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/billing-configs [post]
 func (h *BillingConfigHandler) Create(c *gin.Context) {
 	var req struct {
 		TenantID  uuid.UUID               `json:"tenant_id" binding:"required"`
@@ -47,6 +58,18 @@ func (h *BillingConfigHandler) Create(c *gin.Context) {
 	httputil.Success(c.Writer, config)
 }
 
+// Update godoc
+// @Summary      Update billing config
+// @Description  Update an existing billing configuration
+// @Tags         billing-configs
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Billing Config ID"
+// @Param        request body map[string]interface{} true "Billing Config Request"
+// @Success      200  {object}  entity.BillingConfig
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/billing-configs/{id} [put]
 func (h *BillingConfigHandler) Update(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -82,6 +105,17 @@ func (h *BillingConfigHandler) Update(c *gin.Context) {
 	httputil.Success(c.Writer, config)
 }
 
+// GetByID godoc
+// @Summary      Get billing config by ID
+// @Description  Get billing config details by ID
+// @Tags         billing-configs
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Billing Config ID"
+// @Success      200  {object}  entity.BillingConfig
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Router       /finance/billing-configs/{id} [get]
 func (h *BillingConfigHandler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -98,6 +132,17 @@ func (h *BillingConfigHandler) GetByID(c *gin.Context) {
 	httputil.Success(c.Writer, config)
 }
 
+// List godoc
+// @Summary      List billing configs
+// @Description  List billing configs for a tenant
+// @Tags         billing-configs
+// @Accept       json
+// @Produce      json
+// @Param        tenant_id  query     string  true  "Tenant ID"
+// @Success      200  {object}  []entity.BillingConfig
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/billing-configs [get]
 func (h *BillingConfigHandler) List(c *gin.Context) {
 	tenantID, err := uuid.Parse(c.Query("tenant_id"))
 	if err != nil {
@@ -114,6 +159,17 @@ func (h *BillingConfigHandler) List(c *gin.Context) {
 	httputil.Success(c.Writer, configs)
 }
 
+// Delete godoc
+// @Summary      Delete billing config
+// @Description  Delete a billing configuration
+// @Tags         billing-configs
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Billing Config ID"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/billing-configs/{id} [delete]
 func (h *BillingConfigHandler) Delete(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {

@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine AS build
+FROM golang:1.25-alpine AS build
 WORKDIR /app/services/admission-service
 COPY . /app
 RUN apk add --no-cache ca-certificates && \

@@ -19,6 +19,19 @@ func NewReportHandler(useCase usecase.ReportUseCase) *ReportHandler {
 	return &ReportHandler{useCase: useCase}
 }
 
+// GetDailyRevenue godoc
+// @Summary      Get daily revenue
+// @Description  Get daily revenue report for a date range
+// @Tags         reports
+// @Accept       json
+// @Produce      json
+// @Param        tenant_id  query     string  true  "Tenant ID"
+// @Param        start_date query     string  true  "Start Date (YYYY-MM-DD)"
+// @Param        end_date   query     string  true  "End Date (YYYY-MM-DD)"
+// @Success      200  {object}  []map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/reports/revenue/daily [get]
 func (h *ReportHandler) GetDailyRevenue(c *gin.Context) {
 	tenantID, err := uuid.Parse(c.Query("tenant_id"))
 	if err != nil {
@@ -55,6 +68,18 @@ func (h *ReportHandler) GetDailyRevenue(c *gin.Context) {
 	httputil.Success(c.Writer, reports)
 }
 
+// GetMonthlyRevenue godoc
+// @Summary      Get monthly revenue
+// @Description  Get monthly revenue report for a year
+// @Tags         reports
+// @Accept       json
+// @Produce      json
+// @Param        tenant_id  query     string  true  "Tenant ID"
+// @Param        year       query     int     true  "Year"
+// @Success      200  {object}  []map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/reports/revenue/monthly [get]
 func (h *ReportHandler) GetMonthlyRevenue(c *gin.Context) {
 	tenantID, err := uuid.Parse(c.Query("tenant_id"))
 	if err != nil {
@@ -83,6 +108,17 @@ func (h *ReportHandler) GetMonthlyRevenue(c *gin.Context) {
 	httputil.Success(c.Writer, reports)
 }
 
+// GetOutstandingInvoices godoc
+// @Summary      Get outstanding invoices
+// @Description  Get list of outstanding invoices
+// @Tags         reports
+// @Accept       json
+// @Produce      json
+// @Param        tenant_id  query     string  true  "Tenant ID"
+// @Success      200  {object}  []map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/reports/outstanding [get]
 func (h *ReportHandler) GetOutstandingInvoices(c *gin.Context) {
 	tenantID, err := uuid.Parse(c.Query("tenant_id"))
 	if err != nil {
@@ -99,6 +135,18 @@ func (h *ReportHandler) GetOutstandingInvoices(c *gin.Context) {
 	httputil.Success(c.Writer, reports)
 }
 
+// GetStudentHistory godoc
+// @Summary      Get student payment history
+// @Description  Get payment history for a student
+// @Tags         reports
+// @Accept       json
+// @Produce      json
+// @Param        student_id path      string  true  "Student ID"
+// @Param        tenant_id  query     string  true  "Tenant ID"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/reports/student/{student_id}/history [get]
 func (h *ReportHandler) GetStudentHistory(c *gin.Context) {
 	studentID, err := uuid.Parse(c.Param("student_id"))
 	if err != nil {

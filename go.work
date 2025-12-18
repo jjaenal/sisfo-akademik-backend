@@ -13,4 +13,5 @@ use (
 	./services/attendance-service
 	./services/assessment-service
 	./services/finance-service
+	./services/file-service
 )

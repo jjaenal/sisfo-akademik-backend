@@ -1,0 +1,304 @@
+{
+	"info": {
+		"_postman_id": "finance-service-v1",
+		"name": "Finance Service API",
+		"description": "API Documentation for Finance Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Billing Configs",
+			"item": [
+				{
+					"name": "Create Billing Config",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tenant_id\": \"{{tenant_id}}\",\n    \"name\": \"Tuition Fee\",\n    \"amount\": 1500000,\n    \"frequency\": \"MONTHLY\"\n}"
+						},
+						"url": {
+							"raw": "{{finance_url}}/billing-configs",
+							"host": ["{{finance_url}}"],
+							"path": ["billing-configs"]
+						}
+					}
+				},
+				{
+					"name": "List Billing Configs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{finance_url}}/billing-configs?tenant_id={{tenant_id}}",
+							"host": ["{{finance_url}}"],
+							"path": ["billing-configs"],
+							"query": [
+								{"key": "tenant_id", "value": "{{tenant_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Billing Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{finance_url}}/billing-configs/:id",
+							"host": ["{{finance_url}}"],
+							"path": ["billing-configs", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{billing_config_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Billing Config",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Tuition Fee\",\n    \"amount\": 1600000,\n    \"frequency\": \"MONTHLY\",\n    \"is_active\": true\n}"
+						},
+						"url": {
+							"raw": "{{finance_url}}/billing-configs/:id",
+							"host": ["{{finance_url}}"],
+							"path": ["billing-configs", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{billing_config_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Billing Config",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{finance_url}}/billing-configs/:id",
+							"host": ["{{finance_url}}"],
+							"path": ["billing-configs", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{billing_config_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Invoices",
+			"item": [
+				{
+					"name": "Generate Invoice",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tenant_id\": \"{{tenant_id}}\",\n    \"student_id\": \"{{student_id}}\",\n    \"billing_config_id\": \"{{billing_config_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{finance_url}}/invoices/generate",
+							"host": ["{{finance_url}}"],
+							"path": ["invoices", "generate"]
+						}
+					}
+				},
+				{
+					"name": "List Invoices",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{finance_url}}/invoices?tenant_id={{tenant_id}}&student_id={{student_id}}&status=PENDING",
+							"host": ["{{finance_url}}"],
+							"path": ["invoices"],
+							"query": [
+								{"key": "tenant_id", "value": "{{tenant_id}}"},
+								{"key": "student_id", "value": "{{student_id}}"},
+								{"key": "status", "value": "PENDING"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Invoice",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{finance_url}}/invoices/:id",
+							"host": ["{{finance_url}}"],
+							"path": ["invoices", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{invoice_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "Record Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tenant_id\": \"{{tenant_id}}\",\n    \"invoice_id\": \"{{invoice_id}}\",\n    \"amount\": 1500000,\n    \"payment_method\": \"BANK_TRANSFER\",\n    \"reference_number\": \"REF123456\"\n}"
+						},
+						"url": {
+							"raw": "{{finance_url}}/payments",
+							"host": ["{{finance_url}}"],
+							"path": ["payments"]
+						}
+					}
+				},
+				{
+					"name": "Get Payment",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{finance_url}}/payments/:id",
+							"host": ["{{finance_url}}"],
+							"path": ["payments", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{payment_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "List Payments by Invoice",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{finance_url}}/invoices/:invoice_id/payments",
+							"host": ["{{finance_url}}"],
+							"path": ["invoices", ":invoice_id", "payments"],
+							"variable": [
+								{"key": "invoice_id", "value": "{{invoice_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "Daily Revenue",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{finance_url}}/reports/revenue/daily?tenant_id={{tenant_id}}&start_date=2024-01-01&end_date=2024-01-31",
+							"host": ["{{finance_url}}"],
+							"path": ["reports", "revenue", "daily"],
+							"query": [
+								{"key": "tenant_id", "value": "{{tenant_id}}"},
+								{"key": "start_date", "value": "2024-01-01"},
+								{"key": "end_date", "value": "2024-01-31"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Monthly Revenue",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{finance_url}}/reports/revenue/monthly?tenant_id={{tenant_id}}&year=2024",
+							"host": ["{{finance_url}}"],
+							"path": ["reports", "revenue", "monthly"],
+							"query": [
+								{"key": "tenant_id", "value": "{{tenant_id}}"},
+								{"key": "year", "value": "2024"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Outstanding Invoices",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{finance_url}}/reports/outstanding?tenant_id={{tenant_id}}",
+							"host": ["{{finance_url}}"],
+							"path": ["reports", "outstanding"],
+							"query": [
+								{"key": "tenant_id", "value": "{{tenant_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Student History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{finance_url}}/reports/student/:student_id/history?tenant_id={{tenant_id}}",
+							"host": ["{{finance_url}}"],
+							"path": ["reports", "student", ":student_id", "history"],
+							"variable": [
+								{"key": "student_id", "value": "{{student_id}}"}
+							],
+							"query": [
+								{"key": "tenant_id", "value": "{{tenant_id}}"}
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "finance_url",
+			"value": "http://localhost:9096/api/v1/finance"
+		},
+		{
+			"key": "tenant_id",
+			"value": "t-e2e"
+		},
+		{
+			"key": "billing_config_id",
+			"value": ""
+		},
+		{
+			"key": "student_id",
+			"value": ""
+		},
+		{
+			"key": "invoice_id",
+			"value": ""
+		},
+		{
+			"key": "payment_id",
+			"value": ""
+		}
+	]
+}

@@ -1,0 +1,658 @@
+basePath: /api/v1
+definitions:
+  github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.BillingConfig:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      frequency:
+        $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.BillingFrequency'
+      id:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.BillingFrequency:
+    enum:
+    - MONTHLY
+    - ONCE
+    - YEARLY
+    type: string
+    x-enum-varnames:
+    - BillingFrequencyMonthly
+    - BillingFrequencyOnce
+    - BillingFrequencyYearly
+  github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.Invoice:
+    properties:
+      amount:
+        type: number
+      billing_config:
+        allOf:
+        - $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.BillingConfig'
+        description: Relations
+      billing_config_id:
+        type: string
+      created_at:
+        type: string
+      due_date:
+        type: string
+      id:
+        type: string
+      invoice_number:
+        type: string
+      paid_amount:
+        type: number
+      status:
+        $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.InvoiceStatus'
+      student_id:
+        type: string
+      tenant_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.InvoiceStatus:
+    enum:
+    - UNPAID
+    - PAID
+    - PARTIAL
+    - OVERDUE
+    - CANCELLED
+    type: string
+    x-enum-varnames:
+    - InvoiceStatusUnpaid
+    - InvoiceStatusPaid
+    - InvoiceStatusPartial
+    - InvoiceStatusOverdue
+    - InvoiceStatusCancelled
+  github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.Payment:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      id:
+        type: string
+      invoice:
+        allOf:
+        - $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.Invoice'
+        description: Relations
+      invoice_id:
+        type: string
+      payment_method:
+        $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.PaymentMethod'
+      reference_number:
+        type: string
+      status:
+        $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.PaymentStatus'
+      tenant_id:
+        type: string
+      transaction_date:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.PaymentMethod:
+    enum:
+    - CASH
+    - TRANSFER
+    - VA
+    - EWALLET
+    type: string
+    x-enum-varnames:
+    - PaymentMethodCash
+    - PaymentMethodTransfer
+    - PaymentMethodVA
+    - PaymentMethodEWallet
+  github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.PaymentStatus:
+    enum:
+    - PENDING
+    - SUCCESS
+    - FAILED
+    type: string
+    x-enum-varnames:
+    - PaymentStatusPending
+    - PaymentStatusSuccess
+    - PaymentStatusFailed
+host: localhost:9096
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Finance Service for Academic System
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Finance Service API
+  version: "1.0"
+paths:
+  /finance/billing-configs:
+    get:
+      consumes:
+      - application/json
+      description: List billing configs for a tenant
+      parameters:
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.BillingConfig'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List billing configs
+      tags:
+      - billing-configs
+    post:
+      consumes:
+      - application/json
+      description: Create a new billing configuration
+      parameters:
+      - description: Billing Config Request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.BillingConfig'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create billing config
+      tags:
+      - billing-configs
+  /finance/billing-configs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a billing configuration
+      parameters:
+      - description: Billing Config ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete billing config
+      tags:
+      - billing-configs
+    get:
+      consumes:
+      - application/json
+      description: Get billing config details by ID
+      parameters:
+      - description: Billing Config ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.BillingConfig'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get billing config by ID
+      tags:
+      - billing-configs
+    put:
+      consumes:
+      - application/json
+      description: Update an existing billing configuration
+      parameters:
+      - description: Billing Config ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Billing Config Request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.BillingConfig'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update billing config
+      tags:
+      - billing-configs
+  /finance/invoices:
+    get:
+      consumes:
+      - application/json
+      description: List invoices with filtering
+      parameters:
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      - description: Student ID
+        in: query
+        name: student_id
+        type: string
+      - description: Invoice Status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.Invoice'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List invoices
+      tags:
+      - invoices
+  /finance/invoices/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get invoice details by ID
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.Invoice'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get invoice by ID
+      tags:
+      - invoices
+  /finance/invoices/{invoice_id}/payments:
+    get:
+      consumes:
+      - application/json
+      description: List all payments for a specific invoice
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: invoice_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.Payment'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List payments by invoice
+      tags:
+      - payments
+  /finance/invoices/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generate a new invoice for a student
+      parameters:
+      - description: Invoice Generation Request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.Invoice'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Generate invoice
+      tags:
+      - invoices
+  /finance/payments:
+    post:
+      consumes:
+      - application/json
+      description: Record a new payment for an invoice
+      parameters:
+      - description: Payment Request
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.Payment'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Record payment
+      tags:
+      - payments
+  /finance/payments/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get payment details by ID
+      parameters:
+      - description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_jjaenal_sisfo-akademik-backend_services_finance-service_internal_domain_entity.Payment'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get payment by ID
+      tags:
+      - payments
+  /finance/reports/outstanding:
+    get:
+      consumes:
+      - application/json
+      description: Get list of outstanding invoices
+      parameters:
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get outstanding invoices
+      tags:
+      - reports
+  /finance/reports/revenue/daily:
+    get:
+      consumes:
+      - application/json
+      description: Get daily revenue report for a date range
+      parameters:
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      - description: Start Date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: End Date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get daily revenue
+      tags:
+      - reports
+  /finance/reports/revenue/monthly:
+    get:
+      consumes:
+      - application/json
+      description: Get monthly revenue report for a year
+      parameters:
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      - description: Year
+        in: query
+        name: year
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get monthly revenue
+      tags:
+      - reports
+  /finance/reports/student/{student_id}/history:
+    get:
+      consumes:
+      - application/json
+      description: Get payment history for a student
+      parameters:
+      - description: Student ID
+        in: path
+        name: student_id
+        required: true
+        type: string
+      - description: Tenant ID
+        in: query
+        name: tenant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get student payment history
+      tags:
+      - reports
+swagger: "2.0"

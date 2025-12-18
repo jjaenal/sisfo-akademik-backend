@@ -58,7 +58,7 @@ func TestInvoiceHandler_Generate(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 		
 		var resp map[string]interface{}
-		json.Unmarshal(w.Body.Bytes(), &resp)
+		_ = json.Unmarshal(w.Body.Bytes(), &resp)
 		assert.True(t, resp["success"].(bool))
 	})
 

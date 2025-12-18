@@ -9,7 +9,7 @@ import (
 type GradeCategory struct {
 	ID        uuid.UUID  `json:"id"`
 	TenantID  string     `json:"tenant_id"`
-	Name        string     `json:"name"`
+	Name      string     `json:"name"`
 	Description string     `json:"description"`
 	Weight      float64    `json:"weight"` // Percentage
 	CreatedAt time.Time  `json:"created_at"`

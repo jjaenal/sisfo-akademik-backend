@@ -18,6 +18,17 @@ func NewInvoiceHandler(useCase usecase.InvoiceUseCase) *InvoiceHandler {
 	return &InvoiceHandler{useCase: useCase}
 }
 
+// Generate godoc
+// @Summary      Generate invoice
+// @Description  Generate a new invoice for a student
+// @Tags         invoices
+// @Accept       json
+// @Produce      json
+// @Param        request body map[string]interface{} true "Invoice Generation Request"
+// @Success      200  {object}  entity.Invoice
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/invoices/generate [post]
 func (h *InvoiceHandler) Generate(c *gin.Context) {
 	var req struct {
 		TenantID        uuid.UUID `json:"tenant_id" binding:"required"`
@@ -39,6 +50,17 @@ func (h *InvoiceHandler) Generate(c *gin.Context) {
 	httputil.Success(c.Writer, invoice)
 }
 
+// GetByID godoc
+// @Summary      Get invoice by ID
+// @Description  Get invoice details by ID
+// @Tags         invoices
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Invoice ID"
+// @Success      200  {object}  entity.Invoice
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Router       /finance/invoices/{id} [get]
 func (h *InvoiceHandler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -55,6 +77,19 @@ func (h *InvoiceHandler) GetByID(c *gin.Context) {
 	httputil.Success(c.Writer, invoice)
 }
 
+// List godoc
+// @Summary      List invoices
+// @Description  List invoices with filtering
+// @Tags         invoices
+// @Accept       json
+// @Produce      json
+// @Param        tenant_id  query     string  true  "Tenant ID"
+// @Param        student_id query     string  false "Student ID"
+// @Param        status     query     string  false "Invoice Status"
+// @Success      200  {object}  []entity.Invoice
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /finance/invoices [get]
 func (h *InvoiceHandler) List(c *gin.Context) {
 	tenantID, err := uuid.Parse(c.Query("tenant_id"))
 	if err != nil {

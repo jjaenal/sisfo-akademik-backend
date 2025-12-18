@@ -17,6 +17,21 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
 )
 
+// @title           Finance Service API
+// @version         1.0
+// @description     Finance Service for Academic System
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:9096
+// @BasePath  /api/v1
+
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
@@ -125,7 +140,7 @@ func main() {
 		// Payments
 		finance.POST("/payments", paymentHandler.Record)
 		finance.GET("/payments/:id", paymentHandler.GetByID)
-		finance.GET("/invoices/:invoice_id/payments", paymentHandler.ListByInvoice)
+		finance.GET("/invoices/:id/payments", paymentHandler.ListByInvoice)
 
 		// Reports
 		finance.GET("/reports/revenue/daily", reportHandler.GetDailyRevenue)

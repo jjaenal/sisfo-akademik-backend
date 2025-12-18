@@ -8,7 +8,7 @@ import (
 
 type Assessment struct {
 	ID              uuid.UUID  `json:"id"`
-	TenantID        string     `json:"tenant_id"`
+	TenantID        uuid.UUID  `json:"tenant_id"`
 	GradeCategoryID uuid.UUID  `json:"grade_category_id"`
 	TeacherID       uuid.UUID  `json:"teacher_id"`
 	SubjectID       uuid.UUID  `json:"subject_id"`

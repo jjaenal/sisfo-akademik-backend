@@ -19,10 +19,10 @@ func TestAssessmentRepository_CRUD(t *testing.T) {
 	ctx := context.Background()
 
 	// Need a GradeCategory first as it's a foreign key
-	tenantID := "tenant-1"
+	tenantID := uuid.New()
 	category := &entity.GradeCategory{
 		ID:          uuid.New(),
-		TenantID:    tenantID,
+		TenantID:    tenantID.String(),
 		Name:        "Quiz " + uuid.New().String(),
 		Description: "Quiz category",
 		Weight:      10,

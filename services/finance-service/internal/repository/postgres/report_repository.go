@@ -22,7 +22,7 @@ func (r *reportRepository) GetDailyRevenue(ctx context.Context, tenantID uuid.UU
 	query := `
 		SELECT TO_CHAR(transaction_date, 'YYYY-MM-DD') as date, SUM(amount) as amount
 		FROM payments
-		WHERE tenant_id = $1 AND transaction_date >= $2 AND transaction_date <= $3 AND status = 'COMPLETED'
+		WHERE tenant_id = $1 AND transaction_date >= $2 AND transaction_date <= $3 AND status = 'SUCCESS'
 		GROUP BY date
 		ORDER BY date ASC
 	`
@@ -47,7 +47,7 @@ func (r *reportRepository) GetMonthlyRevenue(ctx context.Context, tenantID uuid.
 	query := `
 		SELECT TO_CHAR(transaction_date, 'YYYY-MM') as month, SUM(amount) as amount
 		FROM payments
-		WHERE tenant_id = $1 AND EXTRACT(YEAR FROM transaction_date) = $2 AND status = 'COMPLETED'
+		WHERE tenant_id = $1 AND EXTRACT(YEAR FROM transaction_date) = $2 AND status = 'SUCCESS'
 		GROUP BY month
 		ORDER BY month ASC
 	`

@@ -72,8 +72,14 @@ func (h *AssessmentHandler) Create(c *gin.Context) {
 		return
 	}
 
+	tenantID, err := uuid.Parse(req.TenantID)
+	if err != nil {
+		httputil.Error(c.Writer, http.StatusBadRequest, "4001", "Invalid Input", "Invalid Tenant ID")
+		return
+	}
+
 	assessment := &entity.Assessment{
-		TenantID:        req.TenantID,
+		TenantID:        tenantID,
 		SubjectID:       subjectID,
 		TeacherID:       teacherID,
 		ClassID:         classID,

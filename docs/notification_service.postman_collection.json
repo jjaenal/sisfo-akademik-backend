@@ -1,0 +1,179 @@
+{
+	"info": {
+		"_postman_id": "notification-service-v1",
+		"name": "Notification Service API",
+		"description": "API Documentation for Notification Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Notifications",
+			"item": [
+				{
+					"name": "Send Notification",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tenant_id\": \"{{tenant_id}}\",\n    \"user_id\": \"{{user_id}}\",\n    \"type\": \"EMAIL\",\n    \"template_code\": \"WELCOME_EMAIL\",\n    \"data\": {\n        \"name\": \"John Doe\",\n        \"login_link\": \"https://school.edu/login\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{notification_url}}/send",
+							"host": ["{{notification_url}}"],
+							"path": ["send"]
+						}
+					}
+				},
+				{
+					"name": "Send Bulk Notifications",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tenant_id\": \"{{tenant_id}}\",\n    \"recipients\": [\n        {\n            \"user_id\": \"{{user_id_1}}\",\n            \"data\": {\"name\": \"Student 1\"}\n        },\n        {\n            \"user_id\": \"{{user_id_2}}\",\n            \"data\": {\"name\": \"Student 2\"}\n        }\n    ],\n    \"type\": \"WHATSAPP\",\n    \"template_code\": \"ANNOUNCEMENT\"\n}"
+						},
+						"url": {
+							"raw": "{{notification_url}}/send/bulk",
+							"host": ["{{notification_url}}"],
+							"path": ["send", "bulk"]
+						}
+					}
+				},
+				{
+					"name": "List Notifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{notification_url}}?tenant_id={{tenant_id}}",
+							"host": ["{{notification_url}}"],
+							"query": [
+								{"key": "tenant_id", "value": "{{tenant_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Notification",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{notification_url}}/:id",
+							"host": ["{{notification_url}}"],
+							"path": [":id"],
+							"variable": [
+								{"key": "id", "value": "{{notification_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get User Notifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{notification_url}}/user/:user_id?tenant_id={{tenant_id}}",
+							"host": ["{{notification_url}}"],
+							"path": ["user", ":user_id"],
+							"variable": [
+								{"key": "user_id", "value": "{{user_id}}"}
+							],
+							"query": [
+								{"key": "tenant_id", "value": "{{tenant_id}}"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Templates",
+			"item": [
+				{
+					"name": "Create Template",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tenant_id\": \"{{tenant_id}}\",\n    \"code\": \"WELCOME_EMAIL\",\n    \"name\": \"Welcome Email\",\n    \"type\": \"EMAIL\",\n    \"subject\": \"Welcome to Sisfo Akademik\",\n    \"content\": \"Hello {{name}}, welcome to our platform! Click here to login: {{login_link}}\"\n}"
+						},
+						"url": {
+							"raw": "{{notification_url}}/templates",
+							"host": ["{{notification_url}}"],
+							"path": ["templates"]
+						}
+					}
+				},
+				{
+					"name": "List Templates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{notification_url}}/templates?tenant_id={{tenant_id}}",
+							"host": ["{{notification_url}}"],
+							"path": ["templates"],
+							"query": [
+								{"key": "tenant_id", "value": "{{tenant_id}}"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Template",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"content\": \"Hello {{name}}, welcome back!\"\n}"
+						},
+						"url": {
+							"raw": "{{notification_url}}/templates/:id",
+							"host": ["{{notification_url}}"],
+							"path": ["templates", ":id"],
+							"variable": [
+								{"key": "id", "value": "{{template_id}}"}
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "notification_url",
+			"value": "http://localhost:9095/api/v1/notifications"
+		},
+		{
+			"key": "tenant_id",
+			"value": "t-e2e"
+		},
+		{
+			"key": "user_id",
+			"value": ""
+		},
+		{
+			"key": "notification_id",
+			"value": ""
+		},
+		{
+			"key": "template_id",
+			"value": ""
+		}
+	]
+}

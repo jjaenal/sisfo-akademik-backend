@@ -1152,7 +1152,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 - [x] ✅ 📝 Write Assessment service README (3h) ✅
 - [x] ✅ 📝 Generate Swagger docs (4h) 🟡
-- [ ] 📝 Create Postman collection (3h) 🟡
+- [x] ✅ 📝 Create Postman collection (3h) ✅
 
 ---
 
@@ -1329,25 +1329,25 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - Mark overdue invoices
   - **AC**: Overdue tracking working
 
-- [x] ✅ 📝 Unit tests for Finance (12h) 🔴
-  - Repository tests
-  - Handler tests
-  - Calculation tests
-  - Coverage >70%
+- [x] ✅ 📝 Unit tests for Finance (12h) ✅
+  - [x] Repository tests
+  - [x] Handler tests
+  - [x] Calculation tests
+  - [x] Coverage >70%
   - **AC**: Tests passing
 
 ### Integration Tests
 
-- [x] ✅ 📝 Finance service integration tests (10h) 🔴
+- [x] ✅ 📝 Finance service integration tests (10h) ✅
   - Invoice generation flow
   - Payment recording flow
   - **AC**: Integration tests passing
 
 ### Documentation
 
-- [ ] 📝 Write Finance service README (3h) 🟡
-- [ ] 📝 Generate Swagger docs (4h) 🟡
-- [ ] 📝 Create Postman collection (3h) 🟡
+- [x] ✅ 📝 Write Finance service README (3h) ✅
+- [x] ✅ 📝 Generate Swagger docs (4h) ✅
+- [x] ✅ 📝 Create Postman collection (3h) ✅
 
 ---
 
@@ -1476,7 +1476,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
 
 - [x] ✅ 📝 Write Notification service README (3h) 🟡
 - [x] ✅ 📝 Generate Swagger docs (4h) 🟡
-- [ ] 📝 Create Postman collection (3h) 🟡
+- [x] ✅ 📝 Create Postman collection (3h) ✅
 
 ---
 
@@ -1536,8 +1536,14 @@ Status: Round-robin multi-upstream aktif (env `*_URLS`), dengan circuit breaker 
 
 ### Documentation
 
-- [ ] 📝 Write Gateway README (2h) 🟡
-- [ ] 📝 Gateway architecture diagram (2h) 🟡
+- [x] ✅ 📝 Write Gateway README (3h) ✅
+
+  - Service overview
+  - Routing rules
+  - Configuration
+  - **AC**: README complete
+
+- [x] ✅ 📝 Gateway architecture diagram (2h) ✅
 
 ---
 
