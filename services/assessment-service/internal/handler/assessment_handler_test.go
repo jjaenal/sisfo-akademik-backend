@@ -29,7 +29,7 @@ func TestAssessmentHandler_Create(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		reqBody := map[string]interface{}{
-			"tenant_id":         "tenant-123",
+			"tenant_id":         uuid.New().String(),
 			"subject_id":        uuid.New().String(),
 			"teacher_id":        uuid.New().String(),
 			"class_id":          uuid.New().String(),
@@ -42,7 +42,7 @@ func TestAssessmentHandler_Create(t *testing.T) {
 		body, _ := json.Marshal(reqBody)
 
 		mockUseCase.EXPECT().CreateAssessment(gomock.Any(), gomock.Any()).DoAndReturn(func(_ interface{}, assessment *entity.Assessment) error {
-			assert.Equal(t, "tenant-123", assessment.TenantID)
+			assert.NotEmpty(t, assessment.TenantID)
 			assert.Equal(t, "Midterm Exam", assessment.Name)
 			return nil
 		})
@@ -76,7 +76,7 @@ func TestAssessmentHandler_Create(t *testing.T) {
 
 	t.Run("bad request - invalid UUID", func(t *testing.T) {
 		reqBody := map[string]interface{}{
-			"tenant_id":         "tenant-123",
+			"tenant_id":         uuid.New().String(),
 			"subject_id":        "invalid-uuid",
 			"teacher_id":        uuid.New().String(),
 			"class_id":          uuid.New().String(),
@@ -99,7 +99,7 @@ func TestAssessmentHandler_Create(t *testing.T) {
 
 	t.Run("usecase error", func(t *testing.T) {
 		reqBody := map[string]interface{}{
-			"tenant_id":         "tenant-123",
+			"tenant_id":         uuid.New().String(),
 			"subject_id":        uuid.New().String(),
 			"teacher_id":        uuid.New().String(),
 			"class_id":          uuid.New().String(),

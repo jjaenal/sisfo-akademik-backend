@@ -80,13 +80,13 @@ func TestReportRepository_Revenue(t *testing.T) {
 	ctx := context.Background()
 	
 	// Test Daily Revenue
-	startDate := time.Now().Add(-24 * time.Hour)
-	endDate := time.Now().Add(24 * time.Hour)
+	startDate := time.Now().UTC().Add(-24 * time.Hour)
+	endDate := time.Now().UTC().Add(24 * time.Hour)
 	daily, err := repo.GetDailyRevenue(ctx, tenantID, startDate, endDate)
 	assert.NoError(t, err)
 	assert.NotEmpty(t, daily)
 	// We expect sum of 100000 for today
-	todayStr := time.Now().Format("2006-01-02")
+	todayStr := time.Now().UTC().Format("2006-01-02")
 	foundToday := false
 	for _, d := range daily {
 		if d.Date == todayStr {

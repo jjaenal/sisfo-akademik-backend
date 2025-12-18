@@ -12,3 +12,4 @@ coverage/
 vendor/
 docker-compose.override.yml
 .cache/
+main
