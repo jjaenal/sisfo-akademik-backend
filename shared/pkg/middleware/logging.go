@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 )
 
@@ -29,7 +30,25 @@ func Logging(l *zap.Logger, next http.Handler) http.Handler {
 		ww := &respWriter{ResponseWriter: w, status: 200}
 		next.ServeHTTP(ww, r)
 		dur := time.Since(start)
-		l.Info("request", zap.String("method", r.Method), zap.String("path", r.URL.Path), zap.String("request_id", w.Header().Get("X-Request-ID")), zap.Int("status", ww.status), zap.Duration("latency", dur))
+
+		fields := []zap.Field{
+			zap.String("method", r.Method),
+			zap.String("path", r.URL.Path),
+			zap.String("request_id", w.Header().Get("X-Request-ID")),
+			zap.Int("status", ww.status),
+			zap.Duration("latency", dur),
+		}
+
+		// Extract TraceID and SpanID from context
+		spanCtx := trace.SpanContextFromContext(r.Context())
+		if spanCtx.HasTraceID() {
+			fields = append(fields, zap.String("trace_id", spanCtx.TraceID().String()))
+		}
+		if spanCtx.HasSpanID() {
+			fields = append(fields, zap.String("span_id", spanCtx.SpanID().String()))
+		}
+
+		l.Info("request", fields...)
 	})
 }
 

@@ -3,6 +3,7 @@ package todoexec
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -111,8 +112,7 @@ func Execute(root string, t Task) ExecResult {
 		return r
 	}
 	if strings.Contains(title, "failed login tracking") {
-		p := filepath.Join(root, "services/auth-service/internal/handler/auth.go")
-		b, err := os.ReadFile(p) // #nosec G304
+		b, err := readUnderRoot(root, "services/auth-service/internal/handler/auth.go")
 		if err != nil {
 			r.Executed = true
 			r.Succeeded = false
@@ -129,15 +129,13 @@ func Execute(root string, t Task) ExecResult {
 		return r
 	}
 	if strings.Contains(title, "implement forgot password") {
-		hp := filepath.Join(root, "services/auth-service/internal/handler/auth.go")
-		hb, herr := os.ReadFile(hp) // #nosec G304
+		hb, herr := readUnderRoot(root, "services/auth-service/internal/handler/auth.go")
 		ok := herr == nil
 		if ok {
 			hs := string(hb)
 			ok = strings.Contains(hs, "forgotPassword") && strings.Contains(hs, `"/api/v1/auth/forgot-password"`)
 		}
-		tp := filepath.Join(root, "services/auth-service/internal/handler/auth_handler_test.go")
-		tb, terr := os.ReadFile(tp) // #nosec G304
+		tb, terr := readUnderRoot(root, "services/auth-service/internal/handler/auth_handler_test.go")
 		if terr == nil {
 			ts := string(tb)
 			ok = ok && strings.Contains(ts, `"/api/v1/auth/forgot-password"`)
@@ -150,15 +148,13 @@ func Execute(root string, t Task) ExecResult {
 		return r
 	}
 	if strings.Contains(title, "implement reset password") {
-		hp := filepath.Join(root, "services/auth-service/internal/handler/auth.go")
-		hb, herr := os.ReadFile(hp) // #nosec G304
+		hb, herr := readUnderRoot(root, "services/auth-service/internal/handler/auth.go")
 		ok := herr == nil
 		if ok {
 			hs := string(hb)
 			ok = strings.Contains(hs, "resetPassword") && strings.Contains(hs, `"/api/v1/auth/reset-password"`)
 		}
-		tp := filepath.Join(root, "services/auth-service/internal/handler/auth_handler_test.go")
-		tb, terr := os.ReadFile(tp) // #nosec G304
+		tb, terr := readUnderRoot(root, "services/auth-service/internal/handler/auth_handler_test.go")
 		if terr == nil {
 			ts := string(tb)
 			ok = ok && strings.Contains(ts, `"/api/v1/auth/reset-password"`)
@@ -171,15 +167,13 @@ func Execute(root string, t Task) ExecResult {
 		return r
 	}
 	if strings.Contains(title, "implement change password") {
-		hp := filepath.Join(root, "services/auth-service/internal/handler/auth.go")
-		hb, herr := os.ReadFile(hp) // #nosec G304
+		hb, herr := readUnderRoot(root, "services/auth-service/internal/handler/auth.go")
 		ok := herr == nil
 		if ok {
 			hs := string(hb)
 			ok = strings.Contains(hs, "changePassword") && strings.Contains(hs, `"/api/v1/auth/change-password"`)
 		}
-		tp := filepath.Join(root, "services/auth-service/internal/handler/auth_handler_test.go")
-		tb, terr := os.ReadFile(tp) // #nosec G304
+		tb, terr := readUnderRoot(root, "services/auth-service/internal/handler/auth_handler_test.go")
 		if terr == nil {
 			ts := string(tb)
 			ok = ok && strings.Contains(ts, `"/api/v1/auth/change-password"`)
@@ -192,15 +186,13 @@ func Execute(root string, t Task) ExecResult {
 		return r
 	}
 	if strings.Contains(title, "implement role handlers") {
-		hp := filepath.Join(root, "services/auth-service/internal/handler/roles.go")
-		hb, herr := os.ReadFile(hp) // #nosec G304
+		hb, herr := readUnderRoot(root, "services/auth-service/internal/handler/roles.go")
 		ok := herr == nil
 		if ok {
 			hs := string(hb)
 			ok = strings.Contains(hs, `"/api/v1/users/:id/roles"`) && strings.Contains(hs, "RegisterProtected")
 		}
-		tp := filepath.Join(root, "services/auth-service/internal/handler/roles_handler_test.go")
-		tb, terr := os.ReadFile(tp) // #nosec G304
+		tb, terr := readUnderRoot(root, "services/auth-service/internal/handler/roles_handler_test.go")
 		if terr == nil {
 			ts := string(tb)
 			ok = ok && strings.Contains(ts, `"/api/v1/users/"`) && strings.Contains(ts, `"/roles"`)
@@ -213,8 +205,7 @@ func Execute(root string, t Task) ExecResult {
 		return r
 	}
 	if strings.Contains(title, "security headers") {
-		p := filepath.Join(root, "services/auth-service/internal/middleware/security.go")
-		b, err := os.ReadFile(p) // #nosec G304
+		b, err := readUnderRoot(root, "services/auth-service/internal/middleware/security.go")
 		if err != nil {
 			r.Executed = true
 			r.Succeeded = false
@@ -243,8 +234,7 @@ func Execute(root string, t Task) ExecResult {
 		return r
 	}
 	if strings.Contains(title, "setup gosec scanning") {
-		p := filepath.Join(root, ".github", "workflows", "ci.yml")
-		b, err := os.ReadFile(p) // #nosec G304
+		b, err := readUnderRoot(root, ".github/workflows/ci.yml")
 		if err != nil {
 			r.Executed = true
 			r.Succeeded = false
@@ -261,8 +251,7 @@ func Execute(root string, t Task) ExecResult {
 		return r
 	}
 	if strings.Contains(title, "setup trivy scanning") {
-		p := filepath.Join(root, ".github", "workflows", "ci.yml")
-		b, err := os.ReadFile(p) // #nosec G304
+		b, err := readUnderRoot(root, ".github/workflows/ci.yml")
 		if err != nil {
 			r.Executed = true
 			r.Succeeded = false
@@ -308,8 +297,7 @@ func Execute(root string, t Task) ExecResult {
 		return r
 	}
 	if strings.Contains(title, "connection pooling") {
-		p := filepath.Join(root, "shared", "pkg", "database", "database.go")
-		b, err := os.ReadFile(p) // #nosec G304
+		b, err := readUnderRoot(root, "shared/pkg/database/database.go")
 		if err != nil {
 			r.Executed = true
 			r.Succeeded = false
@@ -326,6 +314,33 @@ func Execute(root string, t Task) ExecResult {
 		return r
 	}
 	return r
+}
+
+func joinUnderRoot(root string, parts ...string) (string, error) {
+	full := filepath.Join(append([]string{root}, parts...)...)
+	absRoot, err := filepath.Abs(root)
+	if err != nil {
+		return "", err
+	}
+	absFull, err := filepath.Abs(full)
+	if err != nil {
+		return "", err
+	}
+	absRoot = filepath.Clean(absRoot)
+	absFull = filepath.Clean(absFull)
+	prefix := absRoot + string(os.PathSeparator)
+	if absFull != absRoot && !strings.HasPrefix(absFull, prefix) {
+		return "", errors.New("invalid path outside root")
+	}
+	return absFull, nil
+}
+
+func readUnderRoot(root string, rel string) ([]byte, error) {
+	p, err := joinUnderRoot(root, rel)
+	if err != nil {
+		return nil, err
+	}
+	return os.ReadFile(p)
 }
 
 func runMake(root string, target string) (string, error) {

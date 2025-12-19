@@ -64,6 +64,7 @@ func Load() (Config, error) {
 	v.SetDefault("AUDIT_RETENTION_DAYS", 90)
 	v.SetDefault("SMTP_PORT", 587)
 	v.SetDefault("ACADEMIC_SERVICE_URL", "http://localhost:9092")
+	v.SetDefault("JAEGER_ENDPOINT", "http://localhost:4318/v1/traces")
 
 	cfg := Config{
 		Env:                v.GetString("ENV"),
@@ -93,6 +94,7 @@ func Load() (Config, error) {
 		WhatsAppAPIURL:     v.GetString("WHATSAPP_API_URL"),
 		WhatsAppAPIKey:     v.GetString("WHATSAPP_API_KEY"),
 		AcademicServiceURL: v.GetString("ACADEMIC_SERVICE_URL"),
+		JaegerEndpoint:     v.GetString("JAEGER_ENDPOINT"),
 	}
 	if err := cfg.Validate(); err != nil {
 		return Config{}, err
