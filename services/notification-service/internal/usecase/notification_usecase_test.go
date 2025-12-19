@@ -181,3 +181,100 @@ func TestNotificationUseCase_Process(t *testing.T) {
 		assert.Equal(t, "notification not found", err.Error())
 	})
 }
+
+func TestNotificationUseCase_GetByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockNotifRepo := mocks.NewMockNotificationRepository(ctrl)
+	timeout := 2 * time.Second
+	u := usecase.NewNotificationUseCase(mockNotifRepo, nil, nil, nil, nil, timeout)
+
+	t.Run("success", func(t *testing.T) {
+		id := uuid.New()
+		expected := &entity.Notification{ID: id}
+		mockNotifRepo.EXPECT().GetByID(gomock.Any(), id).Return(expected, nil)
+
+		res, err := u.GetByID(context.Background(), id)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		id := uuid.New()
+		mockNotifRepo.EXPECT().GetByID(gomock.Any(), id).Return(nil, assert.AnError)
+
+		res, err := u.GetByID(context.Background(), id)
+		assert.Error(t, err)
+		assert.Nil(t, res)
+	})
+}
+
+func TestNotificationUseCase_ListByRecipient(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockNotifRepo := mocks.NewMockNotificationRepository(ctrl)
+	timeout := 2 * time.Second
+	u := usecase.NewNotificationUseCase(mockNotifRepo, nil, nil, nil, nil, timeout)
+
+	t.Run("success", func(t *testing.T) {
+		recipient := "user@example.com"
+		expected := []*entity.Notification{{Recipient: recipient}}
+		mockNotifRepo.EXPECT().ListByRecipient(gomock.Any(), recipient).Return(expected, nil)
+
+		res, err := u.ListByRecipient(context.Background(), recipient)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		recipient := "user@example.com"
+		mockNotifRepo.EXPECT().ListByRecipient(gomock.Any(), recipient).Return(nil, assert.AnError)
+
+		res, err := u.ListByRecipient(context.Background(), recipient)
+		assert.Error(t, err)
+		assert.Nil(t, res)
+	})
+}
+
+func TestNotificationUseCase_UpdateStatus(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockNotifRepo := mocks.NewMockNotificationRepository(ctrl)
+	timeout := 2 * time.Second
+	u := usecase.NewNotificationUseCase(mockNotifRepo, nil, nil, nil, nil, timeout)
+
+	t.Run("success", func(t *testing.T) {
+		id := uuid.New()
+		notif := &entity.Notification{ID: id, Status: entity.NotificationStatusPending}
+		
+		mockNotifRepo.EXPECT().GetByID(gomock.Any(), id).Return(notif, nil)
+		mockNotifRepo.EXPECT().Update(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, n *entity.Notification) error {
+			assert.Equal(t, entity.NotificationStatusSent, n.Status)
+			assert.NotNil(t, n.SentAt)
+			return nil
+		})
+
+		err := u.UpdateStatus(context.Background(), id, entity.NotificationStatusSent, "")
+		assert.NoError(t, err)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		id := uuid.New()
+		mockNotifRepo.EXPECT().GetByID(gomock.Any(), id).Return(nil, nil)
+
+		err := u.UpdateStatus(context.Background(), id, entity.NotificationStatusSent, "")
+		assert.Error(t, err)
+		assert.Equal(t, "notification not found", err.Error())
+	})
+
+	t.Run("get error", func(t *testing.T) {
+		id := uuid.New()
+		mockNotifRepo.EXPECT().GetByID(gomock.Any(), id).Return(nil, assert.AnError)
+
+		err := u.UpdateStatus(context.Background(), id, entity.NotificationStatusSent, "")
+		assert.Error(t, err)
+	})
+}

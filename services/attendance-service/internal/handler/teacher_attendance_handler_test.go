@@ -170,3 +170,95 @@ func TestTeacherAttendanceHandler_CheckOut(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
+
+func TestTeacherAttendanceHandler_GetByTeacherAndDate(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUseCase := mocks.NewMockTeacherAttendanceUseCase(ctrl)
+	h := handler.NewTeacherAttendanceHandler(mockUseCase)
+
+	teacherID := uuid.New()
+	date := time.Now().Format("2006-01-02")
+	parsedDate, _ := time.Parse("2006-01-02", date)
+
+	t.Run("success", func(t *testing.T) {
+		expected := &entity.TeacherAttendance{TeacherID: teacherID}
+		mockUseCase.EXPECT().GetByTeacherAndDate(gomock.Any(), teacherID, parsedDate).Return(expected, nil)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/teacher/attendance?teacher_id="+teacherID.String()+"&date="+date, nil)
+
+		h.GetByTeacherAndDate(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("bad request - missing params", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/teacher/attendance", nil)
+
+		h.GetByTeacherAndDate(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		mockUseCase.EXPECT().GetByTeacherAndDate(gomock.Any(), teacherID, parsedDate).Return(nil, nil)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/teacher/attendance?teacher_id="+teacherID.String()+"&date="+date, nil)
+
+		h.GetByTeacherAndDate(c)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+}
+
+func TestTeacherAttendanceHandler_List(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUseCase := mocks.NewMockTeacherAttendanceUseCase(ctrl)
+	h := handler.NewTeacherAttendanceHandler(mockUseCase)
+
+	teacherID := uuid.New()
+	semesterID := uuid.New()
+
+	t.Run("success", func(t *testing.T) {
+		expected := []*entity.TeacherAttendance{{TeacherID: teacherID}}
+		mockUseCase.EXPECT().List(gomock.Any(), gomock.Any()).DoAndReturn(func(_ interface{}, filter map[string]interface{}) ([]*entity.TeacherAttendance, error) {
+			assert.Equal(t, teacherID, filter["teacher_id"])
+			assert.Equal(t, semesterID, filter["semester_id"])
+			assert.Equal(t, "present", filter["status"])
+			return expected, nil
+		})
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/teacher/attendances?teacher_id="+teacherID.String()+"&semester_id="+semesterID.String()+"&status=present", nil)
+
+		h.List(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("usecase error", func(t *testing.T) {
+		mockUseCase.EXPECT().List(gomock.Any(), gomock.Any()).Return(nil, errors.New("db error"))
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/teacher/attendances", nil)
+
+		h.List(c)
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+	})
+}

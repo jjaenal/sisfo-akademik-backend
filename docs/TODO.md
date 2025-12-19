@@ -15,6 +15,41 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 
 ---
 
+## 🚀 Next Priority Tasks (Sorted)
+
+### High Priority (Critical) 🔴
+
+- [ ] 🔄 📝 Achieve 70% code coverage (40h)
+- [ ] 🔄 Complete security audit (16h)
+  - [x] Security review (Gosec scan)
+  - [x] Fix vulnerabilities (Permissions, Unhandled errors)
+  - [ ] Manual review of file inclusion warnings
+- [ ] 📝 Stakeholder sign-off (4h)
+
+### Medium Priority (Important) 🟡
+
+- [ ] 📝 Performance testing (16h)
+- [ ] 📝 Setup Kubernetes cluster (12h)
+- [ ] 📝 Create Helm charts (16h)
+- [ ] 📝 Configure auto-scaling (8h)
+- [ ] 📝 Setup Prometheus (6h)
+- [ ] 📝 Create Grafana dashboards (8h)
+- [ ] 📝 Configure alerting (6h)
+- [ ] 📝 Setup automated backups (8h)
+- [ ] 📝 Test disaster recovery (8h)
+- [ ] 📝 Write system architecture doc (8h)
+- [ ] 📝 Create ADRs (12h)
+- [ ] 📝 Write deployment guide (6h)
+- [ ] 📝 Write runbooks (16h)
+- [ ] 📝 Complete Swagger docs (12h)
+- [ ] 📝 Create Postman collections (8h)
+- [ ] 📝 Write E2E tests (24h)
+- [ ] 📝 Setup monitoring & alerting (12h)
+- [ ] 📝 Backup & DR verification (8h)
+- [ ] 📝 Documentation review (8h)
+
+---
+
 ## Global Infrastructure
 
 ### Repository & Project Setup
@@ -25,6 +60,12 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Configure Go workspace
   - Setup .gitignore for Go projects
   - **AC**: Directory structure matches standard layout
+
+- [x] ✅ 📝 Ensure Go version consistency (1.25.5) 🔴
+
+  - Update all go.mod files
+  - Update go.work
+  - **AC**: All modules using Go 1.25.5
 
 - [x] ✅ 📝 Setup GitHub/GitLab organization (2h) 🔴
 
@@ -1213,7 +1254,7 @@ Status: ✅ Created migrations for users, roles, permissions, role_permissions, 
   - PATCH /api/v1/admission/applications/:id/reject
   - **AC**: Management working
 
-- [x] ✅ 🔄 Implement selection process (10h) 🟡
+- [x] ✅ � Implement selection process (10h) 🟡
 
   - [x] POST /api/v1/admission/applications/:id/test-score
   - [x] POST /api/v1/admission/applications/:id/interview-score
@@ -1765,7 +1806,7 @@ Status: Round-robin multi-upstream aktif (env `*_URLS`), dengan circuit breaker 
 
 ### Unit Tests
 
-- [ ] 📝 Achieve 70% code coverage (40h) 🔴
+- [ ] 🔄 📝 Achieve 70% code coverage (40h) 🔴
   - Write missing tests
   - Fix failing tests
   - **AC**: Coverage >70%
@@ -1790,7 +1831,7 @@ Status: Round-robin multi-upstream aktif (env `*_URLS`), dengan circuit breaker 
 
 ### Pre-Production Checklist
 
-- [ ] � Complete security audit (16h) 🔴
+- [ ] 🔄 Complete security audit (16h) 🔴
 
   - [x] Security review (Gosec scan)
   - [x] Fix vulnerabilities (Permissions, Unhandled errors)

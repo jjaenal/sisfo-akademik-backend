@@ -98,3 +98,111 @@ func TestInvoiceHandler_Generate(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, w.Code)
 	})
 }
+
+func TestInvoiceHandler_GetByID(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUseCase := mocks.NewMockInvoiceUseCase(ctrl)
+	h := handler.NewInvoiceHandler(mockUseCase)
+
+	id := uuid.New()
+
+	t.Run("success", func(t *testing.T) {
+		expectedInvoice := &entity.Invoice{ID: id}
+		mockUseCase.EXPECT().GetByID(gomock.Any(), id).Return(expectedInvoice, nil)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/invoices/"+id.String(), nil)
+		c.Params = gin.Params{{Key: "id", Value: id.String()}}
+
+		h.GetByID(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("bad request - invalid id", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/invoices/invalid", nil)
+		c.Params = gin.Params{{Key: "id", Value: "invalid"}}
+
+		h.GetByID(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		mockUseCase.EXPECT().GetByID(gomock.Any(), id).Return(nil, errors.New("not found"))
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/invoices/"+id.String(), nil)
+		c.Params = gin.Params{{Key: "id", Value: id.String()}}
+
+		h.GetByID(c)
+
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+}
+
+func TestInvoiceHandler_List(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUseCase := mocks.NewMockInvoiceUseCase(ctrl)
+	h := handler.NewInvoiceHandler(mockUseCase)
+
+	tenantID := uuid.New()
+	studentID := uuid.New()
+
+	t.Run("success", func(t *testing.T) {
+		expectedInvoices := []*entity.Invoice{{TenantID: tenantID}}
+		mockUseCase.EXPECT().List(gomock.Any(), tenantID, studentID, entity.InvoiceStatusUnpaid).Return(expectedInvoices, nil)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/invoices?tenant_id="+tenantID.String()+"&student_id="+studentID.String()+"&status=UNPAID", nil)
+
+		h.List(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("bad request - invalid tenant_id", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/invoices?tenant_id=invalid", nil)
+
+		h.List(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("bad request - invalid student_id", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/invoices?tenant_id="+tenantID.String()+"&student_id=invalid", nil)
+
+		h.List(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("usecase error", func(t *testing.T) {
+		mockUseCase.EXPECT().List(gomock.Any(), tenantID, uuid.Nil, entity.InvoiceStatus("")).Return(nil, errors.New("db error"))
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/invoices?tenant_id="+tenantID.String(), nil)
+
+		h.List(c)
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+	})
+}

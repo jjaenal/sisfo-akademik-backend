@@ -27,8 +27,9 @@ func TestGradeHandler_InputGrade(t *testing.T) {
 	h := handler.NewGradeHandler(mockUseCase)
 
 	t.Run("success", func(t *testing.T) {
+		tenantID := uuid.New()
 		reqBody := map[string]interface{}{
-			"tenant_id":     "tenant-123",
+			"tenant_id":     tenantID.String(),
 			"assessment_id": uuid.New().String(),
 			"student_id":    uuid.New().String(),
 			"score":         85.0,
@@ -39,7 +40,7 @@ func TestGradeHandler_InputGrade(t *testing.T) {
 		body, _ := json.Marshal(reqBody)
 
 		mockUseCase.EXPECT().InputGrade(gomock.Any(), gomock.Any()).DoAndReturn(func(_ interface{}, grade *entity.Grade) error {
-			assert.Equal(t, "tenant-123", grade.TenantID)
+			assert.Equal(t, tenantID.String(), grade.TenantID)
 			assert.Equal(t, 85.0, grade.Score)
 			assert.Equal(t, "Good job", grade.Notes)
 			return nil
@@ -57,7 +58,7 @@ func TestGradeHandler_InputGrade(t *testing.T) {
 
 	t.Run("bad request - invalid score", func(t *testing.T) {
 		reqBody := map[string]interface{}{
-			"tenant_id":     "tenant-123",
+			"tenant_id":     uuid.New().String(),
 			"assessment_id": uuid.New().String(),
 			"student_id":    uuid.New().String(),
 			// Missing score or invalid

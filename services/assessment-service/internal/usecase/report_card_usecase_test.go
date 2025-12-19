@@ -164,3 +164,70 @@ func TestReportCardUseCase_GetPDF(t *testing.T) {
 		assert.Equal(t, "db error", err.Error())
 	})
 }
+
+func TestReportCardUseCase_GetByStudent(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockReportRepo := mocks.NewMockReportCardRepository(ctrl)
+	u := usecase.NewReportCardUseCase(mockReportRepo, nil, nil, nil, nil)
+	ctx := context.Background()
+	studentID := uuid.New()
+	semesterID := uuid.New()
+
+	t.Run("success", func(t *testing.T) {
+		expected := &entity.ReportCard{ID: uuid.New()}
+		mockReportRepo.EXPECT().GetByStudentAndSemester(ctx, studentID, semesterID).Return(expected, nil)
+
+		res, err := u.GetByStudent(ctx, studentID, semesterID)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		mockReportRepo.EXPECT().GetByStudentAndSemester(ctx, studentID, semesterID).Return(nil, errors.New("db error"))
+
+		res, err := u.GetByStudent(ctx, studentID, semesterID)
+		assert.Error(t, err)
+		assert.Nil(t, res)
+	})
+}
+
+func TestReportCardUseCase_Publish(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockReportRepo := mocks.NewMockReportCardRepository(ctrl)
+	u := usecase.NewReportCardUseCase(mockReportRepo, nil, nil, nil, nil)
+	ctx := context.Background()
+	id := uuid.New()
+
+	t.Run("success", func(t *testing.T) {
+		rc := &entity.ReportCard{ID: id, Status: entity.ReportCardStatusGenerated}
+		mockReportRepo.EXPECT().GetByID(ctx, id).Return(rc, nil)
+
+		mockReportRepo.EXPECT().Update(ctx, gomock.Any()).DoAndReturn(func(ctx context.Context, r *entity.ReportCard) error {
+			assert.Equal(t, entity.ReportCardStatusPublished, r.Status)
+			assert.NotNil(t, r.PublishedAt)
+			return nil
+		})
+
+		err := u.Publish(ctx, id)
+		assert.NoError(t, err)
+	})
+
+	t.Run("not_found", func(t *testing.T) {
+		mockReportRepo.EXPECT().GetByID(ctx, id).Return(nil, nil)
+
+		err := u.Publish(ctx, id)
+		assert.Error(t, err)
+		assert.Equal(t, "report card not found", err.Error())
+	})
+
+	t.Run("db_error_get", func(t *testing.T) {
+		mockReportRepo.EXPECT().GetByID(ctx, id).Return(nil, errors.New("db error"))
+
+		err := u.Publish(ctx, id)
+		assert.Error(t, err)
+	})
+}

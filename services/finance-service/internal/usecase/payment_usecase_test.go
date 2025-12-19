@@ -107,9 +107,68 @@ func TestPaymentUseCase_RecordPayment(t *testing.T) {
 		}
 
 		mockInvoiceRepo.EXPECT().GetByID(gomock.Any(), invoiceID).Return(invoice, nil)
+		// We expect NO call to paymentRepo.Create because it should fail before that
 
 		err := u.RecordPayment(context.Background(), paymentExceed)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "exceeds remaining amount")
+	})
+}
+
+func TestPaymentUseCase_GetByID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPaymentRepo := mocks.NewMockPaymentRepository(ctrl)
+	mockInvoiceRepo := mocks.NewMockInvoiceRepository(ctrl)
+	timeout := 2 * time.Second
+	u := usecase.NewPaymentUseCase(mockPaymentRepo, mockInvoiceRepo, timeout)
+
+	id := uuid.New()
+
+	t.Run("success", func(t *testing.T) {
+		payment := &entity.Payment{ID: id}
+		mockPaymentRepo.EXPECT().GetByID(gomock.Any(), id).Return(payment, nil)
+
+		res, err := u.GetByID(context.Background(), id)
+		assert.NoError(t, err)
+		assert.Equal(t, payment, res)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		mockPaymentRepo.EXPECT().GetByID(gomock.Any(), id).Return(nil, errors.New("not found"))
+
+		res, err := u.GetByID(context.Background(), id)
+		assert.Error(t, err)
+		assert.Nil(t, res)
+	})
+}
+
+func TestPaymentUseCase_ListByInvoiceID(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockPaymentRepo := mocks.NewMockPaymentRepository(ctrl)
+	mockInvoiceRepo := mocks.NewMockInvoiceRepository(ctrl)
+	timeout := 2 * time.Second
+	u := usecase.NewPaymentUseCase(mockPaymentRepo, mockInvoiceRepo, timeout)
+
+	invoiceID := uuid.New()
+
+	t.Run("success", func(t *testing.T) {
+		payments := []*entity.Payment{{InvoiceID: invoiceID}}
+		mockPaymentRepo.EXPECT().ListByInvoiceID(gomock.Any(), invoiceID).Return(payments, nil)
+
+		res, err := u.ListByInvoiceID(context.Background(), invoiceID)
+		assert.NoError(t, err)
+		assert.Equal(t, payments, res)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		mockPaymentRepo.EXPECT().ListByInvoiceID(gomock.Any(), invoiceID).Return(nil, errors.New("db error"))
+
+		res, err := u.ListByInvoiceID(context.Background(), invoiceID)
+		assert.Error(t, err)
+		assert.Nil(t, res)
 	})
 }

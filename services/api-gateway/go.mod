@@ -1,6 +1,6 @@
 module github.com/jjaenal/sisfo-akademik-backend/services/api-gateway
 
-go 1.25.0
+go 1.25.5
 
 require (
 	github.com/jjaenal/sisfo-akademik-backend/shared v0.0.0-00010101000000-000000000000

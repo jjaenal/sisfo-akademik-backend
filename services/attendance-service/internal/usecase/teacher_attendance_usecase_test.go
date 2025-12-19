@@ -103,3 +103,60 @@ func TestTeacherAttendanceUseCase_CheckOut(t *testing.T) {
 		assert.Equal(t, "attendance record not found", err.Error())
 	})
 }
+
+func TestTeacherAttendanceUseCase_GetByTeacherAndDate(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockTeacherAttendanceRepository(ctrl)
+	timeout := 2 * time.Second
+	u := usecase.NewTeacherAttendanceUseCase(mockRepo, timeout)
+
+	teacherID := uuid.New()
+	now := time.Now()
+
+	t.Run("success", func(t *testing.T) {
+		expected := &entity.TeacherAttendance{ID: uuid.New(), TeacherID: teacherID}
+		mockRepo.EXPECT().GetByTeacherAndDate(gomock.Any(), teacherID, now).Return(expected, nil)
+
+		res, err := u.GetByTeacherAndDate(context.Background(), teacherID, now)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		mockRepo.EXPECT().GetByTeacherAndDate(gomock.Any(), teacherID, now).Return(nil, errors.New("db error"))
+
+		res, err := u.GetByTeacherAndDate(context.Background(), teacherID, now)
+		assert.Error(t, err)
+		assert.Nil(t, res)
+	})
+}
+
+func TestTeacherAttendanceUseCase_List(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockRepo := mocks.NewMockTeacherAttendanceRepository(ctrl)
+	timeout := 2 * time.Second
+	u := usecase.NewTeacherAttendanceUseCase(mockRepo, timeout)
+
+	t.Run("success", func(t *testing.T) {
+		expected := []*entity.TeacherAttendance{{ID: uuid.New()}}
+		filter := map[string]interface{}{"status": "present"}
+		mockRepo.EXPECT().List(gomock.Any(), filter).Return(expected, nil)
+
+		res, err := u.List(context.Background(), filter)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		filter := map[string]interface{}{"status": "present"}
+		mockRepo.EXPECT().List(gomock.Any(), filter).Return(nil, errors.New("db error"))
+
+		res, err := u.List(context.Background(), filter)
+		assert.Error(t, err)
+		assert.Nil(t, res)
+	})
+}

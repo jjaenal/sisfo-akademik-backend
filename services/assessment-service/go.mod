@@ -1,6 +1,6 @@
 module github.com/jjaenal/sisfo-akademik-backend/services/assessment-service
 
-go 1.25.0
+go 1.25.5
 
 replace github.com/jjaenal/sisfo-akademik-backend/shared => ../../shared
 

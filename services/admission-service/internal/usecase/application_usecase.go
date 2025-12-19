@@ -157,12 +157,12 @@ func (u *applicationUseCase) RegisterStudent(ctx context.Context, id uuid.UUID) 
 		return errors.New("application not found")
 	}
 
-	if app.Status != entity.ApplicationStatusAccepted {
-		return errors.New("application must be accepted to register")
-	}
-
 	if app.Status == entity.ApplicationStatusRegistered {
 		return errors.New("student already registered")
+	}
+
+	if app.Status != entity.ApplicationStatusAccepted {
+		return errors.New("application must be accepted to register")
 	}
 
 	// Publish event to create User and Student records

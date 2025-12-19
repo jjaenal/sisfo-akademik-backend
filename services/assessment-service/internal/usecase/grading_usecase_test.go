@@ -103,6 +103,74 @@ func TestGradingUseCase_InputGrade(t *testing.T) {
 	})
 }
 
+func TestGradingUseCase_GetStudentGrades(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAssessmentRepo := mocks.NewMockAssessmentRepository(ctrl)
+	mockGradeRepo := mocks.NewMockGradeRepository(ctrl)
+	timeout := 2 * time.Second
+	u := usecase.NewGradingUseCase(mockAssessmentRepo, mockGradeRepo, timeout)
+
+	studentID := uuid.New()
+	classID := uuid.New()
+	semesterID := uuid.New()
+
+	t.Run("success", func(t *testing.T) {
+		grades := []*entity.Grade{{StudentID: studentID, AssessmentID: uuid.New()}}
+		assessment := &entity.Assessment{ID: grades[0].AssessmentID, ClassID: classID, SemesterID: semesterID}
+		
+		mockGradeRepo.EXPECT().GetByStudentID(gomock.Any(), studentID).Return(grades, nil)
+		mockAssessmentRepo.EXPECT().GetByID(gomock.Any(), grades[0].AssessmentID).Return(assessment, nil)
+
+		res, err := u.GetStudentGrades(context.Background(), studentID, classID, semesterID)
+		assert.NoError(t, err)
+		assert.Equal(t, grades, res)
+	})
+
+	t.Run("error", func(t *testing.T) {
+		mockGradeRepo.EXPECT().GetByStudentID(gomock.Any(), studentID).Return(nil, errors.New("db error"))
+
+		res, err := u.GetStudentGrades(context.Background(), studentID, classID, semesterID)
+		assert.Error(t, err)
+		assert.Nil(t, res)
+	})
+}
+
+func TestGradingUseCase_ApproveGrade(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAssessmentRepo := mocks.NewMockAssessmentRepository(ctrl)
+	mockGradeRepo := mocks.NewMockGradeRepository(ctrl)
+	timeout := 2 * time.Second
+	u := usecase.NewGradingUseCase(mockAssessmentRepo, mockGradeRepo, timeout)
+
+	gradeID := uuid.New()
+	approverID := uuid.New()
+
+	t.Run("success", func(t *testing.T) {
+		grade := &entity.Grade{ID: gradeID, Status: entity.GradeStatusDraft}
+		mockGradeRepo.EXPECT().GetByID(gomock.Any(), gradeID).Return(grade, nil)
+		mockGradeRepo.EXPECT().Update(gomock.Any(), gomock.Any()).DoAndReturn(func(ctx context.Context, g *entity.Grade) error {
+			// entity.GradeStatusApproved doesn't exist, using GradeStatusFinal
+			assert.Equal(t, entity.GradeStatusFinal, g.Status)
+			assert.Equal(t, &approverID, g.ApprovedBy)
+			return nil
+		})
+
+		err := u.ApproveGrade(context.Background(), gradeID, approverID)
+		assert.NoError(t, err)
+	})
+
+	t.Run("grade not found", func(t *testing.T) {
+		mockGradeRepo.EXPECT().GetByID(gomock.Any(), gradeID).Return(nil, errors.New("not found"))
+
+		err := u.ApproveGrade(context.Background(), gradeID, approverID)
+		assert.Error(t, err)
+	})
+}
+
 func TestGradingUseCase_CalculateFinalScore(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
