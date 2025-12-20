@@ -17,6 +17,7 @@ import (
 
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/event"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/handler"
+	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/middleware"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/repository/postgres"
 	"github.com/jjaenal/sisfo-akademik-backend/services/academic-service/internal/usecase"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/rabbit"
@@ -58,7 +59,7 @@ func main() {
 	}
 
 	// Tracer
-	tp, err := tracer.InitTracer("academic-service", "http://jaeger:14268/api/traces")
+	tp, err := tracer.InitTracer("academic-service", cfg.JaegerEndpoint)
 	if err != nil {
 		log.Fatal("failed to init tracer", zap.Error(err))
 	}
@@ -137,6 +138,9 @@ func main() {
 		log.Fatal("Failed to set trusted proxies", zap.Error(err))
 	}
 	r.Use(gin.Logger(), gin.Recovery())
+	limiter := redisutil.NewLimiterFromCounter(redis.Raw())
+	r.Use(middleware.SecurityHeaders())
+	r.Use(middleware.RateLimitByPolicy(limiter, 100, 30, map[string]int{}))
 
 	// Health Check
 	r.GET("/api/v1/health", func(c *gin.Context) {

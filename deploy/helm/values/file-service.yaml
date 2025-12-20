@@ -1,0 +1,24 @@
+image:
+  repository: sisfo-akademik/file-service
+  tag: latest
+
+service:
+  port: 80
+  targetPort: 9098
+
+env:
+  APP_ENV: "production"
+  APP_SERVICE_NAME: "file-service"
+  APP_HTTP_PORT: "9098"
+  APP_POSTGRES_URL: "postgres://user:pass@postgres:5432/file_db?sslmode=disable"
+  APP_REDIS_ADDR: "redis:6379"
+  APP_RABBIT_URL: "amqp://user:pass@rabbitmq:5672/"
+  APP_MINIO_ENDPOINT: "minio:9000"
+  APP_MINIO_ACCESS_KEY: "minioadmin"
+  APP_MINIO_SECRET_KEY: "minioadmin"
+  APP_MINIO_BUCKET_NAME: "files"
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http

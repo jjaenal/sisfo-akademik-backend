@@ -96,4 +96,32 @@ func TestGradeRepository_CRUD(t *testing.T) {
 	assert.Equal(t, grade.ID, fetchedByID.ID)
 	assert.NotNil(t, fetchedByID.ApprovedBy)
 	assert.Equal(t, *grade.ApprovedBy, *fetchedByID.ApprovedBy)
+
+	// Test CreateBulk
+	grade2 := &entity.Grade{
+		ID:           uuid.New(),
+		TenantID:     tenantID.String(),
+		AssessmentID: assessment.ID,
+		StudentID:    uuid.New(),
+		Score:        90.0,
+		Status:       entity.GradeStatusDraft,
+		GradedBy:     assessment.TeacherID,
+	}
+	grade3 := &entity.Grade{
+		ID:           uuid.New(),
+		TenantID:     tenantID.String(),
+		AssessmentID: assessment.ID,
+		StudentID:    uuid.New(),
+		Score:        95.0,
+		Status:       entity.GradeStatusDraft,
+		GradedBy:     assessment.TeacherID,
+	}
+	
+	err = repo.CreateBulk(ctx, []*entity.Grade{grade2, grade3})
+	assert.NoError(t, err)
+
+	// Test GetByAssessmentID
+	gradesByAssessment, err := repo.GetByAssessmentID(ctx, assessment.ID)
+	assert.NoError(t, err)
+	assert.GreaterOrEqual(t, len(gradesByAssessment), 3) // grade, grade2, grade3
 }

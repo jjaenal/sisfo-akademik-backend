@@ -408,6 +408,38 @@ func TestStudentAttendanceHandler_GetByClassAndDate(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 	})
+
+	t.Run("bad request - invalid class id", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/attendance/students?class_id=invalid&date="+date, nil)
+
+		h.GetByClassAndDate(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("bad request - invalid date format", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/attendance/students?class_id="+classID.String()+"&date=invalid", nil)
+
+		h.GetByClassAndDate(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("usecase error", func(t *testing.T) {
+		mockUseCase.EXPECT().GetByClassAndDate(gomock.Any(), classID, parsedDate).Return(nil, errors.New("db error"))
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest(http.MethodGet, "/attendance/students?class_id="+classID.String()+"&date="+date, nil)
+
+		h.GetByClassAndDate(c)
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+	})
 }
 
 func TestStudentAttendanceHandler_Update(t *testing.T) {

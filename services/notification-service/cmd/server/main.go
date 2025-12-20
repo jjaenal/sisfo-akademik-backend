@@ -15,12 +15,14 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/services/notification-service/internal/handler"
 	"github.com/jjaenal/sisfo-akademik-backend/services/notification-service/internal/infrastructure/email"
 	"github.com/jjaenal/sisfo-akademik-backend/services/notification-service/internal/infrastructure/whatsapp"
+	"github.com/jjaenal/sisfo-akademik-backend/services/notification-service/internal/middleware"
 	"github.com/jjaenal/sisfo-akademik-backend/services/notification-service/internal/repository/postgres"
 	"github.com/jjaenal/sisfo-akademik-backend/services/notification-service/internal/usecase"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/rabbit"
+	redisutil "github.com/jjaenal/sisfo-akademik-backend/shared/pkg/redis"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/tracer"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
@@ -45,7 +47,7 @@ func main() {
 	logr.Info("config loaded")
 
 	// Tracer
-	tp, err := tracer.InitTracer("notification-service", "http://jaeger:14268/api/traces")
+	tp, err := tracer.InitTracer("notification-service", cfg.JaegerEndpoint)
 	if err != nil {
 		logr.Fatal("failed to init tracer", zap.Error(err))
 	}
@@ -95,6 +97,10 @@ func main() {
 	// Init Gin
 	r := gin.Default()
 	r.Use(otelgin.Middleware("notification-service"))
+	redis := redisutil.New(cfg.RedisAddr)
+	limiter := redisutil.NewLimiterFromCounter(redis.Raw())
+	r.Use(middleware.SecurityHeaders())
+	r.Use(middleware.RateLimitByPolicy(limiter, 100, 30, map[string]int{}))
 	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	r.GET("/api/v1/health", func(c *gin.Context) {

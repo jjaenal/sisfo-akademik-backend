@@ -17,7 +17,6 @@ import (
 	"github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/handler"
 	"github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/repository/postgres"
 	"github.com/jjaenal/sisfo-akademik-backend/services/attendance-service/internal/usecase"
-	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -59,14 +58,7 @@ func ensureMigrations(t *testing.T, db *pgxpool.Pool) {
 	}
 }
 
-func makeCfg() config.Config {
-	return config.Config{
-		Env:         "test",
-		ServiceName: "attendance-service",
-		HTTPPort:    0,
-		PostgresURL: "postgres://dev:dev@localhost:55432/devdb?sslmode=disable",
-	}
-}
+
 
 func setupServer(t *testing.T) (*gin.Engine, *pgxpool.Pool) {
 	gin.SetMode(gin.TestMode)

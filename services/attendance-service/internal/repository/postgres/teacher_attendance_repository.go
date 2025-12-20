@@ -158,7 +158,6 @@ func (r *teacherAttendanceRepository) List(ctx context.Context, filter map[strin
 	if endDate, ok := filter["end_date"]; ok {
 		conditions = append(conditions, fmt.Sprintf("attendance_date <= $%d", argCount))
 		args = append(args, endDate)
-		argCount++
 	}
 
 	if len(conditions) > 0 {

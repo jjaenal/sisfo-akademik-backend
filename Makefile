@@ -20,6 +20,7 @@ test:
 	@cd services/attendance-service && env -u GOROOT go test ./...
 	@cd services/finance-service && env -u GOROOT go test ./...
 	@cd services/notification-service && env -u GOROOT go test ./...
+	@cd services/file-service && env -u GOROOT go test ./...
 	@cd services/api-gateway && env -u GOROOT go test ./...
 
 test-coverage:
@@ -33,7 +34,16 @@ test-coverage:
 	@cd services/attendance-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/attendance.out
 	@cd services/finance-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/finance.out
 	@cd services/notification-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/notification.out
+	@cd services/file-service && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/file.out
 	@cd services/api-gateway && env -u GOROOT go test ./... -covermode=atomic -coverprofile=$(shell pwd)/coverage/gateway.out
+
+load-test-smoke:
+	@echo "Running smoke test..."
+	@docker run --rm -i --add-host=host.docker.internal:host-gateway -v $(shell pwd)/performance-tests:/scripts --network host grafana/k6 run /scripts/smoke.js
+
+load-test-ratelimit:
+	@echo "Running rate limit test..."
+	@docker run --rm -i --add-host=host.docker.internal:host-gateway -v $(shell pwd)/performance-tests:/scripts --network host grafana/k6 run /scripts/rate_limit.js
 
 lint:
 	@if command -v golangci-lint >/dev/null 2>&1; then \

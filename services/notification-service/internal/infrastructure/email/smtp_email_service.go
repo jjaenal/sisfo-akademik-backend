@@ -15,9 +15,8 @@ type smtpEmailService struct {
 
 func NewSMTPEmailService(cfg config.Config) service.EmailService {
 	dialer := gomail.NewDialer(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPassword)
-	// In development, we might want to skip verification if using a local mock SMTP or self-signed cert
-	if cfg.Env == "development" {
-		dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true} // #nosec G402
+	dialer.TLSConfig = &tls.Config{
+		MinVersion: tls.VersionTLS13,
 	}
 
 	return &smtpEmailService{

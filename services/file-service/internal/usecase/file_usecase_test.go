@@ -199,29 +199,95 @@ func TestFileUseCase_List(t *testing.T) {
 			{ID: uuid.New(), Name: "file2.txt"},
 		}
 
-		// Repository List usually returns data and error. Count might be a separate call or part of List.
-		// Checking domain/file.go: List(ctx context.Context, tenantID uuid.UUID, limit, offset int) ([]*File, error)
-		// It doesn't seem to return total count in the interface I saw.
-		// But UseCase List returns ([], int64, error). 
-		// I need to check how UseCase implements List to see where it gets the count.
-		// Assuming for now it just returns 0 or I missed a Count method in repo.
-		// Let's check UseCase implementation if possible, but for now I'll assume repo.List is called.
-		
 		repo.On("List", ctx, tenantID, 10, 0).Return(files, nil)
-		// If usecase calls Count, I'd need to mock it. But I didn't see Count in Repo interface.
-		// Maybe UseCase just returns len(files) or 0? 
-		// Or maybe I missed Count in the Repo interface read?
-		// Let's re-read the repo interface from domain/file.go in my thought process... 
-		// "List(ctx context.Context, tenantID uuid.UUID, limit, offset int) ([]*File, error)"
-		// No Count method. 
-		// So UseCase probably returns 0 or implements it differently. 
-		// I will just handle the return values of uc.List.
-		
 		storage.On("GetURL", ctx, mock.Anything).Return("http://example.com/file", nil)
 
 		res, _, err := uc.List(ctx, tenantID, 1, 10)
 		assert.NoError(t, err)
 		assert.Len(t, res, 2)
 		assert.NotEmpty(t, res[0].URL)
+	})
+}
+
+func TestFileUseCase_Get(t *testing.T) {
+	ctx := context.Background()
+	id := uuid.New()
+	path := "bucket/tenant/2025/12/file.ext"
+
+	t.Run("success", func(t *testing.T) {
+		repo := new(MockFileRepository)
+		storage := new(MockStorageProvider)
+		uc := NewFileUseCase(repo, storage)
+
+		file := &domain.File{ID: id, Path: path}
+		repo.On("GetByID", ctx, id).Return(file, nil)
+		storage.On("GetURL", ctx, path).Return("http://example.com/file.ext", nil)
+
+		res, err := uc.Get(ctx, id)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
+		assert.Equal(t, "http://example.com/file.ext", res.URL)
+	})
+
+	t.Run("not found", func(t *testing.T) {
+		repo := new(MockFileRepository)
+		storage := new(MockStorageProvider)
+		uc := NewFileUseCase(repo, storage)
+
+		repo.On("GetByID", ctx, id).Return(nil, nil)
+
+		res, err := uc.Get(ctx, id)
+		assert.NoError(t, err)
+		assert.Nil(t, res)
+	})
+
+	t.Run("url error", func(t *testing.T) {
+		repo := new(MockFileRepository)
+		storage := new(MockStorageProvider)
+		uc := NewFileUseCase(repo, storage)
+
+		file := &domain.File{ID: id, Path: path}
+		repo.On("GetByID", ctx, id).Return(file, nil)
+		storage.On("GetURL", ctx, path).Return("", assert.AnError)
+
+		res, err := uc.Get(ctx, id)
+		assert.Error(t, err)
+		assert.Nil(t, res)
+	})
+}
+
+func TestFileUseCase_Upload_ErrorPaths(t *testing.T) {
+	ctx := context.Background()
+	tenantID := uuid.New()
+	userID := uuid.New()
+	header := &multipart.FileHeader{Filename: "image.png", Size: 2048}
+
+	t.Run("repo create error triggers rollback", func(t *testing.T) {
+		repo := new(MockFileRepository)
+		storage := new(MockStorageProvider)
+		uc := NewFileUseCase(repo, storage)
+
+		storage.On("Upload", ctx, nil, header, mock.Anything).Return("stored/path", nil)
+		repo.On("Create", ctx, mock.AnythingOfType("*domain.File")).Return(assert.AnError)
+		storage.On("Delete", ctx, "stored/path").Return(nil)
+
+		res, err := uc.Upload(ctx, nil, header, tenantID, userID, "uploads")
+		assert.Error(t, err)
+		assert.Nil(t, res)
+		storage.AssertCalled(t, "Delete", ctx, "stored/path")
+	})
+
+	t.Run("get URL error after create", func(t *testing.T) {
+		repo := new(MockFileRepository)
+		storage := new(MockStorageProvider)
+		uc := NewFileUseCase(repo, storage)
+
+		storage.On("Upload", ctx, nil, header, mock.Anything).Return("stored/path", nil)
+		repo.On("Create", ctx, mock.AnythingOfType("*domain.File")).Return(nil)
+		storage.On("GetURL", ctx, "stored/path").Return("", assert.AnError)
+
+		res, err := uc.Upload(ctx, nil, header, tenantID, userID, "uploads")
+		assert.Error(t, err)
+		assert.Nil(t, res)
 	})
 }

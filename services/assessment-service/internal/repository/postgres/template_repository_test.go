@@ -67,6 +67,34 @@ func TestTemplateRepository_CRUD(t *testing.T) {
 	assert.Equal(t, "Updated Template", fetchedUpdated.Name)
 	assert.Equal(t, "New Header", fetchedUpdated.Config.HeaderText)
 
+	// Test Update IsDefault logic
+	template2 := &entity.ReportCardTemplate{
+		ID:        uuid.New(),
+		TenantID:  tenantID,
+		Name:      "Second Template",
+		IsDefault: false,
+		Config:    entity.TemplateConfig{},
+		CreatedAt: time.Now().Truncate(time.Second),
+		UpdatedAt: time.Now().Truncate(time.Second),
+	}
+	err = repo.Create(ctx, template2)
+	assert.NoError(t, err)
+
+	// Set template2 as default, should unset template
+	template2.IsDefault = true
+	err = repo.Update(ctx, template2)
+	assert.NoError(t, err)
+
+	// Check template1 is no longer default
+	fetched1, err := repo.GetByID(ctx, templateID)
+	assert.NoError(t, err)
+	assert.False(t, fetched1.IsDefault)
+	
+	// Check template2 is default
+	fetched2, err := repo.GetByID(ctx, template2.ID)
+	assert.NoError(t, err)
+	assert.True(t, fetched2.IsDefault)
+
 	// Test Delete
 	err = repo.Delete(ctx, templateID)
 	assert.NoError(t, err)

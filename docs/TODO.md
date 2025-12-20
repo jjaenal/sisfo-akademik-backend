@@ -20,6 +20,10 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 ### High Priority (Critical) 🔴
 
 - [ ] 🔄 📝 Achieve 70% code coverage (40h)
+  - [x] File Service — UseCase coverage ≥85% (88.7%)
+  - [x] File Service — Handler coverage ≥90% (93.3%)
+  - [x] File Service — Repository coverage ≥90% (90.4%)
+  - [x] Attendance Service — School client coverage ≥80% (88.9%)
 - [ ] 🔄 Complete security audit (16h)
   - [x] Security review (Gosec scan)
   - [x] Fix vulnerabilities (Permissions, Unhandled errors)
@@ -267,6 +271,7 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 - [x] ✅ 📝 Setup Jaeger (4h) 🟡
   - Jaeger container
   - Trace instrumentation
+  - Log TraceID Injection
   - **AC**: Traces visible in Jaeger
 
 ---

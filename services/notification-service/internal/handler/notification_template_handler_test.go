@@ -98,6 +98,74 @@ func TestNotificationTemplateHandler_GetByID(t *testing.T) {
 	})
 }
 
+func TestNotificationTemplateHandler_Update(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUseCase := mocks.NewMockNotificationTemplateUseCase(ctrl)
+	h := handler.NewNotificationTemplateHandler(mockUseCase)
+
+	t.Run("success", func(t *testing.T) {
+		id := uuid.New()
+		req := entity.NotificationTemplate{
+			Name:         "Welcome Updated",
+			Channel:      entity.NotificationChannelEmail,
+			BodyTemplate: "Hello Updated",
+		}
+
+		mockUseCase.EXPECT().Update(gomock.Any(), gomock.Any()).Return(nil)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: id.String()}}
+		
+		body, _ := json.Marshal(req)
+		c.Request, _ = http.NewRequest(http.MethodPut, "/templates/"+id.String(), bytes.NewBuffer(body))
+
+		h.Update(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("bad request - invalid id", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: "invalid"}}
+		
+		c.Request, _ = http.NewRequest(http.MethodPut, "/templates/invalid", nil)
+
+		h.Update(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+}
+
+
+
+func TestNotificationTemplateHandler_Delete(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockUseCase := mocks.NewMockNotificationTemplateUseCase(ctrl)
+	h := handler.NewNotificationTemplateHandler(mockUseCase)
+
+	t.Run("success", func(t *testing.T) {
+		id := uuid.New()
+		mockUseCase.EXPECT().Delete(gomock.Any(), id).Return(nil)
+
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: id.String()}}
+		c.Request, _ = http.NewRequest(http.MethodDelete, "/templates/"+id.String(), nil)
+
+		h.Delete(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+}
+
 func TestNotificationTemplateHandler_List(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	ctrl := gomock.NewController(t)

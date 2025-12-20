@@ -126,7 +126,9 @@ func (r *studentAttendanceRepository) BulkCreate(ctx context.Context, attendance
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback(ctx)
+	defer func() {
+		_ = tx.Rollback(ctx)
+	}()
 
 	query := `
 		INSERT INTO student_attendance (

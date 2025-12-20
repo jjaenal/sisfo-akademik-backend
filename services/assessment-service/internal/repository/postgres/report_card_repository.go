@@ -232,18 +232,18 @@ func (r *reportCardRepository) Update(ctx context.Context, rc *entity.ReportCard
 		d.ReportCardID = rc.ID
 		detailQuery := `
 			INSERT INTO report_card_details (
-				id, report_card_id, subject_id, subject_name, credit, 
-				final_score, grade_letter, comments, 
+				id, tenant_id, report_card_id, subject_id, subject_name, credit, 
+				final_score, grade_letter, teacher_id, comments, 
 				created_at, updated_at
 			) VALUES (
-				$1, $2, $3, $4, $5,
-				$6, $7, $8,
-				$9, $10
+				$1, $2, $3, $4, $5, $6,
+				$7, $8, $9, $10,
+				$11, $12
 			)
 		`
 		_, err = tx.Exec(ctx, detailQuery,
-			d.ID, d.ReportCardID, d.SubjectID, d.SubjectName, d.Credit,
-			d.FinalScore, d.GradeLetter, d.Comments,
+			d.ID, rc.TenantID, d.ReportCardID, d.SubjectID, d.SubjectName, d.Credit,
+			d.FinalScore, d.GradeLetter, d.TeacherID, d.Comments,
 			time.Now(), time.Now(),
 		)
 		if err != nil {

@@ -27,13 +27,12 @@ var perPrefixLimits = map[string]int{
 }
 
 func main() {
-	if _, err := tracer.InitTracer("api-gateway", "http://jaeger:14268/api/traces"); err != nil {
-		log.Printf("init tracer failed: %v", err)
-	}
-
 	cfg, err := config.Load()
 	if err != nil {
 		panic(err)
+	}
+	if _, err := tracer.InitTracer("api-gateway", cfg.JaegerEndpoint); err != nil {
+		log.Printf("init tracer failed: %v", err)
 	}
 	l, err := logger.New(cfg.Env)
 	if err != nil {
@@ -49,7 +48,9 @@ func main() {
 		middleware.RequestID(
 			middleware.Logging(l,
 				middleware.RateLimitByPolicy(limiter, 100, 30, perPrefixLimits,
-					middleware.CORS(cfg.CORSAllowedOrigins, mux),
+					withSecurityHeaders(
+						middleware.CORS(cfg.CORSAllowedOrigins, mux),
+					),
 				),
 			),
 		),
@@ -64,6 +65,20 @@ func main() {
 		l.Error("gateway failed")
 		panic(err)
 	}
+}
+
+func withSecurityHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		h := w.Header()
+		h.Set("X-Content-Type-Options", "nosniff")
+		h.Set("X-Frame-Options", "DENY")
+		h.Set("X-XSS-Protection", "1; mode=block")
+		h.Set("Referrer-Policy", "no-referrer")
+		h.Set("Permissions-Policy", "interest-cohort=()")
+		h.Set("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
+		h.Set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload")
+		next.ServeHTTP(w, r)
+	})
 }
 
 func registerRoutes(mux *http.ServeMux, cfg config.Config) {
@@ -227,20 +242,6 @@ func (b *breaker) recordFailure() {
 	}
 }
 
-func withBreaker(name string, next http.Handler) http.Handler {
-	br := newBreaker(5, 30*time.Second)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !br.allow() {
-			httpx.Error(w, http.StatusServiceUnavailable, "1001", "Service unavailable", nil)
-			return
-		}
-		rr := &recWriter{ResponseWriter: w, status: 200}
-		next.ServeHTTP(rr, r)
-		if rr.status >= 500 {
-			br.recordFailure()
-		}
-	})
-}
 
 type rrProxy struct {
 	proxies    []*httputil.ReverseProxy

@@ -101,4 +101,25 @@ func TestStudentAttendanceRepository_Create(t *testing.T) {
 	assert.NoError(t, err)
 	// 1 from initial create + 2 from bulk create = 3
 	assert.Len(t, resultsBulk, 3)
+
+	// Test GetByTenantAndDate
+	tenantUUID := uuid.MustParse(tenantID)
+	tenantResults, err := repo.GetByTenantAndDate(ctx, tenantUUID, attendanceDate)
+	assert.NoError(t, err)
+	assert.GreaterOrEqual(t, len(tenantResults), 3)
+
+	// Test GetByDateRange
+	dateRangeResults, err := repo.GetByDateRange(ctx, tenantUUID, attendanceDate, attendanceDate, &classID)
+	assert.NoError(t, err)
+	assert.GreaterOrEqual(t, len(dateRangeResults), 3)
+
+	// Test GetByDateRange without classID
+	dateRangeAllResults, err := repo.GetByDateRange(ctx, tenantUUID, attendanceDate, attendanceDate, nil)
+	assert.NoError(t, err)
+	assert.GreaterOrEqual(t, len(dateRangeAllResults), 3)
+
+	// Test GetSummary without semesterID
+	summaryNoSemester, err := repo.GetSummary(ctx, studentID, uuid.Nil)
+	assert.NoError(t, err)
+	assert.NotNil(t, summaryNoSemester)
 }

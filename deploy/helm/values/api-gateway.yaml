@@ -1,0 +1,42 @@
+image:
+  repository: sisfo-akademik/api-gateway
+  tag: latest
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8999
+
+env:
+  APP_ENV: "production"
+  APP_SERVICE_NAME: "api-gateway"
+  APP_HTTP_PORT: "8999"
+  APP_POSTGRES_URL: "postgres://user:pass@postgres:5432/db?sslmode=disable"
+  APP_REDIS_ADDR: "redis:6379"
+  APP_RABBIT_URL: "amqp://user:pass@rabbitmq:5672/"
+  APP_JWT_ACCESS_SECRET: "changeme"
+  APP_JWT_REFRESH_SECRET: "changeme"
+  APP_JWT_ISSUER: "sisfo-akademik"
+  APP_JWT_AUDIENCE: "api"
+  APP_CORS_ALLOWED_ORIGINS: "*"
+  APP_RATE_LIMIT_PER_MINUTE: "60"
+  APP_UPSTREAM_AUTH_URL: "http://auth-service"
+  APP_UPSTREAM_ACADEMIC_URLS: "http://academic-service"
+  APP_UPSTREAM_ATTENDANCE_URL: "http://attendance-service"
+  APP_UPSTREAM_ASSESSMENT_URL: "http://assessment-service"
+  APP_UPSTREAM_ADMISSION_URL: "http://admission-service"
+  APP_UPSTREAM_FINANCE_URL: "http://finance-service"
+  APP_UPSTREAM_NOTIFICATION_URL: "http://notification-service"
+  APP_UPSTREAM_FILE_URL: "http://file-service"
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 15
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10

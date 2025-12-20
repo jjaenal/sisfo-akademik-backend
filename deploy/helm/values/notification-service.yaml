@@ -1,0 +1,26 @@
+image:
+  repository: sisfo-akademik/notification-service
+  tag: latest
+
+service:
+  port: 80
+  targetPort: 9097
+
+env:
+  APP_ENV: "production"
+  APP_SERVICE_NAME: "notification-service"
+  APP_HTTP_PORT: "9097"
+  APP_POSTGRES_URL: "postgres://user:pass@postgres:5432/notification_db?sslmode=disable"
+  APP_REDIS_ADDR: "redis:6379"
+  APP_RABBIT_URL: "amqp://user:pass@rabbitmq:5672/"
+  APP_SMTP_HOST: "smtp.example.com"
+  APP_SMTP_PORT: "587"
+  APP_SMTP_USER: "user"
+  APP_SMTP_PASS: "pass"
+  APP_WHATSAPP_API_URL: "https://api.whatsapp.com"
+  APP_WHATSAPP_API_KEY: "key"
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http

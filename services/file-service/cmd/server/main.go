@@ -8,12 +8,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jjaenal/sisfo-akademik-backend/services/file-service/internal/handler"
+	imiddleware "github.com/jjaenal/sisfo-akademik-backend/services/file-service/internal/middleware"
 	"github.com/jjaenal/sisfo-akademik-backend/services/file-service/internal/repository"
 	"github.com/jjaenal/sisfo-akademik-backend/services/file-service/internal/usecase"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/middleware"
+	redisutil "github.com/jjaenal/sisfo-akademik-backend/shared/pkg/redis"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.uber.org/zap"
@@ -68,6 +70,11 @@ func main() {
 	r := gin.New()
 	r.Use(otelgin.Middleware("file-service"))
 	r.Use(gin.Recovery())
+
+	redis := redisutil.New(cfg.RedisAddr)
+	r.Use(imiddleware.SecurityHeaders())
+	r.Use(imiddleware.RateLimitByPolicy(redisutil.NewLimiterFromCounter(redis.Raw()), 100, 30, nil))
+
 	// Adapt shared net/http middleware to gin
 	r.Use(toGinLogging(log))
 	r.Use(toGinCORS(cfg.CORSAllowedOrigins))

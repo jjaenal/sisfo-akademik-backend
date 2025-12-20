@@ -33,7 +33,7 @@ func main() {
 	}
 
 	// Tracer
-	tp, err := tracer.InitTracer("auth-service", "http://jaeger:14268/api/traces")
+	tp, err := tracer.InitTracer("auth-service", cfg.JaegerEndpoint)
 	if err != nil {
 		log.Fatal("failed to init tracer", zap.Error(err))
 	}
@@ -56,6 +56,7 @@ func main() {
 	}
 	r.Use(gin.Logger(), gin.Recovery())
 	r.Use(middleware.CORS(cfg.CORSAllowedOrigins))
+	r.Use(middleware.SecurityHeaders())
 	limiter := redisutil.NewLimiterFromCounter(redis.Raw())
 	// Rate limit policy: READ=100/min, WRITE=30/min, AUTH prefix override=5/min
 	r.Use(middleware.RateLimitByPolicy(limiter, 100, 30, map[string]int{"/api/v1/auth/": 5}))

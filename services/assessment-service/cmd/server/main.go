@@ -11,11 +11,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/handler"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/infrastructure/storage"
+	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/middleware"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/repository/postgres"
 	"github.com/jjaenal/sisfo-akademik-backend/services/assessment-service/internal/usecase"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
+	redisutil "github.com/jjaenal/sisfo-akademik-backend/shared/pkg/redis"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/tracer"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerFiles "github.com/swaggo/files"
@@ -55,7 +57,7 @@ func main() {
 	log.Info("config loaded")
 
 	// Tracer
-	tp, err := tracer.InitTracer("assessment-service", "http://jaeger:14268/api/traces")
+	tp, err := tracer.InitTracer("assessment-service", cfg.JaegerEndpoint)
 	if err != nil {
 		log.Fatal("failed to init tracer", zap.Error(err))
 	}
@@ -107,6 +109,10 @@ func main() {
 	// Init Gin
 	r := gin.Default()
 	r.Use(otelgin.Middleware("assessment-service"))
+	redis := redisutil.New(cfg.RedisAddr)
+	limiter := redisutil.NewLimiterFromCounter(redis.Raw())
+	r.Use(middleware.SecurityHeaders())
+	r.Use(middleware.RateLimitByPolicy(limiter, 100, 30, map[string]int{}))
 	
 	// Static file serving for local storage
 	r.Static("/files", storagePath)

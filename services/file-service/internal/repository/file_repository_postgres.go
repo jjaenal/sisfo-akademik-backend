@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jjaenal/sisfo-akademik-backend/services/file-service/internal/domain"
 )
@@ -63,7 +63,7 @@ func (r *PostgresFileRepository) GetByID(ctx context.Context, id uuid.UUID) (*do
 		&file.UpdatedAt,
 		&file.DeletedAt,
 	)
-	if err == sql.ErrNoRows {
+	if err == pgx.ErrNoRows {
 		return nil, nil
 	}
 	if err != nil {

@@ -36,7 +36,9 @@ func (s *LocalStorageProvider) Upload(ctx context.Context, file multipart.File, 
 	if err != nil {
 		return "", err
 	}
-	defer dst.Close()
+	defer func() {
+		_ = dst.Close()
+	}()
 
 	if _, err := io.Copy(dst, file); err != nil {
 		return "", err

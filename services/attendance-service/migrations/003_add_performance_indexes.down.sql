@@ -1,0 +1,3 @@
+DROP INDEX IF EXISTS idx_student_attendance_class_date;
+DROP INDEX IF EXISTS idx_student_attendance_student_semester;
+DROP INDEX IF EXISTS idx_teacher_attendance_teacher_semester_date;

@@ -10,12 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jjaenal/sisfo-akademik-backend/services/admission-service/internal/handler"
+	"github.com/jjaenal/sisfo-akademik-backend/services/admission-service/internal/middleware"
 	"github.com/jjaenal/sisfo-akademik-backend/services/admission-service/internal/repository/postgres"
 	"github.com/jjaenal/sisfo-akademik-backend/services/admission-service/internal/usecase"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/config"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/database"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/logger"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/rabbit"
+	redisutil "github.com/jjaenal/sisfo-akademik-backend/shared/pkg/redis"
 	"github.com/jjaenal/sisfo-akademik-backend/shared/pkg/tracer"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
@@ -35,7 +37,7 @@ func main() {
 	log.Info("config loaded")
 
 	// Tracer
-	tp, err := tracer.InitTracer("admission-service", "http://jaeger:14268/api/traces")
+	tp, err := tracer.InitTracer("admission-service", cfg.JaegerEndpoint)
 	if err != nil {
 		log.Fatal("failed to init tracer", zap.Error(err))
 	}
@@ -78,6 +80,11 @@ func main() {
 	// Init Gin
 	r := gin.Default()
 	r.Use(otelgin.Middleware("admission-service"))
+
+	redis := redisutil.New(cfg.RedisAddr)
+	r.Use(middleware.SecurityHeaders())
+	r.Use(middleware.RateLimitByPolicy(redisutil.NewLimiterFromCounter(redis.Raw()), 100, 30, nil))
+
 
 	r.GET("/api/v1/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

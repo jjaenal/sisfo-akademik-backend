@@ -75,7 +75,9 @@ func (h *FileHandler) upload(c *gin.Context) {
 		httputil.Error(c.Writer, http.StatusBadRequest, "4002", "Bad Request", "file is required")
 		return
 	}
-	defer file.Close()
+	defer func() {
+		_ = file.Close()
+	}()
 
 	bucket := c.DefaultPostForm("bucket", "uploads")
 
