@@ -34,7 +34,9 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
 
 - [ ] 📝 Performance testing (16h)
 - [ ] 📝 Setup Kubernetes cluster (12h)
-- [ ] 📝 Create Helm charts (16h)
+- [x] ✅ 📝 Create Helm charts (16h)
+  - Chart: `deploy/helm/microservice/`
+  - Values per service: `deploy/helm/values/*.yaml`
 - [ ] 📝 Configure auto-scaling (8h)
 - [ ] 📝 Setup Prometheus (6h)
 - [ ] 📝 Create Grafana dashboards (8h)
