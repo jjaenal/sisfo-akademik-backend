@@ -38,9 +38,12 @@ Checklist pekerjaan backend yang detail, terorganisir, dan actionable. Setiap ta
   - Chart: `deploy/helm/microservice/`
   - Values per service: `deploy/helm/values/*.yaml`
 - [ ] 📝 Configure auto-scaling (8h)
+- [x] ✅ Configure HPA for file-service & attendance-service
 - [ ] 📝 Setup Prometheus (6h)
 - [ ] 📝 Create Grafana dashboards (8h)
 - [ ] 📝 Configure alerting (6h)
+- [x] ✅ Add Prometheus alert rules (CPU, Memory, InstanceDown)
+- [x] ✅ Add error rate & P95 latency alerts
 - [ ] 📝 Setup automated backups (8h)
 - [ ] 📝 Test disaster recovery (8h)
 - [ ] 📝 Write system architecture doc (8h)

@@ -1,0 +1,43 @@
+groups:
+  - name: microservices.alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: avg by (pod) (rate(container_cpu_usage_seconds_total{container!="",pod!=""}[5m])) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High CPU usage
+          description: Pod {{ $labels.pod }} CPU > 80% for 5m
+      - alert: HighMemoryUsage
+        expr: (container_memory_working_set_bytes{container!="",pod!=""} / container_spec_memory_limit_bytes{container!="",pod!=""}) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High memory usage
+          description: Pod {{ $labels.pod }} memory > 80% for 5m
+      - alert: InstanceDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Instance down
+          description: Job {{ $labels.job }} on instance {{ $labels.instance }} is down
+      - alert: HighErrorRate
+        expr: (sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))) * 100 > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High error rate
+          description: Error rate > 5% for 5m
+      - alert: HighLatencyP95
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job)) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: High latency p95
+          description: P95 latency > 500ms for 5m
